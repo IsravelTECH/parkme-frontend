@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ParkMe | Smart Parking Made Simple</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1e3a8a',
+            secondary: '#3b82f6',
+            accent: '#60a5fa',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'car-move': 'carMove 8s linear infinite',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-20px)' },
+            },
+            carMove: {
+              '0%': { transform: 'translateX(-20%)' },
+              '100%': { transform: 'translateX(120%)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-animations">
+    @keyframes bubble-float {
+      0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+      50% { transform: translate(20px, -50vh) scale(1.1); opacity: 0.4; }
+      100% { transform: translate(-20px, -110vh) scale(1); opacity: 0; }
+    }
+    @keyframes car-drift {
+      0% { transform: translateX(-10vw) skewX(-15deg); opacity: 0; }
+      10% { opacity: 0.15; }
+      90% { opacity: 0.15; }
+      100% { transform: translateX(110vw) skewX(-15deg); opacity: 0; }
+    }
+    .bubble {
+      position: absolute;
+      background: radial-gradient(circle, rgba(30, 58, 138, 0.4) 0%, rgba(30, 58, 138, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -1;
+      filter: blur(8px);
+    }
+    .moving-car {
+      position: absolute;
+      filter: blur(2px);
+      z-index: -2;
+      pointer-events: none;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      width: 0; height: 2px; bottom: -4px; left: 0;
+      background-color: #1e3a8a; transition: width 0.3s ease;
+    }
+    .nav-link:hover::after { width: 100%; }
+  </style>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/></head>
+<body class="bg-slate-50 text-slate-900 overflow-x-hidden font-sans">
+<!-- BEGIN: Animated Background Elements -->
+<div class="absolute inset-0 -z-50 overflow-hidden pointer-events-none min-h-full" id="bg-canvas"><div class="absolute inset-0" id="bubble-container"></div><div class="absolute inset-0" id="car-container"></div></div>
+<!-- END: Animated Background Elements -->
+<!-- BEGIN: Navbar -->
+<nav class="fixed top-0 left-0 right-0 z-50 px-6 py-4">
+<div class="max-w-7xl mx-auto glass rounded-2xl px-6 py-3 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-2">
+<svg class="w-8 h-8 text-primary" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-4.66l.12-.34h13.77l.11.34V17z"></path><circle cx="7.5" cy="14.5" r="1.5"></circle><circle cx="16.5" cy="14.5" r="1.5"></circle>
+</svg>
+<span class="text-2xl font-extrabold text-primary tracking-tight">ParkMe</span>
+</div>
+<!-- Desktop Menu -->
+<div class="hidden md:flex items-center gap-8 font-medium">
+<a class="nav-link text-slate-700 hover:text-primary transition-colors" href="#">Home</a>
+<a class="nav-link text-slate-700 hover:text-primary transition-colors" href="#about">Nearby</a>
+<a class="nav-link text-slate-700 hover:text-primary transition-colors" href="#services">My Space</a>
+<a class="nav-link text-slate-700 hover:text-primary transition-colors" href="#">My Bookings</a>
+</div>
+<div class="hidden md:flex items-center gap-4">
+<a class="px-4 py-2 text-primary font-semibold hover:bg-slate-100 rounded-xl transition-all" href="#">Login</a>
+<a class="px-6 py-2 bg-primary text-white font-semibold rounded-xl hover:bg-blue-800 transition-all shadow-lg shadow-blue-200" href="#">Sign Up</a>
+</div>
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden text-primary p-2">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 6h16M4 12h16m-7 6h7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</nav>
+<!-- END: Navbar -->
+<main class="pt-24">
+<!-- BEGIN: Hero Section -->
+<section class="relative min-h-[80vh] flex items-center justify-center px-6 overflow-hidden">
+<div class="text-center z-10 max-w-4xl mx-auto">
+<h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 leading-tight">
+          Smart Parking <br/>
+<span class="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">Made Simple.</span>
+</h1>
+<p class="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto">
+          The ultimate platform to find, book, and manage your parking spots with ease. Save time and money with ParkMe.
+        </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+<button class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-primary to-blue-700 text-white font-bold rounded-2xl shadow-xl hover:scale-105 transition-transform">
+            Find My Space
+          </button>
+<button class="w-full sm:w-auto px-10 py-4 glass text-primary font-bold rounded-2xl border-2 border-primary/20 hover:bg-white/50 transition-all">
+            Rent My Space
+          </button>
+</div>
+</div>
+</section>
+<!-- END: Hero Section -->
+<!-- BEGIN: About ParkMe -->
+<section class="py-20 px-6" id="about">
+<div class="max-w-6xl mx-auto">
+<div class="glass p-8 md:p-16 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-50"></div>
+<div class="relative z-10 grid gap-12 items-center max-w-2xl mx-auto text-center flex flex-col items-center">
+<div class="">
+<h2 class="text-3xl md:text-4xl font-bold text-primary mb-6">About ParkMe</h2>
+<p class="text-lg text-slate-600 mb-6 leading-relaxed">
+                ParkMe is a revolutionary urban mobility solution designed to solve the age-old problem of parking. We connect space owners with drivers looking for reliable parking spots.
+              </p>
+<ul class="space-y-4 flex flex-col items-center">
+<li class="flex items-start gap-3">
+<div class="mt-1 bg-primary/10 p-1 rounded-full"><svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg></div>
+<span class="text-slate-700">Verified and secure parking locations nationwide.</span>
+</li>
+<li class="flex items-start gap-3">
+<div class="mt-1 bg-primary/10 p-1 rounded-full"><svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg></div>
+<span class="text-slate-700">Instant bookings with real-time availability.</span>
+</li>
+<li class="flex items-start gap-3">
+<div class="mt-1 bg-primary/10 p-1 rounded-full"><svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg></div>
+<span class="text-slate-700">Passive income for property owners.</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: About ParkMe -->
+<!-- BEGIN: Services Section -->
+<section class="py-20 px-6 bg-slate-50/50" id="services">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16">
+<h2 class="text-4xl font-extrabold text-slate-900 mb-4">Services We Provide</h2>
+<p class="text-slate-600">Tailored parking solutions for every need.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- EV Charging -->
+<div class="glass p-8 rounded-3xl hover:translate-y-[-10px] transition-all group duration-300">
+<div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors">
+<svg class="w-8 h-8 text-primary group-hover:text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<h3 class="text-xl font-bold mb-3 text-slate-800">EV Charging</h3>
+<p class="text-slate-500">Fast-charging spots available for your electric vehicles while you park.</p>
+</div>
+<!-- CCTV Security -->
+<div class="glass p-8 rounded-3xl hover:translate-y-[-10px] transition-all group duration-300">
+<div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors">
+<svg class="w-8 h-8 text-primary group-hover:text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<h3 class="text-xl font-bold mb-3 text-slate-800">24/7 CCTV</h3>
+<p class="text-slate-500">Round-the-clock surveillance to ensure your vehicle is always safe and secure.</p>
+</div>
+<!-- Senior Citizen -->
+<div class="glass p-8 rounded-3xl hover:translate-y-[-10px] transition-all group duration-300">
+<div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors">
+<svg class="w-8 h-8 text-primary group-hover:text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<h3 class="text-xl font-bold mb-3 text-slate-800">Senior Citizen</h3>
+<p class="text-slate-500">Priority spots located closest to entrances for easier access for seniors.</p>
+</div>
+<!-- Pregnancy Friendly -->
+<div class="glass p-8 rounded-3xl hover:translate-y-[-10px] transition-all group duration-300">
+<div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors">
+<svg class="w-8 h-8 text-primary group-hover:text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<h3 class="text-xl font-bold mb-3 text-slate-800">Pregnancy Friendly</h3>
+<p class="text-slate-500">Spacious spots designed for expecting mothers with convenient access points.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Services Section -->
+<!-- BEGIN: How It Works -->
+<section class="py-24 px-6" id="how-it-works">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-20">
+<h2 class="text-4xl font-extrabold text-slate-900 mb-4">How It Works</h2>
+<p class="text-slate-600">Efficient solutions for everyone in the ecosystem.</p>
+</div>
+<div class="grid lg:grid-cols-2 gap-16">
+<!-- For Customers -->
+<div class="space-y-10">
+<h3 class="text-2xl font-bold text-primary flex items-center gap-3">
+<span class="material-symbols-outlined">directions_car</span> For Customers
+</h3>
+<div class="space-y-8">
+<div class="flex gap-6 group">
+<div class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg">1</div>
+<div><h4 class="font-bold text-lg mb-1">Find Space</h4><p class="text-slate-500">Browse verified spots near your destination using our real-time map.</p></div>
+</div>
+<div class="flex gap-6 group">
+<div class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg">2</div>
+<div><h4 class="font-bold text-lg mb-1">Secure Booking</h4><p class="text-slate-500">Reserve your spot instantly with secure digital payment options.</p></div>
+</div>
+<div class="flex gap-6 group">
+<div class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg">3</div>
+<div><h4 class="font-bold text-lg mb-1">Navigate &amp; Park</h4><p class="text-slate-500">Get turn-by-turn directions directly to your reserved stall.</p></div>
+</div>
+</div>
+</div>
+<!-- For Owners -->
+<div class="space-y-10">
+<h3 class="text-2xl font-bold text-secondary flex items-center gap-3">
+<span class="material-symbols-outlined">payments</span> For Owners
+</h3>
+<div class="space-y-8">
+<div class="flex gap-6 group">
+<div class="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg">1</div>
+<div><h4 class="font-bold text-lg mb-1">List Property</h4><p class="text-slate-500">Register your driveway or commercial lot in under 5 minutes.</p></div>
+</div>
+<div class="flex gap-6 group">
+<div class="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg">2</div>
+<div><h4 class="font-bold text-lg mb-1">Manage Slots</h4><p class="text-slate-500">Set your own availability schedule and pricing dynamically.</p></div>
+</div>
+<div class="flex gap-6 group">
+<div class="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg">3</div>
+<div><h4 class="font-bold text-lg mb-1">Earn Passive Income</h4><p class="text-slate-500">Receive automated payouts directly to your bank account weekly.</p></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: How It Works -->
+<!-- BEGIN: Why Choose ParkMe -->
+<section class="py-24 px-6">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16">
+<h2 class="text-4xl font-extrabold text-slate-900 mb-4">Premium Features for Modern Cities</h2>
+<p class="text-slate-600">Tackling urban challenges with smart technology.</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="glass p-8 rounded-[2rem] hover:bg-white transition-all duration-500 group border-b-4 border-blue-500">
+<div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-500 transition-colors">
+<span class="material-symbols-outlined text-blue-500 group-hover:text-white text-3xl">traffic</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Traffic Congestion</h3>
+<p class="text-slate-500 text-sm">Smart routing reduces the time spent searching for parking by up to 40%.</p>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:bg-white transition-all duration-500 group border-b-4 border-red-400">
+<div class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-red-400 transition-colors">
+<span class="material-symbols-outlined text-red-400 group-hover:text-white text-3xl">car_crash</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Reduce Accidents</h3>
+<p class="text-slate-500 text-sm">Off-street parking minimizes side-swipe risks and pedestrian hazards.</p>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:bg-white transition-all duration-500 group border-b-4 border-green-500">
+<div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-green-500 transition-colors">
+<span class="material-symbols-outlined text-green-500 group-hover:text-white text-3xl">eco</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Fuel Wastage</h3>
+<p class="text-slate-500 text-sm">Stop circling the block. Go directly to your spot and save on fuel costs.</p>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:bg-white transition-all duration-500 group border-b-4 border-amber-500">
+<div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-amber-500 transition-colors">
+<span class="material-symbols-outlined text-amber-500 group-hover:text-white text-3xl">schedule</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Save Time</h3>
+<p class="text-slate-500 text-sm">Pre-booked spaces mean you arrive on time, every time, without stress.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Why Choose ParkMe -->
+<!-- BEGIN: Customer Reviews -->
+<section class="py-24 px-6 bg-slate-100/30">
+<div class="max-w-6xl mx-auto">
+<div class="text-center mb-16">
+<h2 class="text-4xl font-extrabold text-slate-900 mb-2">Customer Reviews</h2>
+<p class="text-slate-500">See what our community is saying.</p>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-20">
+<div class="glass p-8 rounded-3xl border border-white">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">RS</div>
+<div><h4 class="font-bold">Rahul Sharma</h4><div class="flex text-yellow-400 text-sm">★★★★★</div></div>
+</div>
+<p class="text-slate-600 italic leading-relaxed">"Absolutely seamless experience. I used to spend 20 minutes looking for parking in Bandra. Now it takes 20 seconds."</p>
+</div>
+<div class="glass p-8 rounded-3xl border border-white">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">PV</div>
+<div><h4 class="font-bold">Priya Verma</h4><div class="flex text-yellow-400 text-sm">★★★★★</div></div>
+</div>
+<p class="text-slate-600 italic leading-relaxed">"The app is very intuitive. Booking a space for my office commute has saved me so much stress and money."</p>
+</div>
+</div>
+<div class="max-w-2xl mx-auto glass p-10 rounded-[2.5rem] shadow-xl">
+<h3 class="text-2xl font-bold text-center mb-8">Leave a Review</h3>
+<form class="space-y-5" id="review-form">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+<div><label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Full Name</label><input class="w-full px-4 py-3 rounded-xl border-slate-200 focus:ring-primary focus:border-primary" placeholder="Enter your name" type="text"/></div>
+<div><label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Rating</label><div class="flex gap-1" id="star-rating">
+<button class="text-2xl text-slate-300 hover:text-yellow-400 transition-colors" data-star="1" type="button">★</button>
+<button class="text-2xl text-slate-300 hover:text-yellow-400 transition-colors" data-star="2" type="button">★</button>
+<button class="text-2xl text-slate-300 hover:text-yellow-400 transition-colors" data-star="3" type="button">★</button>
+<button class="text-2xl text-slate-300 hover:text-yellow-400 transition-colors" data-star="4" type="button">★</button>
+<button class="text-2xl text-slate-300 hover:text-yellow-400 transition-colors" data-star="5" type="button">★</button>
+</div></div>
+</div>
+<div><label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Your Message</label><textarea class="w-full px-4 py-3 rounded-xl border-slate-200 focus:ring-primary focus:border-primary" placeholder="Describe your experience..." rows="4"></textarea></div>
+<button class="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-blue-800 transition-all shadow-lg" type="submit">Post Review</button>
+</form>
+</div>
+</div>
+</section>
+<!-- END: Customer Reviews -->
+</main>
+<!-- BEGIN: Footer -->
+<footer class="bg-primary text-white pt-20 pb-10 px-6 mt-20">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center gap-2 mb-6">
+<svg class="w-8 h-8" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-4.66l.12-.34h13.77l.11.34V17z"></path><circle cx="7.5" cy="14.5" r="1.5"></circle><circle cx="16.5" cy="14.5" r="1.5"></circle>
+</svg>
+<span class="text-2xl font-bold tracking-tight">ParkMe</span>
+</div>
+<p class="text-blue-200 leading-relaxed">
+          The world's leading smart parking platform. We make finding parking as easy as a single tap.
+        </p>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-6">Quick Links</h4>
+<ul class="space-y-4 text-blue-200">
+<li><a class="hover:text-white transition-colors" href="#">Find Parking</a></li>
+<li><a class="hover:text-white transition-colors" href="#">List Your Space</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Business Solutions</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Help Center</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-6">Company</h4>
+<ul class="space-y-4 text-blue-200">
+<li><a class="hover:text-white transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Careers</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Press</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Contact</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-6">Follow Us</h4>
+<div class="flex gap-4">
+<a class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all" href="#">
+<span class="sr-only">Twitter</span>
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"></path></svg>
+</a>
+<a class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all" href="#">
+<span class="sr-only">Facebook</span>
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg>
+</a>
+<a class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all" href="#">
+<span class="sr-only">Instagram</span>
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"></path></svg>
+</a>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto pt-10 border-t border-white/10 text-center text-blue-300 text-sm">
+<p>© 2026 ParkMe Technologies Inc. All rights reserved.</p>
+</div>
+</footer>
+<!-- END: Footer -->
+<script data-purpose="background-animations">function createBackgroundElements() {
+      const bubbleContainer = document.getElementById('bubble-container');
+      const carContainer = document.getElementById('car-container');
+      
+      // 50 slow gradient bubbles
+      for(let i = 0; i < 50; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        const size = Math.random() * 100 + 30;
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${Math.random() * 100}%`;
+        bubble.style.bottom = `-150px`;
+        const duration = (Math.random() * 20 + 20) * 5; // Slow/Premium: 20% speed
+        const delay = Math.random() * 20;
+        bubble.style.animation = `bubble-float ${duration}s linear infinite ${delay}s`;
+        bubbleContainer.appendChild(bubble);
+      }
+
+      // Increase count to 25-35 for 'many' cars
+      const carCount = Math.floor(Math.random() * 10) + 25;
+      for(let i = 0; i < carCount; i++) {
+        const car = document.createElement('div');
+        car.className = 'moving-car text-primary/10';
+        car.style.width = '80px';
+        // Distribute throughout the entire page height
+        car.style.top = `${Math.random() * 100}%`;
+        // Varied speeds: 10s to 30s
+        const duration = Math.random() * 20 + 10;
+        // Varied delays for continuous flow
+        const delay = Math.random() * -30;
+        car.style.animation = `car-drift ${duration}s linear infinite ${delay}s`;
+        car.innerHTML = `<svg fill="none" stroke="currentColor" stroke-width="1" viewbox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9C2.1 11.6 2 12.2 2 12.8V16c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>`;
+        carContainer.appendChild(car);
+      }
+    }
+
+    function setupStarRating() {
+      const stars = document.querySelectorAll('#star-rating button');
+      stars.forEach(star => {
+        star.addEventListener('click', () => {
+          const rating = parseInt(star.getAttribute('data-star'));
+          stars.forEach((s, index) => {
+            s.classList.toggle('text-yellow-400', index < rating);
+            s.classList.toggle('text-slate-300', index >= rating);
+          });
+        });
+      });
+    }
+
+    window.onload = () => {
+      createBackgroundElements();
+      setupStarRating();
+    };</script>
+</body></html>

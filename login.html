@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ParkMe - Professional Login</title>
+<!-- Tailwind CSS CDN with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- BEGIN: Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              light: '#f0f4f8',
+              primary: '#1e3a8a', // Dark blue
+              secondary: '#1e40af',
+              accent: '#3b82f6',
+            }
+          },
+          animation: {
+            'float': 'float 3s ease-in-out infinite',
+            'move-car': 'moveCar 6s linear infinite',
+            'blob': 'blob 5s infinite',
+            'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-15px)' },
+            },
+            moveCar: {
+              '0%': { transform: 'translateX(-20%)', opacity: '0' },
+              '10%': { opacity: '0.15' },
+              '90%': { opacity: '0.15' },
+              '100%': { transform: 'translateX(120%)', opacity: '0' },
+            },
+            blob: {
+              '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
+              '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+              '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+            },
+            pulseGlow: {
+              '0%, 100%': { opacity: 1 },
+              '50%': { opacity: 0.7 },
+            }
+          }
+        }
+      }
+    }
+  </script>
+<!-- END: Tailwind Configuration -->
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="background-animations">.bg-animated-gradient {
+    background: linear-gradient(-45deg, #fff, #f0f7ff, #e0f2fe, #dbeafe);
+    background-size: 400% 400%;
+    animation: gradientBG 8s ease infinite
+    }
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+        } 50% {
+        background-position: 100% 50%;
+        } 100% {
+        background-position: 0% 50%;
+        }
+    }
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+.glass-card:hover {
+    box-shadow: 0 0 30px rgba(30, 58, 138, 0.15);
+    border-color: rgba(30, 58, 138, 0.3);
+    }
+#particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    }
+.parking-overlay {
+    position: fixed;
+    inset: 0;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAl_THoPRsRN0SXVjjDZfWuNxXU95muvGq_lOiiXpjZVIrcVGq6cScI1tiA-Yu8xq0u7i5k-MtpZACJsfbYbGtPW0zrEav10_fibaQ9bTqIqwSLtAY5iLC2sNRM3pRS6fx1wGx6swu58HlvIlnLrGaOabJ8tvOKCVt1FjrRIX1sCy0FTgkQL6KpDTsoo6QVXfvZAzd3Fhbxk_bDDeOsGFWNP5li4N7eyR_2PeNkFv8R8Yrf8-7fc4e4Vq4n8vKszIiGuv7WcWPd2CQ);
+    background-size: cover;
+    background-position: center;
+    opacity: 0.05;
+    filter: grayscale(100%) blur(4px);
+    z-index: 0;
+    }
+@keyframes moveSwift {
+    0% { transform: translateX(-200px); opacity: 0; }
+    10% { opacity: 0.15; }
+    90% { opacity: 0.15; }
+    100% { transform: translateX(calc(100vw + 200px)); opacity: 0; }
+}
+.car-red { color: #ef4444; }
+.car-blue { color: #3b82f6; }
+.car-yellow { color: #eab308; }
+.car-orange { color: #f97316; }
+</style>
+<style data-purpose="form-elements">
+    .input-focus-glow:focus-within {
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+    
+    .btn-gradient {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.4);
+    }
+
+    .btn-gradient:active {
+      transform: scale(0.98);
+    }
+/* Hide browser default password reveal icon */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+}
+  </style>
+<!-- END: Custom Styles -->
+</head>
+<body class="bg-animated-gradient min-h-screen flex items-center justify-center font-sans">
+<!-- BEGIN: Background Layer -->
+<div class="fixed inset-0 z-0">
+<!-- Parking lot blurred image -->
+<div class="absolute inset-0 parking-overlay"></div>
+<!-- Particles placeholder area -->
+<div id="particles-js"></div>
+<!-- Animated Blobs -->
+<div class="fixed top-1/4 -left-20 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+<div class="fixed top-1/3 -right-20 w-80 h-80 bg-brand-primary rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" style="animation-delay: 2s;"></div>
+<div class="fixed -bottom-20 left-1/2 w-96 h-96 bg-brand-accent rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" style="animation-delay: 4s;"></div>
+<!-- Animated Car SVG -->
+<div class="fixed bottom-1/4 left-0 w-full pointer-events-none z-10 animate-move-car">
+<svg class="text-brand-primary" fill="none" height="150" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" viewbox="0 0 24 24" width="400">
+<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
+<circle cx="7" cy="17" r="2"></circle>
+<path d="M9 17h6"></path>
+<circle cx="17" cy="17" r="2"></circle>
+</svg>
+</div>
+<!-- Swift Colorful Cars Background --> 
+<div class="fixed inset-0 pointer-events-none overflow-hidden">
+<div class="absolute car-red" style="top: 15%; animation: moveSwift 4s linear infinite; opacity: 0.1;">
+<svg fill="none" height="60" stroke="currentColor" stroke-width="1" viewbox="0 0 24 24" width="120"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+</div>
+<div class="absolute car-blue" style="top: 45%; animation: moveSwift 6s linear infinite; animation-delay: 1s; opacity: 0.1;">
+<svg fill="none" height="75" stroke="currentColor" stroke-width="1" viewbox="0 0 24 24" width="150"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+</div>
+<div class="absolute car-yellow" style="top: 75%; animation: moveSwift 3.5s linear infinite; animation-delay: 2s; opacity: 0.1;">
+<svg fill="none" height="50" stroke="currentColor" stroke-width="1" viewbox="0 0 24 24" width="100"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+</div>
+<div class="absolute car-orange" style="top: 30%; animation: moveSwift 5s linear infinite; animation-delay: 0.5s; opacity: 0.1;">
+<svg fill="none" height="65" stroke="currentColor" stroke-width="1" viewbox="0 0 24 24" width="130"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+</div>
+<div class="absolute car-blue" style="top: 60%; animation: moveSwift 4.5s linear infinite; animation-delay: 3s; opacity: 0.1;">
+<svg fill="none" height="55" stroke="currentColor" stroke-width="1" viewbox="0 0 24 24" width="110"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+</div>
+</div></div>
+<!-- END: Background Layer -->
+<!-- BEGIN: Login Container -->
+<main class="relative z-20 w-full max-w-md mx-auto px-4 sm:px-6 py-12 animate-float">
+<div class="glass-card p-8 sm:p-10 rounded-[2.5rem] shadow-2xl border border-white/40">
+<!-- Logo Section -->
+<div class="text-center mb-10">
+<h1 class="text-4xl font-bold tracking-tight text-brand-primary mb-2 flex items-center justify-center gap-2 font-black">
+<svg class="text-brand-primary" fill="currentColor" height="32" viewbox="0 0 24 24" width="32" xmlns="http://www.w3.org/2000/svg">
+<path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.15-3.35c.09-.25.32-.4c.57-.4h10.55c.26 0 .48.16.57.4L19 11H5z"></path>
+</svg>
+          ParkMe
+        </h1>
+<p class="text-slate-500 font-medium">Manage your spots with ease</p>
+</div>
+<!-- Login Form -->
+<form class="space-y-6" id="loginForm">
+<!-- Email Input Group -->
+<div data-purpose="input-group">
+<label class="block text-sm font-semibold text-brand-primary mb-2 ml-1" for="email">Email or Username</label>
+<div class="relative input-focus-glow rounded-xl transition-all">
+<input class="w-full px-4 py-3.5 bg-white/50 border border-slate-200 rounded-xl focus:ring-0 focus:border-brand-primary transition-colors placeholder:text-slate-400" id="email" name="email" placeholder="name@company.com" required="" type="text"/>
+</div>
+</div>
+<!-- Password Input Group -->
+<div data-purpose="input-group">
+<label class="block text-sm font-semibold text-brand-primary mb-2 ml-1" for="password">Password</label>
+
+<div class="relative input-focus-glow rounded-xl transition-all">
+
+<input
+class="w-full px-4 py-3.5 bg-white/50 border border-slate-200 rounded-xl focus:ring-0 focus:border-brand-primary transition-colors placeholder:text-slate-400 pr-12"
+id="password"
+name="password"
+placeholder="••••••••"
+required
+type="password"
+/>
+
+<button
+type="button"
+onclick="togglePassword()"
+class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-primary transition-colors">
+
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+d="M2.458 12C3.732 7.943 7.523 5 12 5
+c4.478 0 8.268 2.943 9.542 7
+-1.274 4.057-5.064 7-9.542 7
+-4.477 0-8.268-2.943-9.542-7z"/>
+</svg>
+
+</button>
+
+</div>
+
+<div class="text-right mt-2">
+<a class="text-xs font-semibold text-brand-accent hover:underline" href="#">
+Forgot password?
+</a>
+</div>
+
+</div>
+<!-- Login Button -->
+<button class="btn-gradient w-full py-4 rounded-xl text-white font-bold text-lg tracking-wide flex items-center justify-center gap-2" type="submit">
+          Login
+        </button>
+</form>
+<!-- Sign Up Link -->
+<div class="mt-10 text-center">
+<p class="text-sm text-slate-600">
+          Don't have an account? 
+          <a class="text-brand-primary font-bold hover:underline" href="signup.html">
+Sign Up
+</a>
+</p>
+</div>
+</div>
+<!-- Footer Credits -->
+<footer class="text-center text-slate-400 text-xs mt-10">
+      © 2026 ParkMe Technologies Inc. All rights reserved.
+    </footer>
+</main>
+<!-- END: Login Container -->
+<!-- BEGIN: Logic & Interactivity -->
+<script>
+function togglePassword() {
+
+const passwordInput = document.getElementById("password");
+
+if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+} else {
+    passwordInput.type = "password";
+}
+
+}
+  </script>
+<script data-purpose="particle-effect">
+    /**
+     * Minimal Particle System for Background
+     */
+    const canvasContainer = document.getElementById('particles-js');
+    const canvas = document.createElement('canvas');
+    canvasContainer.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    let particlesArray = [];
+    const numberOfParticles = 40;
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = Math.random() * 1 - 0.5;
+        this.speedY = Math.random() * 1 - 0.5;
+        this.opacity = Math.random() * 0.5;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x > canvas.width || this.x < 0 || this.y > canvas.height || this.y < 0) {
+          this.reset();
+        }
+      }
+      draw() {
+        ctx.fillStyle = `rgba(30, 58, 138, ${this.opacity})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function init() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particlesArray = [];
+      for (let i = 0; i < numberOfParticles; i++) {
+        particlesArray.push(new Particle());
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < particlesArray.length; i++) {
+        particlesArray[i].update();
+        particlesArray[i].draw();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', () => {
+      init();
+    });
+
+    init();
+    animate();
+
+// Login Form Submission
+
+// Login Form Submission
+const API_URL = "https://parkme-backend.onrender.com";
+
+document.getElementById("loginForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    console.log("Sending login request...");
+
+    try {
+
+        const response = await fetch(`${API_URL}/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+        console.log("Response status:", response.status);
+
+        const data = await response.json();
+
+        console.log("Response data:", data);
+
+        if(response.ok){
+
+            localStorage.setItem("token", data.access_token);
+
+            alert("Login successful");
+
+            window.location.href = "index.html";
+
+        } else {
+
+            if(data.detail === "User not found"){
+
+    alert("User not found. Please Sign Up.");
+
+    window.location.href = "signup.html";
+
+}else{
+
+    alert(data.detail || "Login failed");
+
+}
+
+        }
+
+    } catch(error){
+
+        console.error("Fetch error:", error);
+        alert("Cannot connect to server");
+
+    }
+});
+
+  </script>
+<!-- END: Logic & Interactivity -->
+</body></html>

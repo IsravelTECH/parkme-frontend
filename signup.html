@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign Up | ParkMe</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style data-purpose="custom-animations">
+    @keyframes car-move {
+      0% { transform: translateX(-150%); opacity: 0; }
+      10% { opacity: 0.1; }
+      90% { opacity: 0.1; }
+      100% { transform: translateX(150vw); opacity: 0; }
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 0.8; }
+    }
+
+    .animate-car {
+      animation: car-move 15s linear infinite;
+    }
+
+    .animate-float {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(30, 58, 138, 0.3);
+      box-shadow: 0 8px 32px 0 rgba(30, 58, 138, 0.15);
+    }
+
+    /* Custom scrollbar for a premium feel */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  
+    @keyframes car-fast {
+      0% { transform: translateX(-100vw); opacity: 0; }
+      5% { opacity: 0.15; }
+      95% { opacity: 0.15; }
+      100% { transform: translateX(100vw); opacity: 0; }
+    }
+    .animate-car-fast { animation: car-fast 4s linear infinite; }
+    .animate-car-med { animation: car-fast 7s linear infinite; }
+    .animate-car-v-fast { animation: car-fast 3s linear infinite; }
+  
+    @keyframes blob {
+      0% { transform: translate(0px, 0px) scale(1); }
+      33% { transform: translate(30px, -50px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+      100% { transform: translate(0px, 0px) scale(1); }
+    }
+    .animate-blob {
+      animation: blob 7s infinite;
+    }
+  </style>
+<style data-purpose="background-elements">.bg-gradient-glow {
+      background: radial-gradient(circle at center, rgba(191, 219, 254, 0.4) 0%, rgba(255, 255, 255, 1) 70%);
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background-color: #1e3a8a;
+      border-radius: 50%;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+  
+    @keyframes particle-drift {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(10px, 15px); }
+      50% { transform: translate(-5px, 25px); }
+      75% { transform: translate(-15px, 10px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    .particle {
+      position: absolute;
+      background-color: #1e40af;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -5;
+      animation: particle-drift 20s ease-in-out infinite;
+    }</style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col items-center justify-center font-sans overflow-x-hidden">
+<!-- BEGIN: Background Layer -->
+<div class="fixed inset-0 -z-10 bg-gradient-glow overflow-hidden" data-purpose="page-background"><!-- Animated Car Outline -->
+<div class="absolute top-1/2 left-0 w-full flex items-center pointer-events-none opacity-30 animate-car">
+<svg class="text-blue-900" fill="none" height="150" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" viewbox="0 0 24 24" width="400">
+<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h2m12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"></path>
+</svg>
+</div>
+<!-- Particle Container -->
+<div class="absolute inset-0" id="particle-container"></div>
+<!-- Animated Blobs -->
+<div class="fixed top-1/4 -left-20 w-72 h-72 bg-blue-700 rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-blob"></div>
+<div class="fixed top-1/3 -right-20 w-80 h-80 bg-blue-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" style="animation-delay: 2s;"></div>
+<div class="fixed -bottom-20 left-1/3 w-96 h-96 bg-blue-800 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-blob" style="animation-delay: 4s;"></div><div class="fixed top-1/2 -left-32 w-64 h-64 bg-blue-700 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-blob" style="animation-delay: 1s;"></div><div class="fixed bottom-1/4 -right-32 w-72 h-72 bg-blue-800 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-blob" style="animation-delay: 3s;"></div><div class="fixed top-10 right-1/4 w-48 h-48 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" style="animation-delay: 5s;"></div><div class="fixed bottom-10 left-10 w-56 h-56 bg-blue-900 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" style="animation-delay: 0.5s;"></div>
+<!-- Infinite Car Stream -->
+<div class="absolute top-[15%] left-0 w-full flex items-center pointer-events-none opacity-20 animate-car-fast" style="animation-delay: 0.5s;">
+<svg class="text-blue-600" fill="none" height="80" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" viewbox="0 0 24 24" width="200">
+<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h2m12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"></path>
+</svg>
+</div>
+<div class="absolute top-[40%] left-0 w-full flex items-center pointer-events-none opacity-0 animate-car-v-fast" style="animation-delay: 2.5s;">
+<svg class="text-purple-400" fill="none" height="100" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" viewbox="0 0 24 24" width="250">
+<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h2m12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"></path>
+</svg>
+</div>
+<div class="absolute top-[75%] left-0 w-full flex items-center pointer-events-none opacity-20 animate-car-med" style="animation-delay: 1.2s;">
+<svg class="text-indigo-600" fill="none" height="120" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" viewbox="0 0 24 24" width="300">
+<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h2m12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"></path>
+</svg>
+</div>
+<div class="absolute top-[25%] left-0 w-full flex items-center pointer-events-none opacity-0 animate-car-v-fast" style="animation-delay: 4.5s;">
+<svg class="text-emerald-400" fill="none" height="90" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" viewbox="0 0 24 24" width="220">
+<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h2m12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"></path>
+</svg>
+</div></div>
+<!-- END: Background Layer -->
+<!-- BEGIN: Main Content Container -->
+<main class="w-full max-w-md p-6 my-12" data-purpose="signup-container">
+<!-- BEGIN: Glassmorphism Card -->
+<section class="glass-card rounded-3xl p-8 md:p-10 animate-float transition-all duration-500" data-purpose="signup-card">
+<!-- Header Section -->
+<div class="text-center mb-8">
+<div class="flex items-center justify-center gap-2 mb-2">
+<svg class="w-8 h-8 text-blue-800" fill="currentColor" viewbox="0 0 24 24">
+<path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"></path>
+</svg>
+<h1 class="text-3xl font-extrabold text-blue-900 tracking-tight">ParkMe</h1>
+</div>
+<p class="text-slate-500 font-medium">Create your account to start booking smarter</p>
+</div>
+<!-- Sign Up Form -->
+<form action="#" class="space-y-5" data-purpose="signup-form" method="POST">
+<!-- Full Name -->
+<div class="space-y-1">
+<label class="text-sm font-semibold text-blue-900 ml-1" for="full-name">User Name</label>
+<input class="w-full px-4 py-3 rounded-xl border-slate-200 bg-white/50 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 transition-all outline-none" id="name" placeholder="John Doe" required="" type="text"/>
+</div>
+<!-- Email Address -->
+<div class="space-y-1">
+<label class="text-sm font-semibold text-blue-900 ml-1" for="email">Email Address</label>
+<input class="w-full px-4 py-3 rounded-xl border-slate-200 bg-white/50 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 transition-all outline-none" id="email" name="email" placeholder="name@company.com" required="" type="email"/>
+</div>
+<!-- Phone Number -->
+<div class="space-y-1">
+<label class="text-sm font-semibold text-blue-900 ml-1" for="phone">Phone Number</label>
+<input class="w-full px-4 py-3 rounded-xl border-slate-200 bg-white/50 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 transition-all outline-none" id="phone" name="phone" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+<!-- Password Fields -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Create Password -->
+<!-- Create Password -->
+<div class="space-y-1">
+<label class="text-sm font-semibold text-blue-900 ml-1" for="password">Password</label>
+
+<div class="relative">
+<input class="w-full px-4 py-3 rounded-xl border-slate-200 bg-white/50 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 transition-all outline-none"
+id="password"
+name="password"
+placeholder="••••••••"
+required
+type="password"/>
+
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-800"
+onclick="togglePassword('password')"
+type="button">
+
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+
+</button>
+</div>
+
+<!-- Password Strength -->
+<div class="mt-2 space-y-1">
+<div class="h-1 w-full bg-slate-200 rounded-full overflow-hidden">
+<div class="h-full w-0 bg-red-500 transition-all duration-300" id="strength-bar"></div>
+</div>
+<p class="text-[10px] font-bold uppercase tracking-wider text-slate-400" id="strength-text">
+Password strength: <span class="text-slate-500">None</span>
+</p>
+</div>
+
+</div>
+<!-- Confirm Password -->
+<div class="space-y-1 relative">
+<label class="text-sm font-semibold text-blue-900 ml-1" for="confirm-password">Confirm</label>
+<div class="relative">
+<input class="w-full px-4 py-3 rounded-xl border-slate-200 bg-white/50 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 transition-all outline-none" id="confirm-password" name="confirm-password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-800" onclick="togglePassword('confirm-password')" type="button">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="w-full bg-gradient-to-r from-blue-800 to-blue-900 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-blue-200/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mt-4" type="submit">
+          Sign Up
+        </button>
+</form>
+<!-- Footer Links -->
+<div class="mt-8 text-center text-sm">
+<p class="text-slate-600">
+          Already have an account? 
+          <a class="text-blue-800 font-bold hover:underline" href="login.html">Login</a>
+</p>
+</div>
+</section>
+<!-- END: Glassmorphism Card -->
+<!-- Footer Copyright -->
+<p class="text-center text-slate-400 text-xs mt-8">
+      © 2026 ParkMe Technologies Inc. All rights reserved.
+    </p>
+</main>
+<!-- END: Main Content Container -->
+<!-- BEGIN: Logic Scripts -->
+<script data-purpose="particle-generator">document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('particle-container');
+      const particleCount = 50;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const size = Math.random() * 4 + 2;
+        const delay = Math.random() * -20;
+        const duration = 15 + Math.random() * 15;
+        
+        particle.style.left = `${x}%`;
+        particle.style.top = `${y}%`;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.opacity = Math.random() * 0.2 + 0.1;
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.animationDelay = `${delay}s`;
+        
+        container.appendChild(particle);
+      }
+    });</script>
+<script data-purpose="ui-interactions">
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      if (input.type === "password") {
+        input.type = "text";
+      } else {
+        input.type = "password";
+      }
+    }
+
+  </script>
+<!-- END: Logic Scripts -->
+<script>
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm-password');
+    const strengthBar = document.getElementById('strength-bar');
+    const strengthText = document.getElementById('strength-text').querySelector('span');
+
+    passwordInput.addEventListener('input', () => {
+      const val = passwordInput.value;
+      let strength = 0;
+
+      if (val.length >= 6) strength++;
+      if (val.length >= 10) strength++;
+      if (/[0-9]/.test(val)) strength++;
+      if (/[!@#$%^&*(),.?":{}|<>]/.test(val)) strength++;
+
+      updateStrengthMeter(strength, val.length === 0);
+    });
+
+    function updateStrengthMeter(strength, isEmpty) {
+      if (isEmpty) {
+        strengthBar.style.width = '0%';
+        strengthText.innerText = 'None';
+        strengthText.className = 'text-slate-500';
+        return;
+      }
+
+      const states = [
+        { label: 'Weak', width: '25%', color: 'bg-red-500', textColor: 'text-red-600' },
+        { label: 'Fair', width: '50%', color: 'bg-orange-500', textColor: 'text-orange-600' },
+        { label: 'Good', width: '75%', color: 'bg-emerald-400', textColor: 'text-emerald-600' },
+        { label: 'Strong', width: '100%', color: 'bg-blue-800', textColor: 'text-blue-900' }
+      ];
+
+      const state = states[Math.min(strength, states.length - 1)];
+      
+      strengthBar.style.width = state.width;
+      strengthBar.className = `h-full transition-all duration-300 ${state.color}`;
+      strengthText.innerText = state.label;
+      strengthText.className = state.textColor;
+    }
+
+  </script>
+  
+<script>
+const form = document.querySelector("form");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const phone = document.getElementById("phone").value;
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirm-password").value;
+
+  if (password !== confirmPassword) {
+    alert("Passwords do not match");
+    return;
+  }
+
+  try {
+    const response = await fetch("https://parkme-backend.onrender.com/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        phone: phone,
+        password: password
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert("Account created successfully!");
+
+      // redirect to home page
+      window.location.href = "index.html";
+    } else {
+      alert(data.detail || "Signup failed");
+    }
+
+  } catch (error) {
+    alert("Server error");
+  }
+});
+</script>
+
+</body></html>
