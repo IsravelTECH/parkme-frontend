@@ -107,13 +107,25 @@
 </div>
 
 <!-- Profile -->
-<div id="profileSection" class="hidden items-center gap-2">
+<div id="profileSection" class="hidden relative items-center gap-2">
 
+  <!-- Profile Icon -->
   <div id="profileIcon"
-       class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">
+       class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold cursor-pointer">
   </div>
 
-  <span id="profileName"></span>
+  <!-- Dropdown -->
+  <div id="profileDropdown"
+       class="hidden absolute right-0 top-12 w-44 bg-white rounded-xl shadow-lg border p-2">
+
+      <p id="dropdownName" class="px-3 py-2 text-sm font-semibold text-slate-700"></p>
+
+      <button id="logoutBtn"
+              class="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg">
+        Logout
+      </button>
+
+  </div>
 
 </div>
 
@@ -479,7 +491,6 @@
     
 
     // Check login status
-// Check login status
 document.addEventListener("DOMContentLoaded", () => {
 
   const username = localStorage.getItem("username");
@@ -488,7 +499,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const authButtons = document.getElementById("authButtons");
   const profileSection = document.getElementById("profileSection");
   const profileIcon = document.getElementById("profileIcon");
-  const profileName = document.getElementById("profileName");
+  const dropdown = document.getElementById("profileDropdown");
+  const dropdownName = document.getElementById("dropdownName");
+  const logoutBtn = document.getElementById("logoutBtn");
 
   if(token && username){
 
@@ -498,13 +511,28 @@ document.addEventListener("DOMContentLoaded", () => {
       const firstLetter = username.charAt(0).toUpperCase();
 
       profileIcon.textContent = firstLetter;
-
-  } else {
-
-      console.log("User not logged in");
+      dropdownName.textContent = username;
 
   }
 
+  // Toggle dropdown
+  profileIcon.addEventListener("click", () => {
+      dropdown.classList.toggle("hidden");
+  });
+
+  // Logout
+  logoutBtn.addEventListener("click", () => {
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+
+      profileSection.classList.add("hidden");
+      authButtons.style.display = "flex";
+
+      location.reload();
+  });
+
 });
+
 </script>
 </body></html>
