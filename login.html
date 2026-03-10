@@ -344,65 +344,38 @@ if (passwordInput.type === "password") {
 // Login Form Submission
 
 // Login Form Submission
-const API_URL = "https://parkme-backend.onrender.com";
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
 
-document.getElementById("loginForm").addEventListener("submit", async function(e){
-    e.preventDefault();
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+  const response = await fetch("http://127.0.0.1:8000/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: email,
+      password: password
+    })
+  });
 
-    console.log("Sending login request...");
+  const data = await response.json();
 
-    try {
+  console.log(data); // check response
 
-        const response = await fetch(`${API_URL}/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        });
+  if(data.token){
 
-        console.log("Response status:", response.status);
+    // ✅ SAVE TOKEN
+    localStorage.setItem("token", data.token);
 
-        const data = await response.json();
+    // ✅ SAVE USERNAME
+    localStorage.setItem("username", data.name);
 
-        console.log("Response data:", data);
-
-        if(response.ok){
-
-            localStorage.setItem("token", data.access_token);
-
-            alert("Login successful");
-
-            window.location.href = "index.html";
-
-        } else {
-
-            if(data.detail === "User not found"){
-
-    alert("User not found. Please Sign Up.");
-
-    window.location.href = "signup.html";
-
-}else{
-
-    alert(data.detail || "Login failed");
-
-}
-
-        }
-
-    } catch(error){
-
-        console.error("Fetch error:", error);
-        alert("Cannot connect to server");
-
-    }
+    // go to homepage
+    window.location.href = "index.html";
+  }
 });
 
   </script>

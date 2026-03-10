@@ -100,10 +100,23 @@
 <a class="nav-link text-slate-700 hover:text-primary transition-colors" href="#services">My Space</a>
 <a class="nav-link text-slate-700 hover:text-primary transition-colors" href="#">My Bookings</a>
 </div>
-<div class="hidden md:flex items-center gap-4">
+
+<div class="hidden md:flex items-center gap-4" id="authButtons">
 <a class="px-4 py-2 text-primary font-semibold hover:bg-slate-100 rounded-xl transition-all" href="login.html">Login</a>
 <a class="px-6 py-2 bg-primary text-white font-semibold rounded-xl hover:bg-blue-800 transition-all shadow-lg shadow-blue-200" href="signup.html">Sign Up</a>
 </div>
+
+<!-- Profile -->
+<div id="profileSection" class="hidden items-center gap-2">
+
+  <div id="profileIcon"
+       class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">
+  </div>
+
+  <span id="profileName"></span>
+
+</div>
+
 <!-- Mobile Menu Toggle -->
 <button class="md:hidden text-primary p-2">
 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -462,5 +475,36 @@
     window.onload = () => {
       createBackgroundElements();
       setupStarRating();
-    };</script>
+    };
+    
+
+    // Check login status
+// Check login status
+document.addEventListener("DOMContentLoaded", () => {
+
+  const username = localStorage.getItem("username");
+  const token = localStorage.getItem("token");
+
+  const authButtons = document.getElementById("authButtons");
+  const profileSection = document.getElementById("profileSection");
+  const profileIcon = document.getElementById("profileIcon");
+  const profileName = document.getElementById("profileName");
+
+  if(token && username){
+
+      authButtons.style.display = "none";
+      profileSection.classList.remove("hidden");
+
+      const firstLetter = username.charAt(0).toUpperCase();
+
+      profileIcon.textContent = firstLetter;
+
+  } else {
+
+      console.log("User not logged in");
+
+  }
+
+});
+</script>
 </body></html>
