@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Profile - ParkMe</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3a8a",
+                        "background-light": "#f8faff",
+                        "background-dark": "#0f172a",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        @keyframes moveCar {
+            from { transform: translateX(-150px); }
+            to { transform: translateX(calc(100vw + 150px)); }
+        }
+        @keyframes float {
+            0% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+            50% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+            100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+        }
+        .car-outline {
+            position: absolute;
+            opacity: 0.05;
+            animation: moveCar 8s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(30, 58, 138, 0.1);
+            filter: blur(8px);
+            animation: float 6s ease-in-out infinite;
+            z-index: 0;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .glass-dark {
+            background: rgba(30, 58, 138, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(30, 58, 138, 0.1);
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #1e3a8a;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+<style>
+    .blue-gradient { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .blue-gradient:hover { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
+    .stats-card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(37, 99, 235, 0.1);
+        outline: 1px solid #2563EB;
+    }
+    .modal-enter { opacity: 0; transform: scale(0.95); }
+    .modal-enter-active { opacity: 1; transform: scale(1); transition: all 200ms ease-out; }
+    .modal-exit { opacity: 1; transform: scale(1); }
+    .modal-exit-active { opacity: 0; transform: scale(0.95); transition: all 200ms ease-in; }
+</style></head>
+<body class="font-display bg-background-light dark:bg-background-dark min-h-screen relative overflow-x-hidden selection:bg-primary/30">
+<!-- Background Elements -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+<!-- Bubbles -->
+<div class="bubble w-32 h-32 top-10 left-10" style="animation-delay: 0s;"></div>
+<div class="bubble w-48 h-48 top-1/2 left-1/4" style="animation-delay: 1s;"></div>
+<div class="bubble w-24 h-24 bottom-20 right-10" style="animation-delay: 2s;"></div>
+<div class="bubble w-40 h-40 top-1/4 right-1/3" style="animation-delay: 1.5s;"></div>
+<!-- Animated Cars -->
+<div class="car-outline top-[20%]" style="animation-duration: 12s; animation-delay: 0s;">
+<svg fill="none" height="40" viewbox="0 0 120 40" width="120" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 30H110L100 15H20L10 30ZM25 35C27.7614 35 30 32.7614 30 30C30 27.2386 27.7614 25 25 25C22.2386 25 20 27.2386 20 30C20 32.7614 22.2386 35 25 35ZM95 35C97.7614 35 100 32.7614 100 30C100 27.2386 97.7614 25 95 25C92.2386 25 90 27.2386 90 30C90 32.7614 92.2386 35 95 35Z" stroke="#1e3a8a" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="car-outline top-[50%]" style="animation-duration: 9s; animation-delay: 3s;">
+<svg fill="none" height="40" viewbox="0 0 120 40" width="120" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 30H110L100 15H20L10 30ZM25 35C27.7614 35 30 32.7614 30 30C30 27.2386 27.7614 25 25 25C22.2386 25 20 27.2386 20 30C20 32.7614 22.2386 35 25 35ZM95 35C97.7614 35 100 32.7614 100 30C100 27.2386 97.7614 25 95 25C92.2386 25 90 27.2386 90 30C90 32.7614 92.2386 35 95 35Z" stroke="#1e3a8a" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="car-outline top-[80%]" style="animation-duration: 15s; animation-delay: 6s;">
+<svg fill="none" height="40" viewbox="0 0 120 40" width="120" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 30H110L100 15H20L10 30ZM25 35C27.7614 35 30 32.7614 30 30C30 27.2386 27.7614 25 25 25C22.2386 25 20 27.2386 20 30C20 32.7614 22.2386 35 25 35ZM95 35C97.7614 35 100 32.7614 100 30C100 27.2386 97.7614 25 95 25C92.2386 25 90 27.2386 90 30C90 32.7614 92.2386 35 95 35Z" stroke="#1e3a8a" stroke-width="1.5"></path>
+</svg>
+</div>
+</div>
+<!-- Navigation -->
+<header class="sticky top-0 z-50 glass border-b border-primary/10 px-6 py-4">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-primary rounded-lg text-white">
+<span class="material-symbols-outlined !text-2xl">local_parking</span>
+</div>
+<h1 class="text-2xl font-extrabold text-primary tracking-tight">ParkMe</h1>
+</div>
+<nav class="hidden lg:flex items-center gap-8 flex-1 justify-center">
+<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="index.html">Home</a>
+<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="nearby-parking.html">Nearby Parking</a>
+<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="my-bookings.html">My Bookings</a>
+<a class="nav-link relative text-primary font-bold text-sm bg-primary/5 px-3 py-1 rounded-full duration-300" href="profile.html">My Profile</a>
+</nav>
+<!-- <div class="relative group ml-4">
+<button class="w-10 h-10 rounded-full border-2 border-primary/20 overflow-hidden hover:border-primary transition-all duration-300">
+<img alt="Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCmd7ik90v_tIw0hbpg7qe1XQaSTY8pB1l8kGzOQ-K1oTyagKQG_JvlXZvXaqOYD11X2QD-h1LkA1k1HEPb08Pb65WBZ1dtDa2roo-gL4xuhNKS7XnJNFpteG2e6aGcndpxxcTPy3PYf_Tia-UvJdQZbJhPg2_jKRao09ApcU9UOP3WZpoa9yzfg8runah92BroiqvKSOxSoTQsJh1KpSwpd_FMWW2aDI_b05wjck3jkbFUxbKoLHFKkt3Utsmxau3D8bdWxxQSyM"/>
+</button>
+<div class="absolute right-0 mt-2 w-48 glass rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:scale-100 scale-95 z-50 overflow-hidden">
+<div class="py-2">
+<a class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined !text-lg">person</span> My Profile
+                </a>
+<a class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined !text-lg">book_online</span> My Bookings
+                </a>
+<a class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined !text-lg">dashboard</span> My Space
+                </a>
+<hr class="my-1 border-slate-100"/>
+<a class="flex items-center gap-3 px-4 py-2 text-sm text-rose-500 hover:bg-rose-50 transition-colors" href="#">
+<span class="material-symbols-outlined !text-lg">logout</span> Logout
+                </a>
+</div>
+</div>
+</div>
+<button class="lg:hidden p-2 text-slate-700 ml-4">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div> -->
+</header>
+<!-- Main Content -->
+<main class="relative z-10 max-w-5xl mx-auto px-6 py-12">
+<div class="flex flex-col gap-8">
+<!-- Profile Card -->
+<div class="glass rounded-3xl p-8 shadow-2xl shadow-primary/5">
+<div class="flex flex-col md:flex-row gap-10 items-center md:items-start">
+<!-- Avatar Section -->
+<div class="flex flex-col items-center gap-4">
+<div class="relative group">
+<div class="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all"></div>
+<div id="avatar-letter" class="w-40 h-40 rounded-full flex items-center justify-center text-5xl font-bold text-white bg-primary">
+</div>
+<button class="absolute bottom-2 right-2 p-2 bg-primary text-white rounded-full shadow-lg hover:scale-110 transition-transform">
+<span class="material-symbols-outlined !text-sm">photo_camera</span>
+</button>
+</div>
+<div class="text-center">
+<h2 id="profile-name" class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight"></h2>
+
+<p class="text-primary font-semibold">
+  <span id="profile-username" class="text-slate-500 text-sm font-medium"></span>
+</p>
+<span class="mt-2 inline-block px-4 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full uppercase tracking-wider">ParkMe Member</span>
+</div>
+</div>
+<!-- User Information -->
+<div class="flex-1 w-full relative">
+<button class="absolute top-0 right-0 w-[36px] h-[36px] flex items-center justify-center rounded-full bg-[#EFF6FF] text-[#2563EB] hover:bg-[#DBEAFE] transition-colors shadow-sm" id="edit-profile-trigger">
+<span class="material-symbols-outlined !text-[18px]">edit</span>
+</button>
+<div id="profile-display-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+<div class="glass-dark p-4 rounded-2xl">
+<div class="flex items-center gap-3 mb-1">
+<span class="material-symbols-outlined text-primary !text-lg">person</span>
+<span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Full Name</span>
+</div>
+<p id="display-name" class="text-slate-800 dark:text-slate-200 font-semibold pl-8"></p>
+</div>
+
+<div class="glass-dark p-4 rounded-2xl">
+<div class="flex items-center gap-3 mb-1">
+<span class="material-symbols-outlined text-primary !text-lg">alternate_email</span>
+<span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Username</span>
+</div>
+<p id="display-username" class="text-slate-800 dark:text-slate-200 font-semibold pl-8"></p>
+</div>
+
+<div class="glass-dark p-4 rounded-2xl">
+<div class="flex items-center gap-3 mb-1">
+<span class="material-symbols-outlined text-primary !text-lg">mail</span>
+<span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Email Address</span>
+</div>
+<p id="display-email" class="text-slate-800 dark:text-slate-200 font-semibold pl-8 text-sm"></p>
+</div>
+
+<div class="glass-dark p-4 rounded-2xl">
+<div class="flex items-center gap-3 mb-1">
+<span class="material-symbols-outlined text-primary !text-lg">phone</span>
+<span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Phone Number</span>
+</div>
+<p id="display-phone" class="text-slate-800 dark:text-slate-200 font-semibold pl-8"></p>
+</div>
+
+</div>
+<!-- Quick Actions -->
+<div class="mt-8 flex flex-wrap gap-4">
+<a class="flex-1 min-w-[180px] blue-gradient text-white py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:-translate-y-1" href="/my-bookings">
+<span class="material-symbols-outlined !text-lg">list_alt</span>
+    My Bookings
+</a>
+<a class="flex-1 min-w-[180px] bg-white border-2 border-primary text-primary py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:bg-primary/5 hover:shadow-[0_0_15px_rgba(30,58,138,0.15)] hover:-translate-y-1" href="/my-space">
+<span class="material-symbols-outlined !text-lg">dashboard</span>
+            My Space
+        </a>
+</div>
+</div>
+</div>
+</div>
+<!-- Activity Dashboard -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-white p-6 rounded-[16px] border border-[#E5E7EB] shadow-sm transition-all duration-250 ease-in-out stats-card-hover group cursor-default">
+<div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 transition-all duration-300 group-hover:bg-primary group-hover:text-white group-hover:scale-110">
+<span class="material-symbols-outlined">book_online</span>
+</div>
+<p class="text-slate-500 font-medium text-sm">Total Bookings</p>
+<h3 id="total-bookings" class="text-3xl font-black text-slate-900"></h3>
+</div>
+<div class="bg-white p-6 rounded-[16px] border border-[#E5E7EB] shadow-sm transition-all duration-250 ease-in-out stats-card-hover group cursor-default">
+<div class="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center mb-4 transition-all duration-300 text-green-600 group-hover:bg-green-500 group-hover:text-white group-hover:scale-110">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<p class="text-slate-500 font-medium text-sm">Active Bookings</p>
+<h3 id="active-bookings" class="text-3xl font-black text-slate-900"></h3>
+</div>
+<div class="bg-white p-6 rounded-[16px] border border-[#E5E7EB] shadow-sm transition-all duration-250 ease-in-out stats-card-hover group cursor-default">
+<div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-4 transition-all duration-300 text-purple-600 group-hover:bg-purple-500 group-hover:text-white group-hover:scale-110">
+<span class="material-symbols-outlined">sensor_door</span>
+</div>
+<p class="text-slate-500 font-medium text-sm">Slots Rented</p>
+<h3 id="slots-rented" class="text-3xl font-black text-slate-900"></h3>
+</div>
+<div class="bg-white p-6 rounded-[16px] border border-[#E5E7EB] shadow-sm transition-all duration-250 ease-in-out stats-card-hover group cursor-default">
+<div class="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-4 transition-all duration-300 text-amber-600 group-hover:bg-amber-500 group-hover:text-white group-hover:scale-110">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<p class="text-slate-500 font-medium text-sm">Total Earnings</p>
+<h3 id="total-earnings" class="text-3xl font-black text-slate-900"></h3>
+</div>
+</div>
+<!-- Danger Zone -->
+<div class="flex justify-center pt-8">
+<button onclick="logout()" 
+class="group flex items-center gap-2 px-10 py-3 rounded-xl border-2 border-rose-500 text-rose-500 font-bold">
+<span class="material-symbols-outlined transition-transform duration-300 group-hover:-translate-x-1">logout</span>
+        Logout
+    </button>
+</div>
+</div>
+</main>
+<!-- Footer Decoration -->
+<footer class="mt-20 py-10 glass border-t border-primary/10">
+<div class="max-w-7xl mx-auto px-6 text-center"><p class="text-slate-400 text-sm font-medium">© 2026 ParkMe India. All rights reserved.</p></div>
+</footer>
+<!-- Edit Profile Modal -->
+<div class="fixed inset-0 z-[100] hidden items-center justify-center p-4" id="edit-modal">
+<div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeModal()"></div>
+<div class="glass relative w-full max-w-md rounded-2xl shadow-2xl p-8 transform transition-all duration-200 opacity-0 scale-95" id="modal-content">
+<h3 class="text-xl font-bold text-slate-900 mb-6">Edit Profile</h3>
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Full Name</label>
+<input class="w-full rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-white/50" id="input-name" type="text" value="Harshini N"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Username</label>
+<input class="w-full rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-white/50" id="input-username" type="text" value="harshini_parker"/>
+</div>
+</div>
+<div class="mt-8 flex gap-3">
+<button class="flex-1 blue-gradient text-white py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98]" onclick="saveProfile()">Save Changes</button>
+<button class="flex-1 bg-slate-100 text-slate-600 py-2.5 rounded-xl font-bold hover:bg-slate-200 transition-all" onclick="closeModal()">Cancel</button>
+</div>
+</div>
+</div>
+<script>
+
+function logout(){
+
+localStorage.removeItem("token");
+localStorage.removeItem("username");
+localStorage.clear();
+
+window.location.href = "index.html";
+
+}
+
+async function loadProfile(){
+
+const token = localStorage.getItem("token");
+
+if(!token){
+alert("Please login first");
+window.location.href="login.html";
+return;
+}
+
+try{
+
+const res = await fetch("http://127.0.0.1:8000/profile",{
+headers:{
+"Authorization":"Bearer "+token
+}
+});
+
+console.log("STATUS:",res.status);
+
+const user = await res.json();
+
+console.log("USER DATA:",user);
+
+if(!user.name){
+console.error("Profile API error:", user);
+return;
+}
+
+document.getElementById("avatar-letter").innerText = user.name.charAt(0).toUpperCase();
+
+document.getElementById("profile-name").innerText = user.name;
+
+document.getElementById("profile-username").innerText = "@"+user.name.toLowerCase();
+
+document.getElementById("display-name").innerText = user.name;
+
+document.getElementById("display-username").innerText = "@"+user.name.toLowerCase();
+
+document.getElementById("display-email").innerText = user.email;
+
+document.getElementById("display-phone").innerText = user.phone || "Not added";
+
+document.getElementById("total-bookings").innerText = user.total_bookings;
+
+document.getElementById("slots-rented").innerText = user.total_slots;
+
+document.getElementById("active-bookings").innerText = user.total_bookings;
+
+document.getElementById("total-earnings").innerText = "₹0";
+
+}catch(error){
+
+console.error(error)
+
+}
+
+}
+
+document.addEventListener("DOMContentLoaded", loadProfile);
+
+</script>
+</body></html>

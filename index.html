@@ -491,46 +491,33 @@
     
 
     // Check login status
+    // Check login status
 document.addEventListener("DOMContentLoaded", () => {
 
-  const username = localStorage.getItem("username");
-  const token = localStorage.getItem("token");
+const token = localStorage.getItem("token");
+const username = localStorage.getItem("username");
 
-  const authButtons = document.getElementById("authButtons");
-  const profileSection = document.getElementById("profileSection");
-  const profileIcon = document.getElementById("profileIcon");
-  const dropdown = document.getElementById("profileDropdown");
-  const dropdownName = document.getElementById("dropdownName");
-  const logoutBtn = document.getElementById("logoutBtn");
+const authButtons = document.getElementById("authButtons");
+const profileSection = document.getElementById("profileSection");
+const profileIcon = document.getElementById("profileIcon");
 
-  if(token && username){
+if(token && username){
 
-      authButtons.style.display = "none";
-      profileSection.classList.remove("hidden");
+authButtons.style.display = "none";
+profileSection.style.display = "block";
 
-      const firstLetter = username.charAt(0).toUpperCase();
+profileIcon.textContent = username.charAt(0).toUpperCase();
 
-      profileIcon.textContent = firstLetter;
-      dropdownName.textContent = username;
+}else{
 
-  }
+authButtons.style.display = "block";
+profileSection.style.display = "none";
 
-  // Toggle dropdown
-  profileIcon.addEventListener("click", () => {
-      dropdown.classList.toggle("hidden");
-  });
+}
 
-  // Logout
-  logoutBtn.addEventListener("click", () => {
-
-      localStorage.removeItem("token");
-      localStorage.removeItem("username");
-
-      profileSection.classList.add("hidden");
-      authButtons.style.display = "flex";
-
-      location.reload();
-  });
+profileIcon.addEventListener("click", () => {
+    window.location.href = "profile.html";
+});
 
 });
 
