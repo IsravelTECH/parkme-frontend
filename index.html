@@ -489,35 +489,50 @@
       setupStarRating();
     };
     
+    function updateNavbarAfterLogin(username){
 
-    // Check login status
-    // Check login status
-document.addEventListener("DOMContentLoaded", () => {
+  const authButtons = document.getElementById("authButtons");
+  const profileSection = document.getElementById("profileSection");
+  const profileIcon = document.getElementById("profileIcon");
 
-const token = localStorage.getItem("token");
-const username = localStorage.getItem("username");
+  if(authButtons) authButtons.style.display = "none";
+  if(profileSection) profileSection.style.display = "block";
 
-const authButtons = document.getElementById("authButtons");
-const profileSection = document.getElementById("profileSection");
-const profileIcon = document.getElementById("profileIcon");
+  // Get first letter
+  const initial = username.charAt(0).toUpperCase();
 
-if(token && username){
-
-authButtons.style.display = "none";
-profileSection.style.display = "block";
-
-profileIcon.textContent = username.charAt(0).toUpperCase();
-
-}else{
-
-authButtons.style.display = "block";
-profileSection.style.display = "none";
+  if(profileIcon){
+    profileIcon.innerText = initial;
+  }
 
 }
 
-profileIcon.addEventListener("click", () => {
-    window.location.href = "profile.html";
-});
+    // Check login status
+document.addEventListener("DOMContentLoaded", () => {
+
+  const token = localStorage.getItem("token");
+  const username = localStorage.getItem("username");
+
+  const authButtons = document.getElementById("authButtons");
+  const profileSection = document.getElementById("profileSection");
+  const profileIcon = document.getElementById("profileIcon");
+
+  if(token && username){
+
+    updateNavbarAfterLogin(username);
+
+  } else {
+
+    if(authButtons) authButtons.style.display = "block";
+    if(profileSection) profileSection.style.display = "none";
+
+  }
+
+  if(profileIcon){
+    profileIcon.addEventListener("click", () => {
+      window.location.href = "profile.html";
+    });
+  }
 
 });
 
