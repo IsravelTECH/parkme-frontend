@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ParkMe MySpace Dashboard</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols for Car Outlines -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+             "primary": "#1e3a8a",
+             "background-light": "#f8faff",
+             "background-dark": "#0f172a",
+            parkBlue: {
+              light: '#1E5BDB',
+              DEFAULT: '#0F3D91',
+              dark: '#0A1F44',
+            }
+          },
+          fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+          }
+  </script>
+
+<style data-purpose="custom-animations">
+    @keyframes float {
+      0% { transform: translateY(0px) translateX(0px); opacity: 0.1; }
+      50% { transform: translateY(-20px) translateX(10px); opacity: 0.2; }
+      100% { transform: translateY(0px) translateX(0px); opacity: 0.1; }
+    }
+    @keyframes drive {
+      0% { transform: translateX(-100px); opacity: 0; }
+      10% { opacity: 0.05; }
+      90% { opacity: 0.05; }
+      100% { transform: translateX(100vw); opacity: 0; }
+    }
+    .bubble {
+      position: fixed;
+      border-radius: 50%;
+      background: #0F3D91;
+      z-index: -1;
+      animation: float 10s ease-in-out infinite;
+      filter: blur(40px);
+    }
+    .car-outline {
+      position: fixed;
+      color: #0F3D91;
+      z-index: -1;
+      font-size: 48px;
+      animation: drive 20s linear infinite;
+      opacity: 0.05;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(15, 61, 145, 0.1);
+    }
+    .hover-lift {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+    .active-nav::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: #0F3D91;
+    }
+    .modal-backdrop {
+      background-color: rgba(10, 31, 68, 0.5);
+      backdrop-filter: blur(4px);
+    }
+  </style>
+
+<style>
+        @keyframes moveCar {
+            from { transform: translateX(-150px); }
+            to { transform: translateX(calc(100vw + 150px)); }
+        }
+        @keyframes float {
+            0% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+            50% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+            100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+        }
+        .car-outline {
+            position: absolute;
+            opacity: 0.05;
+            animation: moveCar 8s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(30, 58, 138, 0.1);
+            filter: blur(8px);
+            animation: float 6s ease-in-out infinite;
+            z-index: 0;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .glass-dark {
+            background: rgba(30, 58, 138, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(30, 58, 138, 0.1);
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #1e3a8a;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    .blue-gradient { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .blue-gradient:hover { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
+    .stats-card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(37, 99, 235, 0.1);
+        outline: 1px solid #2563EB;
+    }
+    .modal-enter { opacity: 0; transform: scale(0.95); }
+    .modal-enter-active { opacity: 1; transform: scale(1); transition: all 200ms ease-out; }
+    .modal-exit { opacity: 1; transform: scale(1); }
+    .modal-exit-active { opacity: 0; transform: scale(0.95); transition: all 200ms ease-in; }
+</style>
+<!-- <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              light: '#3b82f6',
+              DEFAULT: '#1e3a8a',
+              dark: '#172554',
+            }
+          },
+          boxShadow: {
+            'glow': '0 0 15px -3px rgba(30, 58, 138, 0.4)',
+          }
+        }
+      }
+    }
+  </script> -->
+<style data-purpose="custom-styling">
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 4px; }
+    
+    /* Map Container Height */
+    #map { height: 400px; border-radius: 1rem; }
+
+    /* Hover Animations */
+    .parking-card {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    }
+    .parking-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      border-color: #1e3a8a;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-gradient:hover {
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+      filter: brightness(1.1);
+    }
+    
+    /* Dropdown visibility */
+    .group:hover .dropdown-menu {
+      display: block;
+    }
+  </style>
+
+
+
+
+</head>
+<body class="font-sans min-h-screen text-slate-800 bg-white">
+<!-- BEGIN: Background Elements -->
+<div class="bubble w-96 h-96 top-[-10%] left-[-5%]" style="animation-delay: 0s;"></div>
+<div class="bubble w-72 h-72 top-1/2 right-[-5%]" style="animation-delay: 2s;"></div>
+<div class="bubble w-64 h-64 bottom-[-10%] left-1/4" style="animation-delay: 4s;"></div>
+<span class="material-symbols-outlined car-outline top-[15%]" style="animation-delay: 0s;">directions_car</span>
+<span class="material-symbols-outlined car-outline top-[45%]" style="animation-delay: 7s;">directions_car</span>
+<span class="material-symbols-outlined car-outline top-[75%]" style="animation-delay: 14s;">directions_car</span>
+<!-- END: Background Elements -->
+<!-- BEGIN: MainHeader -->
+<header class="sticky top-0 z-50 glass border-b border-primary/10 px-6 py-4">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-primary rounded-lg text-white">
+<span class="material-symbols-outlined !text-2xl">local_parking</span>
+</div>
+<h1 class="text-2xl font-extrabold text-primary tracking-tight">ParkMe</h1>
+</div>
+<nav class="hidden lg:flex items-center gap-8 flex-1 justify-center">
+<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="index.html">Home</a>
+<a class="nav-link relative text-primary font-bold text-sm bg-primary/5 px-3 py-1 rounded-full duration-300" href="nearby.html">Nearby Parking</a>
+<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="my-bookings.html">My Bookings</a>
+<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="profile.html">My Profile</a>
+</nav>
+<!-- Profile -->
+<div id="profileSection" class="hidden relative items-center gap-2">
+
+  <!-- Profile Icon -->
+  <div id="profileIcon"
+       class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold cursor-pointer">
+  </div>
+
+</div>
+
+</header>
+<!-- END: MainHeader -->
+<main class="max-w-7xl mx-auto px-4 py-10 space-y-12">
+<!-- BEGIN: Dashboard Stats -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6" data-purpose="dashboard-stats">
+<!-- Total Slots Card -->
+<div class="glass-card p-8 rounded-2xl shadow-sm flex flex-col items-center justify-center text-center">
+<p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Slots</p>
+<h3 class="text-4xl font-extrabold text-slate-800 mt-2">0</h3>
+</div>
+<!-- Slots Booked Card -->
+<div class="glass-card p-8 rounded-2xl shadow-sm flex flex-col items-center justify-center text-center">
+<p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Slots Booked</p>
+<h3 class="text-4xl font-extrabold text-slate-800 mt-2">0</h3>
+</div>
+<!-- Total Earnings Card -->
+<div class="glass-card p-8 rounded-2xl shadow-sm border-b-4 border-b-parkBlue flex flex-col items-center justify-center text-center">
+<p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Earnings</p>
+<h3 class="text-4xl font-extrabold text-parkBlue mt-2">₹0</h3>
+</div>
+</section>
+<!-- END: Dashboard Stats -->
+<!-- BEGIN: Add New Slot Form -->
+<section class="glass-card p-8 rounded-2xl shadow-sm overflow-hidden relative" data-purpose="add-slot-form-container">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-bold text-slate-800">Add New Parking Space</h2>
+<span class="bg-blue-50 text-parkBlue px-4 py-1 rounded-full text-xs font-bold uppercase border border-blue-100">Host Dashboard</span>
+</div>
+<form class="space-y-6">
+<!-- Row 1: Basic Info -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700">Space Name</label>
+<input class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue" placeholder="e.g. Downtown Central Garage" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700">City</label>
+<input class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue" placeholder="e.g. Mumbai" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700">Landmark</label>
+<input class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue" placeholder="e.g. Near Grand Mall" type="text"/>
+</div>
+</div>
+<!-- Row 2: Full Address -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700">Full Address</label>
+<input class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue" placeholder="House/Flat No, Street Name, Area..." type="text"/>
+</div>
+<!-- Row 3: Upload & Days -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<input type="file" id="imageInput" accept="image/*" class="hidden" />
+
+<div onclick="document.getElementById('imageInput').click()"
+     class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center bg-slate-50 cursor-pointer">
+  <p>Select Image</p>
+</div>
+<div class="space-y-3">
+<label class="block text-sm font-semibold text-slate-700">Available Days</label>
+<div class="grid grid-cols-4 gap-2">
+<label class="inline-flex items-center text-sm"><input class="day-checkbox" type="checkbox"/> Mon</label>
+<label class="inline-flex items-center text-sm"><input class="day-checkbox" type="checkbox"/> Tue</label>
+<label class="inline-flex items-center text-sm"><input class="day-checkbox" type="checkbox"/> Wed</label>
+<label class="inline-flex items-center text-sm"><input class="day-checkbox" type="checkbox"/> Thu</label>
+<label class="inline-flex items-center text-sm"><input class="day-checkbox" type="checkbox"/> Fri</label>
+<label class="inline-flex items-center text-sm"><input class="day-checkbox" type="checkbox"/> Sat</label>
+<label class="inline-flex items-center text-sm"><input class="day-checkbox" type="checkbox"/> Sun</label>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+  <label class="block text-sm font-semibold text-slate-700">
+    Available Slots
+  </label>
+  <input 
+    id="availableSlots"
+    type="number"
+    placeholder="e.g. 5"
+    class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue"
+  />
+</div>
+<!-- Row 4: Features & Price -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-3">
+<label class="block text-sm font-semibold text-slate-700">Parking Features</label>
+<div class="flex flex-wrap gap-4">
+<label class="inline-flex items-center text-sm"><input class="feature-checkbox" type="checkbox"/> CCTV</label>
+<label class="inline-flex items-center text-sm"><input class="feature-checkbox" type="checkbox"/> EV Charging</label>
+<label class="inline-flex items-center text-sm"><input class="feature-checkbox" type="checkbox"/> Covered</label>
+<label class="inline-flex items-center text-sm"><input class="feature-checkbox" type="checkbox"/> Security Guard</label>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700">Price Per Hour (₹)</label>
+<input class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue" placeholder="50" type="number"/>
+</div>
+</div>
+<!-- Row 5: Action Button -->
+<div class="pt-4">
+<button class="w-full py-4 bg-gradient-to-r from-parkBlue to-parkBlue-light rounded-xl text-white font-bold text-lg shadow-lg shadow-parkBlue/20 hover:shadow-parkBlue/40 hover:scale-[1.01] transition-all" type="submit">
+            Add Space
+          </button>
+</div>
+</form>
+</section>
+<!-- END: Add New Slot Form -->
+<!-- BEGIN: Active Slots Section -->
+<section class="space-y-6" data-purpose="active-slots-listing">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-bold text-slate-800">Active Parking Slots</h2>
+<button class="p-2 text-slate-400 hover:text-red-500 transition-colors" id="toggleDeleteMode" title="Manage Deletions">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<!-- Grid of Active Slots -->
+<div id="parkingList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Slot Card 1 -->
+<div class="glass-card rounded-2xl overflow-hidden hover-lift group relative shadow-sm">
+<input class="absolute top-4 left-4 w-5 h-5 rounded text-red-600 focus:ring-red-500 hidden selection-checkbox z-10" data-purpose="slot-selector" type="checkbox"/>
+<div class="h-48 overflow-hidden">
+<img alt="Slot Image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiT86Zf59yhnOX1onX-vrF6vx6nFVvSk-MIljKVCCthqAstgOr33RHBDe4hvnkRggLK1XZbm0sfAXJTabjp5mYPf2iQfmYSFqZ4Jsj_gnQgHw2C5HtVTnIqCr19VocnZQXB2DoKtGNlgH6XUBM57H84j2q1KlwAtS515YG4igb1zNfCG-btztMilCt88XiQG3ATjlVnEnWwBi_D9y32tbGurvn92WBsooYgD9vRmkuf14145Df4JdgIeeOufFETsUAqbeJFICwuhM"/>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-start">
+<h4 class="font-bold text-lg text-slate-800">Skyline Premium Parking</h4>
+<p class="text-parkBlue font-bold">₹60/hr</p>
+</div>
+<p class="text-slate-500 text-sm leading-relaxed">MG Road, Behind Apex Mall, Pune, Maharashtra 411001</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">CCTV</span>
+<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">Covered</span>
+<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">EV Charging</span>
+</div>
+<button class="w-full py-2.5 mt-4 border border-parkBlue text-parkBlue font-semibold rounded-lg hover:bg-parkBlue hover:text-white transition-all" onclick="document.getElementById('editModal').classList.remove('hidden')">
+              Edit Space
+            </button>
+</div>
+</div>
+<!-- Slot Card 2 -->
+<div class="glass-card rounded-2xl overflow-hidden hover-lift group relative shadow-sm">
+<input class="absolute top-4 left-4 w-5 h-5 rounded text-red-600 focus:ring-red-500 hidden selection-checkbox z-10" data-purpose="slot-selector" type="checkbox"/>
+<div class="h-48 overflow-hidden">
+<img alt="Slot Image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdfd6qH5xVsG7rZMaGCiTVXlS8xJTPRbYfYLsTeCL1J0b5zbSiaicXOtpZp-y1B7jmMwRAatccOTBung4NOfFY5bzUiU9VJQr0yHXZgDn6eO-ZxF0cZLy2-4PTZPLD7Z78fTTJkbJVakE3FucQyUeFEGOVhEfvzTWjk-8Tc8ORZ-9uG3V6fp_RuWf2mMmU-rxoqw8uK5qzaxldvFHdzwXiwJdb0BGwafxkIeqNkwjL4rrIVDRIIeBIFB7QfEkYyQ7b-N_YZ5qQSFU"/>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-start">
+<h4 class="font-bold text-lg text-slate-800">Home Driveway Space</h4>
+<p class="text-parkBlue font-bold">₹40/hr</p>
+</div>
+<p class="text-slate-500 text-sm leading-relaxed">B-12, Green Valleys, Sector 15, Vashi, Navi Mumbai</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">Security</span>
+<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">24/7 Access</span>
+</div>
+<button class="w-full py-2.5 mt-4 border border-parkBlue text-parkBlue font-semibold rounded-lg hover:bg-parkBlue hover:text-white transition-all" onclick="document.getElementById('editModal').classList.remove('hidden')">
+              Edit Space
+            </button>
+</div>
+</div>
+
+<!-- Delete Selected Button (hidden by default) -->
+<div class="hidden flex justify-center mt-10" id="deleteActionContainer">
+<button class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-200 transition-transform active:scale-95">
+          Delete Selected Slots
+        </button>
+</div>
+</section>
+<!-- END: Active Slots Section -->
+</main>
+<!-- BEGIN: Footer -->
+<footer class="py-10 text-center text-slate-400 text-sm border-t border-slate-100">
+<p>© 2024 ParkMe. All Rights Reserved.</p>
+</footer>
+<!-- END: Footer -->
+<!-- BEGIN: Edit Modal -->
+<div class="fixed inset-0 z-[100] modal-backdrop hidden flex items-center justify-center p-4" id="editModal">
+<div class="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 shadow-2xl scale-in transform transition-all">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-2xl font-bold text-slate-800">Edit Parking Space</h2>
+<button class="p-2 text-slate-400 hover:text-slate-600" onclick="document.getElementById('editModal').classList.add('hidden')">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<!-- Reuse Form Structure -->
+<div class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700">Space Name</label>
+<input id="editName" class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue" type="text" value="Skyline Premium Parking"/>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700">City</label>
+<input id="editCity" class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue" type="text" value="Pune"/>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700">Landmark</label>
+<input id="editLandmark" class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue" type="text" value="Behind Apex Mall"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700">Full Address</label>
+<input id="editAddress" class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue" type="text" value="MG Road, Behind Apex Mall, Pune, Maharashtra 411001"/>
+</div>
+<div class="space-y-2">
+  <label class="block text-sm font-semibold text-slate-700">Image Upload</label>
+  <div id="editImageInput" class="border-2 border-dashed border-parkBlue/20 rounded-xl p-6 flex flex-col items-center justify-center bg-blue-50/50" onclick="document.getElementById('editImageFile').click()">
+    <img id="editImagePreview" alt="Preview" class="rounded-lg mb-2 shadow-sm max-h-32" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSnvHDQM-LfAR95qgejdUHahBSK5rxFr8AS3n0BxmmGfevKr6JXXsThd_ELOk92tH91eWMt5FBu1wP5jtUQ9852NOhIq2Z0o25LyXP0qVhjJkTYI3ZWVC86tDVAFkOUJG_Y5-_J8ZfmQk_6hHAO1IEPpemHQUqpVILZvIHeYqZ2HYVJgGcrPhcHA1wAa8SQ-LjdMvMUMj6GPdXgg0SkbocnHZbpuxGMqHfnyTfeOLyhawnCdgp06e1xwAtUloC1bvIhF8DsWvaLlw"/>
+    <p class="text-xs text-parkBlue font-semibold">Click to replace image</p>
+  </div>
+  <input type="file" id="editImageFile" class="hidden" accept="image/*" onchange="previewEditImage(this)">
+</div>
+<div class="space-y-3">
+<label class="block text-sm font-semibold text-slate-700">Available Days</label>
+<div class="grid grid-cols-4 gap-2">
+  <label><input type="checkbox" class="edit-day" value="Mon"> Mon</label>
+  <label><input type="checkbox" class="edit-day" value="Tue"> Tue</label>
+  <label><input type="checkbox" class="edit-day" value="Wed"> Wed</label>
+  <label><input type="checkbox" class="edit-day" value="Thu"> Thu</label>
+  <label><input type="checkbox" class="edit-day" value="Fri"> Fri</label>
+  <label><input type="checkbox" class="edit-day" value="Sat"> Sat</label>
+  <label><input type="checkbox" class="edit-day" value="Sun"> Sun</label>
+</div>
+</div>
+<div class="space-y-2">
+  <label class="block text-sm font-semibold text-slate-700">
+    Available Slots
+  </label>
+  <input 
+    id="editSlots"
+    type="number"
+    placeholder="e.g. 5"
+    class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue"
+  />
+</div>
+<!-- Row 4: Features & Price -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-3">
+<label class="block text-sm font-semibold text-slate-700">Parking Features</label>
+<div class="flex flex-wrap gap-4">
+<label class="inline-flex items-center text-sm"><input class="edit-feature" type="checkbox"/> CCTV</label>
+<label class="inline-flex items-center text-sm"><input class="edit-feature" type="checkbox"/> EV Charging</label>
+<label class="inline-flex items-center text-sm"><input class="edit-feature" type="checkbox"/> Covered</label>
+<label class="inline-flex items-center text-sm"><input class="edit-feature" type="checkbox"/> Security Guard</label>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700">Price Per Hour (₹)</label>
+<input id="editPrice" class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue" placeholder="50" type="number"/>
+</div>
+</div>
+</div>
+<div class="pt-4">
+<button id="updateBtn" class="w-full py-4 bg-gradient-to-r from-parkBlue to-parkBlue-light rounded-xl text-white font-bold text-lg shadow-lg shadow-parkBlue/20 hover:shadow-parkBlue/40" onclick="document.getElementById('editModal').classList.add('hidden')">
+            Update Space
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- END: Edit Modal -->
+<!-- BEGIN: Interactive Logic -->
+<script data-purpose="dashboard-interactivity">
+    const toggleDeleteMode = document.getElementById('toggleDeleteMode');
+    const checkboxes = document.querySelectorAll('.selection-checkbox');
+    const deleteActionContainer = document.getElementById('deleteActionContainer');
+    let deleteMode = false;
+
+    toggleDeleteMode.addEventListener('click', () => {
+      deleteMode = !deleteMode;
+      checkboxes.forEach(cb => {
+        cb.classList.toggle('hidden', !deleteMode);
+        cb.checked = false;
+      });
+      updateDeleteButtonVisibility();
+      toggleDeleteMode.classList.toggle('text-red-600', deleteMode);
+    });
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener('change', updateDeleteButtonVisibility);
+    });
+
+    function updateDeleteButtonVisibility() {
+      const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+      deleteActionContainer.classList.toggle('hidden', checkedCount === 0);
+    }
+
+
+    /* ================= PROFILE ================= */
+
+function loadProfileUI() {
+  const token = localStorage.getItem("token");
+  const username = localStorage.getItem("username");
+
+  const profileSection = document.getElementById("profileSection");
+  const profileIcon = document.getElementById("profileIcon");
+
+  if (token) {
+    profileSection.classList.remove("hidden");
+    profileSection.classList.add("flex");
+
+    profileIcon.innerText = username
+      ? username.charAt(0).toUpperCase()
+      : "U"; // fallback
+    profileIcon.onclick = () => {
+        window.location.href = "profile.html";
+    };
+    
+  }
+}
+
+/* ================= INIT ================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadProfileUI();
+  loadMyDashboard();
+});
+
+
+async function loadMyDashboard() {
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/my-dashboard", {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    const data = await res.json();
+
+    console.log("Dashboard:", data);
+
+    // Clear existing UI
+    parkingList.innerHTML = "";
+
+    // Update stats
+    document.querySelectorAll("h3")[0].innerText = data.total_slots;
+    document.querySelectorAll("h3")[1].innerText = data.active_bookings;
+    document.querySelectorAll("h3")[2].innerText = "₹" + data.total_earnings;
+
+    // Add each parking
+    data.parkings.forEach(p => {
+  addParkingCard({
+    id: p.id,
+    name: p.name,
+    city: p.city,
+    address: p.address || "No Address", // fallback
+    price: p.price, // ✅ CORRECT FIELD
+    features: p.features || [],
+    image: "http://127.0.0.1:8000/" + (p.image || ""),
+    landmark: p.landmark || "",
+    slots: p.total_slots || 0
+  });
+});
+
+  } catch (err) {
+    console.error("❌ Failed to load dashboard", err);
+  }
+}
+
+const form = document.querySelector("form");
+const parkingList = document.getElementById("parkingList");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const token = localStorage.getItem("token");
+
+  const name = document.querySelector("input[placeholder*='Garage']").value;
+  const city = document.querySelector("input[placeholder='e.g. Mumbai']").value;
+  const landmark = document.querySelector("input[placeholder*='Mall']").value;
+  const address = document.querySelector("input[placeholder*='House']").value;
+  const price = parseInt(document.querySelector("input[type='number']").value);
+  const availableSlots = parseInt(document.getElementById("availableSlots").value);
+
+  const features = [];
+  document.querySelectorAll(".feature-checkbox").forEach(cb => {
+    if (cb.checked) {
+      features.push(cb.parentElement.innerText.trim());
+    }
+  });
+
+  const days = [];
+  document.querySelectorAll(".day-checkbox").forEach(cb => {
+    if (cb.checked) {
+      days.push(cb.parentElement.innerText.trim());
+    }
+  });
+
+  const imageFile = document.getElementById("imageInput").files[0];
+
+  if (!imageFile) {
+    alert("❌ Please select an image");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("city", city);
+  formData.append("landmark", landmark);
+  formData.append("address", address);
+  formData.append("lat", 13.0418);
+  formData.append("lng", 80.2341);
+  formData.append("price_per_hour", price);
+  formData.append("available_slots", availableSlots);
+  formData.append("total_slots", availableSlots);
+
+  features.forEach(f => formData.append("features", f));
+  days.forEach(d => formData.append("available_days", d));
+
+  formData.append("image", imageFile);
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/add-parking", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    const result = await res.json();
+
+    if (res.ok) {
+      alert("✅ Parking added successfully");
+
+      // 🔥 SHOW IN UI
+      addParkingCard({
+  id: result.parking_space.id, // 🔥 ADD THIS
+  name,
+  city,
+  landmark,
+  address,
+  price,
+  features,
+  image: URL.createObjectURL(imageFile)
+});
+
+      // 🔥 RESET FORM
+      form.reset();
+
+    } else {
+      alert("❌ Error: " + JSON.stringify(result));
+    
+  }} catch (err) {
+    console.error("❌ Failed to add parking", err);
+    alert("❌ Failed to add parking");
+  }   
+});
+
+
+// 🔥 FUNCTION TO ADD CARD
+function addParkingCard(data) {
+
+  const featureHTML = data.features.map(f =>
+    `<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">${f}</span>`
+  ).join("");
+
+  const card = `
+  <div class="glass-card rounded-2xl overflow-hidden hover-lift group relative shadow-sm">
+    <div class="h-48 overflow-hidden">
+      <img src="${data.image}" class="w-full h-full object-cover"/>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="flex justify-between items-start">
+        <h4 class="font-bold text-lg text-slate-800">${data.name}</h4>
+        <p class="text-parkBlue font-bold">
+  ₹${data.price ?? "N/A"}/hr
+</p>
+      </div>
+      <p class="text-slate-500 text-sm">
+  ${data.address ?? "No Address"}, ${data.city ? data.city : ""}
+</p>
+      <div class="flex flex-wrap gap-2">
+        ${featureHTML}
+      </div>
+
+      <button 
+        onclick='openEditModal(
+  ${JSON.stringify(data.id)}, 
+  ${JSON.stringify(data.name)}, 
+  ${JSON.stringify(data.city)}, 
+  ${JSON.stringify(data.address)}, 
+  ${JSON.stringify(data.price)}, 
+  ${JSON.stringify(data.image)},
+  ${JSON.stringify(data.landmark || "")},
+  ${JSON.stringify(data.slots || "")}
+)'
+        class="w-full py-2.5 mt-4 border border-parkBlue text-parkBlue font-semibold rounded-lg">
+        Edit Space
+      </button>
+
+    </div>
+  </div>
+  `;
+
+  parkingList.insertAdjacentHTML("afterbegin", card);
+}
+
+let currentParkingId = null;
+
+function openEditModal(id, name, city, address, price, image, landmark, slots) {
+
+  currentParkingId = id;
+
+  document.getElementById("editName").value = name;
+  document.getElementById("editCity").value = city;
+  document.getElementById("editAddress").value = address;
+  document.getElementById("editPrice").value = price;
+  document.getElementById("editImagePreview").src = image;
+
+  document.getElementById("editLandmark").value = landmark;
+  document.getElementById("editSlots").value = slots;
+
+  document.getElementById("editModal").classList.remove("hidden");
+}
+
+
+document.getElementById("updateBtn").addEventListener("click", async () => {
+
+  const token = localStorage.getItem("token");
+
+  if (!currentParkingId) {
+    alert("No parking selected");
+    return;
+  }
+
+  const formData = new FormData();
+
+  formData.append("name", document.getElementById("editName").value);
+  formData.append("city", document.getElementById("editCity").value);
+  formData.append("landmark", document.getElementById("editLandmark").value);
+  formData.append("address", document.getElementById("editAddress").value);
+  formData.append("slots", document.getElementById("editSlots").value);
+  formData.append("price_per_hour", document.getElementById("editPrice").value);
+
+  // ✅ FIX DAYS
+  document.querySelectorAll(".edit-day:checked").forEach(day => {
+    formData.append("days", day.value);
+  });
+
+  // ✅ FIX FEATURES
+  document.querySelectorAll(".edit-feature:checked").forEach(f => {
+    formData.append("features", f.parentElement.textContent.trim());
+  });
+
+  // ✅ IMAGE
+  const imageFile = document.getElementById("editImageFile");
+  if (imageFile.files.length > 0) {
+    formData.append("image", imageFile.files[0]);
+  }
+
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/update-parking/${currentParkingId}`, {
+  method: "PUT",
+  headers: {
+    "Authorization": `Bearer ${token}`
+  },
+  body: formData
+});
+
+    const result = await res.json();
+
+    if (res.ok) {
+      alert("✅ Updated successfully");
+
+      document.getElementById("editModal").classList.add("hidden");
+
+      loadMyDashboard(); // 🔥 refresh UI
+    } else {
+      alert("❌ " + result.detail);
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("❌ Update failed");
+  }
+});
+
+</script>
+<!-- END: Interactive Logic -->
+</body></html>

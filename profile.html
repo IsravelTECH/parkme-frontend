@@ -227,7 +227,7 @@
 <span class="material-symbols-outlined !text-lg">list_alt</span>
     My Bookings
 </a>
-<a class="flex-1 min-w-[180px] bg-white border-2 border-primary text-primary py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:bg-primary/5 hover:shadow-[0_0_15px_rgba(30,58,138,0.15)] hover:-translate-y-1" href="/my-space">
+<a class="flex-1 min-w-[180px] bg-white border-2 border-primary text-primary py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:bg-primary/5 hover:shadow-[0_0_15px_rgba(30,58,138,0.15)] hover:-translate-y-1" href="myspace.html">
 <span class="material-symbols-outlined !text-lg">dashboard</span>
             My Space
         </a>
@@ -360,9 +360,9 @@ document.getElementById("total-bookings").innerText = user.total_bookings;
 
 document.getElementById("slots-rented").innerText = user.total_slots;
 
-document.getElementById("active-bookings").innerText = user.total_bookings;
+document.getElementById("active-bookings").innerText = user.active_bookings;
 
-document.getElementById("total-earnings").innerText = "₹0";
+document.getElementById("total-earnings").innerText = "₹"+user.total_earnings.toFixed(2);
 
 }catch(error){
 
