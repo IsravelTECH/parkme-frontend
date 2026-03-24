@@ -361,7 +361,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
   const data = await response.json();
 
-  console.log(data); // check response
+  console.log("API Response:", data); // ✅ correct place
 
   if(data.token){
 
