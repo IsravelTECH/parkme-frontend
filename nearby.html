@@ -195,7 +195,10 @@
 <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-[1000]">
 <div class="relative group">
 <i class="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand transition-colors"></i>
-<input class="w-full pl-14 pr-6 py-4 rounded-2xl border-none shadow-2xl focus:ring-2 focus:ring-brand text-lg" placeholder="Search location (Eg: T Nagar, Chennai)" type="text"/>
+<input id="searchInput"
+       class="w-full pl-14 pr-6 py-4 rounded-2xl border-none shadow-2xl focus:ring-2 focus:ring-brand text-lg"
+       placeholder="Search parking (name or address)"
+       type="text"/>
 
 </div>
 </div>
@@ -204,7 +207,7 @@
 </section>
 <!-- END: MapAndSearchSection -->
 <!-- Main Content Grid -->
-<div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-16">
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-8 mt-16">
 <!-- BEGIN: FilterSection -->
 <aside class="lg:col-span-1" data-purpose="sidebar-filters">
 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-28">
@@ -266,7 +269,7 @@
 <!-- END: FilterSection -->
  
 <!-- BEGIN: ParkingListings -->
-<div id="listings-grid"></div>
+<div id="listings-grid" class="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
 
 
 <!-- END: ParkingListings -->
@@ -325,7 +328,7 @@
 <!-- END: Footer -->
 <script>
 /* ================= MAP SETUP ================= */
-
+let allParkings = []; // store all results
 let map;
 let markersLayer = L.layerGroup();
 
@@ -350,61 +353,16 @@ async function loadNearby(lat, lng) {
     const res = await fetch(`http://localhost:8000/nearby?lat=${lat}&lng=${lng}`);
     const data = await res.json();
 
-    const listingsGrid = document.getElementById("listings-grid");
-
-    // Clear UI + markers
-    listingsGrid.innerHTML = "";
-    markersLayer.clearLayers();
-
     if (!data.results || data.results.length === 0) {
-      listingsGrid.innerHTML = `<p class="text-gray-500">No parking found nearby</p>`;
+      document.getElementById("listings-grid").innerHTML =
+        `<p class="text-gray-500">No parking found nearby</p>`;
       return;
     }
 
-    data.results.forEach(place => {
+    allParkings = data.results;
 
-      // Add marker
-      L.marker([place.lat, place.lng])
-        .addTo(markersLayer)
-        .bindPopup(`<b>${place.name}</b><br>₹${place.price_per_hour}/hr`);
-
-      // Add card
-      listingsGrid.innerHTML += `
-  <div class="parking-card bg-white rounded-2xl border border-gray-100 overflow-hidden">
-
-    <img src="http://127.0.0.1:8000/${place.image}"
-         class="w-full h-40 object-cover" />
-
-    <div class="p-4">
-      <h3 class="font-bold text-lg">${place.name}</h3>
-
-      <p class="text-xs text-gray-500 flex items-center gap-1 mt-1">
-        <i class="fas fa-location-dot text-blue-500"></i>
-        ${place.address}
-      </p>
-
-      <!-- ✅ ADD THIS -->
-      <p class="text-sm text-green-600 font-semibold mt-1">
-        Available Slots: ${place.available_slots ?? 0}
-      </p>
-
-      <p class="text-sm text-gray-500 mt-2">
-        ₹${place.price_per_hour}/hr
-      </p>
-
-      <p class="text-xs text-gray-400">
-        ${(place.distance / 1000).toFixed(2)} km away
-      </p>
-
-      <button onclick="openBookingModal('${place.name}', ${place.price_per_hour})"
-        class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-lg">
-        Book Now
-      </button>
-    </div>
-
-  </div>
-`;
-    });
+    // 🔥 USE render function
+    renderParkings(allParkings);
 
   } catch (err) {
     console.error("Error loading nearby:", err);
@@ -476,6 +434,84 @@ function calculateTotal() {
 }
 
 
+function renderParkings(list) {
+  const listingsGrid = document.getElementById("listings-grid");
+
+  listingsGrid.innerHTML = "";
+  markersLayer.clearLayers(); // clear old markers
+
+  list.forEach(place => {
+
+    listingsGrid.innerHTML += `
+      <div class="parking-card bg-white rounded-2xl border border-gray-100 overflow-hidden">
+
+        <img src="http://127.0.0.1:8000/${place.image}"
+             class="w-full h-30 object-cover" />
+
+        <div class="p-4">
+          <h3 class="font-bold text-lg">${place.name}</h3>
+
+          <p class="text-xs text-gray-500 flex items-center gap-1 mt-1">
+            <i class="fas fa-location-dot text-blue-500"></i>
+            ${place.address}
+          </p>
+
+          <!-- FEATURES -->
+          <div class="flex flex-wrap gap-2 mt-2">
+            ${(place.features || []).map(f => {
+              let icon = "fa-check";
+              if (f.includes("CCTV")) icon = "fa-video";
+              if (f.includes("EV")) icon = "fa-bolt";
+              if (f.includes("Family")) icon = "fa-users";
+
+              return `
+                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full flex items-center gap-1">
+                  <i class="fas ${icon}"></i> ${f}
+                </span>
+              `;
+            }).join("")}
+          </div>
+
+          <!-- AVAILABLE DAYS -->
+          <p class="text-xs text-gray-500 mt-2">
+            <i class="fas fa-calendar-alt text-blue-500"></i>
+            Available: ${(place.available_days || []).join(", ")}
+          </p>
+
+          <p class="text-sm text-green-600 font-semibold mt-2">
+            Available Slots: ${place.available_slots ?? 0}
+          </p>
+
+          <p class="text-sm text-gray-500 mt-2">
+            ₹${place.price_per_hour}/hr
+          </p>
+
+          <p class="text-xs text-gray-400">
+            ${(place.distance / 1000).toFixed(2)} km away
+          </p>
+
+          <button onclick="openBookingModal('${place.name}', ${place.price_per_hour})"
+            class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-lg">
+            Book Now
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Add marker
+    if (place.lat && place.lng) {
+      L.marker([place.lat, place.lng])
+        .addTo(markersLayer)
+        .bindPopup(`
+          <strong>${place.name}</strong><br/>
+          ${place.address}<br/>
+          ₹${place.price_per_hour}/hr
+        `);
+    }
+  });
+}
+
+
 /* ================= PROFILE ================= */
 
 function loadProfileUI() {
@@ -501,6 +537,20 @@ function loadProfileUI() {
     }
   }
 }
+
+
+
+document.getElementById("searchInput").addEventListener("input", function () {
+  const value = this.value.toLowerCase();
+
+  const filtered = allParkings.filter(p =>
+    (p.name && p.name.toLowerCase().includes(value)) ||
+    (p.address && p.address.toLowerCase().includes(value))
+  );
+
+  renderParkings(filtered);
+});
+
 
 
 /* ================= INIT ================= */
