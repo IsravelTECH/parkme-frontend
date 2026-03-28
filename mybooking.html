@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#e6e8ea",
+                        "secondary-fixed-dim": "#e9c400",
+                        "tertiary-fixed": "#6bff8f",
+                        "on-primary-container": "#90a8ff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#00164e",
+                        "secondary": "#705d00",
+                        "on-surface": "#191c1e",
+                        "primary": "#00236f",
+                        "inverse-primary": "#b6c4ff",
+                        "surface-tint": "#4059aa",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#002109",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#dce1ff",
+                        "outline-variant": "#c5c5d3",
+                        "on-secondary-fixed": "#221b00",
+                        "background": "#f7f9fb",
+                        "secondary-container": "#fcd400",
+                        "on-secondary-fixed-variant": "#544600",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#444651",
+                        "secondary-fixed": "#ffe16d",
+                        "surface": "#f7f9fb",
+                        "primary-container": "#1e3a8a",
+                        "on-background": "#191c1e",
+                        "surface-container-highest": "#e0e3e5",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container": "#eceef0",
+                        "outline": "#757682",
+                        "on-tertiary-container": "#22c55e",
+                        "on-error": "#ffffff",
+                        "tertiary": "#003211",
+                        "on-primary-fixed-variant": "#264191",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "tertiary-container": "#004b1e",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "surface-bright": "#f7f9fb",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "surface-dim": "#d8dadc",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#6e5c00",
+                        "inverse-surface": "#2d3133"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bubble-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 35, 111, 0.03);
+            filter: blur(40px);
+            animation: float 25s infinite linear;
+        }
+        @keyframes float {
+            0% { transform: translateY(110vh) scale(1); opacity: 0; }
+            20% { opacity: 0.5; }
+            80% { opacity: 0.5; }
+            100% { transform: translateY(-20vh) scale(1.5); opacity: 0; }
+        }
+        .modal-state:checked + .modal-overlay {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="font-body bg-background text-on-surface min-h-screen flex flex-col">
+<!-- Floating Background Bubbles -->
+<div class="bubble-bg">
+<div class="bubble w-96 h-96 left-10" style="animation-delay: 0s;"></div>
+<div class="bubble w-[30rem] h-[30rem] right-20" style="animation-delay: 5s;"></div>
+<div class="bubble w-64 h-64 left-[40%]" style="animation-delay: 12s;"></div>
+<div class="bubble w-80 h-80 right-[15%]" style="animation-delay: 18s;"></div>
+</div>
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-[0_20px_40px_rgba(30,58,138,0.06)]">
+<div class="flex justify-between items-center px-8 h-16 max-w-7xl mx-auto">
+<div class="text-2xl font-extrabold text-blue-900 dark:text-blue-100 tracking-tight font-headline">Parkmi</div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-slate-500 hover:text-blue-700 transition-colors font-headline font-bold text-sm tracking-wide" href="#">Home</a>
+<a class="text-slate-500 hover:text-blue-700 transition-colors font-headline font-bold text-sm tracking-wide" href="#">Nearby</a>
+<a class="text-slate-500 hover:text-blue-700 transition-colors font-headline font-bold text-sm tracking-wide" href="#">My Space</a>
+<a class="text-blue-900 border-b-2 border-blue-900 pb-1 font-headline font-bold text-sm tracking-wide" href="#">My Bookings</a>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden hover:scale-105 transition-transform duration-200 cursor-pointer">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional man in a blue shirt with soft studio lighting and clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrONvQe90fAvvR5bTyp-YUyGNSDZAX65GiQ-RRpB42nBv6tgYR7FMwRBDbUYfbC6FwuCTokDAHuW96BQFYvPsxuTGJvd3qRRwG764CoZs4c0HqyCZZJJWU-Vzfcu74-SSqvpES5YWB36C-zdBr45AOA-Acuf5F48F7vaSyjPgeBXiaxDG8jsQ86S4m30O0jk5jse3OkMZ3Q4CnGjtvCM5vwiZ4SZMoE_Ic_IO5i3VHQXDs3xYSGBlwE7TzCUGkHW3W0SWnSJOOsvI"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="mt-24 px-6 max-w-7xl mx-auto w-full flex-grow pb-16">
+<!-- Header Section -->
+<header class="mb-12">
+<h1 class="font-headline font-extrabold text-4xl text-primary tracking-tight mb-2">My Bookings</h1>
+<p class="text-on-surface-variant font-medium">Manage your active reservations and view parking history.</p>
+</header>
+<!-- Summary Cards Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border-none hover:scale-[1.02] transition-transform duration-300 group">
+<div class="flex items-center justify-between mb-4">
+<span class="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total Bookings</span>
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform" data-icon="local_parking">local_parking</span>
+</div>
+<div class="text-4xl font-headline font-extrabold text-primary">24</div>
+<div class="mt-2 h-1 w-12 bg-primary-container rounded-full opacity-30 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border-none hover:scale-[1.02] transition-transform duration-300 group">
+<div class="flex items-center justify-between mb-4">
+<span class="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">Cancelled</span>
+<span class="material-symbols-outlined text-error group-hover:scale-110 transition-transform" data-icon="cancel">cancel</span>
+</div>
+<div class="text-4xl font-headline font-extrabold text-primary">2</div>
+<div class="mt-2 h-1 w-12 bg-error rounded-full opacity-30 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border-none hover:scale-[1.02] transition-transform duration-300 group">
+<div class="flex items-center justify-between mb-4">
+<span class="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total Spent</span>
+<span class="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform" data-icon="payments">payments</span>
+</div>
+<div class="text-4xl font-headline font-extrabold text-primary">₹3,450</div>
+<div class="mt-2 h-1 w-12 bg-secondary-container rounded-full opacity-30 group-hover:opacity-100 transition-opacity"></div>
+</div>
+</section>
+<!-- Active Booking Section -->
+<section class="mb-16">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-headline font-bold text-xl text-primary flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container"></span> Active Now
+                </h2>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl shadow-[0_30px_60px_rgba(30,58,138,0.08)] overflow-hidden flex flex-col lg:flex-row border-none hover:shadow-[0_40px_80px_rgba(30,58,138,0.12)] transition-shadow duration-500">
+<div class="lg:w-1/3 h-64 lg:h-auto relative">
+<img class="w-full h-full object-cover" data-alt="Modern concrete parking garage architecture with clean lines and bright sunlight streaming through openings" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoIFuIanOddfJpGScrQJBYemWj_KUovJuBHuExEhJhl9MvHpUtJtbQiZehP3XdMGpN507a9PG9O1vxfj0h_b5FJTgmWnFFE9PljQWz74JtWOKoQI3eeExa6h2_RWLqiXgRyR9UvJ84gGTIH_TovS0jD2NczT4O8VkMMU32S3T44Y-Op4SiSzhAUc6vuHWrgeti_sfVwasCkovJ9EmBf5R7G9DTltbwHBYHdvEoMwosIrbUUGmR454GUw5rdzZbBeT6HqFC0kqT4uk"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent lg:hidden"></div>
+</div>
+<div class="lg:w-2/3 p-8 lg:p-12 flex flex-col justify-between">
+<div>
+<div class="flex flex-wrap justify-between items-start gap-4 mb-6">
+<div>
+<h3 class="font-headline font-extrabold text-3xl text-primary mb-1">Central Square P1</h3>
+<p class="text-on-surface-variant font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="location_on">location_on</span> Downtown Sector 4
+                                </p>
+</div>
+<div class="bg-primary-container text-white px-6 py-2 rounded-full font-headline font-bold text-xl">
+                                ₹150
+                            </div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-8 mb-10">
+<div class="space-y-1">
+<p class="font-label text-[10px] font-bold uppercase tracking-widest text-outline">Vehicle</p>
+<p class="font-bold text-primary">TN 01 AB 1234</p>
+</div>
+<div class="space-y-1">
+<p class="font-label text-[10px] font-bold uppercase tracking-widest text-outline">Slot</p>
+<p class="font-bold text-primary">A12</p>
+</div>
+<div class="space-y-1">
+<p class="font-label text-[10px] font-bold uppercase tracking-widest text-outline">Time Window</p>
+<p class="font-bold text-primary">09:00 AM - 12:00 PM</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="flex-1 bg-primary-container text-white font-headline font-bold py-4 rounded-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined" data-icon="directions">directions</span> Get Directions
+                        </button>
+<button class="flex-1 border border-outline-variant/30 text-primary font-headline font-bold py-4 rounded-xl hover:bg-surface-container-low transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="close">close</span> Cancel Booking
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Booking History Section -->
+<section>
+<h2 class="font-headline font-bold text-xl text-primary mb-6">Booking History</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="apartment">apartment</span>
+</div>
+<span class="bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter">Completed</span>
+</div>
+<h4 class="font-headline font-bold text-lg text-primary mb-1">Regency Plaza</h4>
+<p class="text-sm text-on-surface-variant mb-4">12 Oct, 2025 • 2h 30m</p>
+<label class="w-full inline-block text-center border border-outline-variant/30 text-primary font-bold py-2 rounded-lg hover:bg-primary hover:text-white transition-colors cursor-pointer text-sm" for="modal-1">
+                        View
+                    </label>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="shopping_bag">shopping_bag</span>
+</div>
+<span class="bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter">Completed</span>
+</div>
+<h4 class="font-headline font-bold text-lg text-primary mb-1">City Mall</h4>
+<p class="text-sm text-on-surface-variant mb-4">08 Oct, 2025 • 4h 00m</p>
+<label class="w-full inline-block text-center border border-outline-variant/30 text-primary font-bold py-2 rounded-lg hover:bg-primary hover:text-white transition-colors cursor-pointer text-sm" for="modal-1">
+                        View
+                    </label>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="stadium">stadium</span>
+</div>
+<span class="bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter">Completed</span>
+</div>
+<h4 class="font-headline font-bold text-lg text-primary mb-1">Elite Stadium</h4>
+<p class="text-sm text-on-surface-variant mb-4">30 Sep, 2025 • 6h 15m</p>
+<label class="w-full inline-block text-center border border-outline-variant/30 text-primary font-bold py-2 rounded-lg hover:bg-primary hover:text-white transition-colors cursor-pointer text-sm" for="modal-1">
+                        View
+                    </label>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="hospital">local_hospital</span>
+</div>
+<span class="bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter text-error/80">Cancelled</span>
+</div>
+<h4 class="font-headline font-bold text-lg text-primary mb-1">MediCare Hub</h4>
+<p class="text-sm text-on-surface-variant mb-4">22 Sep, 2025 • N/A</p>
+<label class="w-full inline-block text-center border border-outline-variant/30 text-primary font-bold py-2 rounded-lg hover:bg-primary hover:text-white transition-colors cursor-pointer text-sm" for="modal-1">
+                        View
+                    </label>
+</div>
+</div>
+</section>
+</main>
+<!-- Modal Implementation -->
+<input class="hidden modal-state" id="modal-1" type="checkbox"/>
+<div class="modal-overlay fixed inset-0 z-[100] hidden items-center justify-center px-4">
+<div class="fixed inset-0 bg-primary/20 backdrop-blur-sm"></div>
+<div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl relative z-10 p-8">
+<div class="flex justify-between items-center mb-8">
+<h3 class="font-headline font-extrabold text-2xl text-primary">Booking Details</h3>
+<label class="cursor-pointer text-on-surface-variant hover:text-primary transition-colors" for="modal-1">
+<span class="material-symbols-outlined">close</span>
+</label>
+</div>
+<div class="space-y-6">
+<div class="bg-surface-container-low p-4 rounded-xl">
+<p class="font-label text-[10px] font-bold uppercase tracking-widest text-outline mb-1">Location Details</p>
+<p class="font-bold text-primary">Regency Plaza - Main Block</p>
+<p class="text-sm text-on-surface-variant">45th Avenue, West Wing, Metro City</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-4 rounded-xl">
+<p class="font-label text-[10px] font-bold uppercase tracking-widest text-outline mb-1">Vehicle</p>
+<p class="font-bold text-primary">TN 01 AB 1234</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl">
+<p class="font-label text-[10px] font-bold uppercase tracking-widest text-outline mb-1">Slot ID</p>
+<p class="font-bold text-primary">B-042</p>
+</div>
+</div>
+<div>
+<p class="font-label text-[10px] font-bold uppercase tracking-widest text-outline mb-3">Payment Breakdown</p>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Base Rate (2h)</span>
+<span class="font-medium text-primary">₹100.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Extension (30m)</span>
+<span class="font-medium text-primary">₹30.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Taxes &amp; Fees</span>
+<span class="font-medium text-primary">₹20.00</span>
+</div>
+<div class="pt-2 border-t border-outline-variant/20 flex justify-between">
+<span class="font-bold text-primary">Total Paid</span>
+<span class="font-bold text-primary">₹150.00</span>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary-container text-white font-headline font-bold py-4 rounded-xl hover:scale-[1.01] transition-all shadow-lg shadow-primary/20">
+                    Download Invoice
+                </button>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full py-8 mt-auto bg-slate-50">
+<div class="flex flex-col md:flex-row justify-between items-center px-8 max-w-7xl mx-auto space-y-4 md:space-y-0">
+<div class="font-['Inter'] text-xs font-medium uppercase tracking-widest text-slate-400">
+                © 2026 Parkmi. All rights reserved.
+            </div>
+<div class="flex space-x-6">
+<a class="font-['Inter'] text-xs font-medium uppercase tracking-widest text-slate-400 hover:text-blue-700 transition-opacity" href="#">Privacy Policy</a>
+<a class="font-['Inter'] text-xs font-medium uppercase tracking-widest text-slate-400 hover:text-blue-700 transition-opacity" href="#">Terms of Service</a>
+<a class="font-['Inter'] text-xs font-medium uppercase tracking-widest text-slate-400 hover:text-blue-700 transition-opacity" href="#">Support</a>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,531 @@
+<html class="light" lang="en"><head></head><body class="text-on-surface animate-fade-in">```html
+
+
+
+    <meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ParkMe | Admin Dashboard</title>
+<!-- Google Fonts: Manrope (Headlines) & Inter (Body) -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "background": "#f7f9fb",
+              "on-primary-container": "#90a8ff",
+              "surface-bright": "#f7f9fb",
+              "primary-container": "#1e3a8a",
+              "on-tertiary-fixed-variant": "#005321",
+              "surface-container-low": "#f2f4f6",
+              "on-tertiary-fixed": "#002109",
+              "surface": "#f7f9fb",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-high": "#e6e8ea",
+              "outline-variant": "#c5c5d3",
+              "on-primary-fixed": "#00164e",
+              "primary-fixed-dim": "#b6c4ff",
+              "inverse-primary": "#b6c4ff",
+              "secondary-container": "#fcd400",
+              "surface-tint": "#4059aa",
+              "secondary": "#705d00",
+              "on-secondary": "#ffffff",
+              "inverse-on-surface": "#eff1f3",
+              "error": "#ba1a1a",
+              "tertiary-container": "#004b1e",
+              "on-surface": "#191c1e",
+              "on-secondary-fixed": "#221b00",
+              "on-background": "#191c1e",
+              "surface-dim": "#d8dadc",
+              "surface-container-highest": "#e0e3e5",
+              "on-secondary-container": "#6e5c00",
+              "outline": "#757682",
+              "on-tertiary": "#ffffff",
+              "on-error-container": "#93000a",
+              "on-primary": "#ffffff",
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#4ae176",
+              "surface-container": "#eceef0",
+              "on-tertiary-container": "#22c55e",
+              "on-surface-variant": "#444651",
+              "on-secondary-fixed-variant": "#544600",
+              "primary": "#00236f",
+              "tertiary": "#003211",
+              "surface-variant": "#e0e3e5",
+              "secondary-fixed-dim": "#e9c400",
+              "on-error": "#ffffff",
+              "primary-fixed": "#dce1ff",
+              "inverse-surface": "#2d3133",
+              "secondary-fixed": "#ffe16d",
+              "tertiary-fixed": "#6bff8f",
+              "on-primary-fixed-variant": "#264191"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+        h1, h2, h3, .brand-font { font-family: 'Manrope', sans-serif; }
+        
+        .transition-all { transition-duration: 0.3s !important; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(30, 58, 138, 0.2);
+            box-shadow: 0 0 20px rgba(30, 58, 138, 0.1);
+        }
+
+        .bar-group:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .notification-dropdown {
+            display: none;
+        }
+        .notification-trigger:hover .notification-dropdown {
+            display: block;
+        }
+    </style>
+<!-- TopNavBar Shell -->
+<nav class="fixed top-0 left-0 w-full flex justify-between items-center px-8 h-20 bg-white/80 backdrop-blur-md z-50 shadow-[0_20px_40px_rgba(30,58,138,0.06)]">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-extrabold text-blue-900 tracking-tight">ParkMe</span>
+<div class="hidden md:flex gap-6">
+<a class="text-blue-900 font-bold border-b-2 border-blue-900 pb-1" href="#">Home</a>
+<a class="text-slate-500 font-medium hover:text-blue-800 transition-all" href="#">My Bookings</a>
+<a class="text-slate-500 font-medium hover:text-blue-800 transition-all" href="#">My Space</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative flex items-center bg-surface-container-low rounded-full px-4 py-2 border border-outline-variant/15">
+<span class="material-symbols-outlined text-outline text-lg mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-medium" placeholder="Search data..." type="text"/>
+</div>
+<!-- Notifications with Badge & Simulated Dropdown -->
+<div class="relative notification-trigger">
+<button class="p-2 rounded-full hover:bg-slate-50 transition-all relative">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-4 h-4 bg-error text-white text-[10px] flex items-center justify-center rounded-full font-bold">3</span>
+</button>
+<div class="notification-dropdown absolute right-0 mt-2 w-64 bg-white border border-outline-variant/20 rounded-2xl shadow-xl overflow-hidden animate-fade-in z-[60]">
+<div class="p-4 border-b border-slate-100 flex justify-between items-center">
+<span class="font-bold text-sm text-primary">Notifications</span>
+<span class="text-[10px] font-bold text-primary cursor-pointer uppercase">Mark all read</span>
+</div>
+<div class="divide-y divide-slate-50">
+<div class="p-4 hover:bg-slate-50 transition-all cursor-pointer">
+<p class="text-xs font-bold text-slate-800">New user registered</p>
+<p class="text-[10px] text-slate-500">2 minutes ago</p>
+</div>
+<div class="p-4 hover:bg-slate-50 transition-all cursor-pointer">
+<p class="text-xs font-bold text-slate-800">Withdrawal request</p>
+<p class="text-[10px] text-slate-500">1 hour ago</p>
+</div>
+<div class="p-4 hover:bg-slate-50 transition-all cursor-pointer">
+<p class="text-xs font-bold text-slate-800">Space review flagged</p>
+<p class="text-[10px] text-slate-500">4 hours ago</p>
+</div>
+</div>
+<div class="p-3 bg-slate-50 text-center">
+<button class="text-xs font-bold text-primary">See All Notifications</button>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 pl-4 ml-4 border-l border-slate-200">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-bold text-primary uppercase tracking-tighter">Administrator</p>
+<p class="text-sm font-semibold">Alex Rivera</p>
+</div>
+<img alt="Admin Profile Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-primary-fixed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmw40gXPBQ0QYoIJBM_Oc1JHSmb_QIcDK_FKbNxmkQsvYWjRX_-Z23Si4eMCrchE9Jhf5aubraUk75AMCExDt0sq1dS4wG5K6E5DSGQVIY6Eegapyefho_yFXEUnHiptE_rhofV7f3kubirRbk8pX19hapxAt_iBH7S_a9eFqsxde0Q1ofxYzujIg1quo934EawnGxglzzGwGODHOoaKUjhk58NsimTWKbLZONSmruHXay1VmghWgmMOtCrsLJGGrH1PlJnXhfGx8"/>
+</div>
+</div>
+</nav>
+<main class="pt-28 pb-16 px-8 max-w-[1600px] mx-auto space-y-8">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h1 class="text-3xl font-extrabold text-primary tracking-tight">Dashboard Overview</h1>
+<p class="text-on-surface-variant font-medium">Welcome back, Admin. Here's what's happening with ParkMe today.</p>
+</div>
+<!-- System Insights Bar -->
+<div class="flex items-center gap-6 px-6 py-3 bg-surface-container-low/50 rounded-2xl border border-outline-variant/10">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container animate-pulse"></span>
+<span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Active Bookings: 142</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span>
+<span class="text-xs font-bold text-slate-600 uppercase tracking-wider">New Users: 28</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+<span class="text-xs font-bold text-slate-600 uppercase tracking-wider">System: Online</span>
+</div>
+</div>
+</header>
+<!-- Quick Action Panel -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<button class="flex items-center justify-center gap-3 px-6 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-on-primary-fixed hover:scale-[1.02] transition-all shadow-md active:scale-95 group">
+<span class="material-symbols-outlined text-xl">add_circle</span>
+            Add Parking Space
+        </button>
+<button class="flex items-center justify-center gap-3 px-6 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-on-primary-fixed hover:scale-[1.02] transition-all shadow-md active:scale-95 group">
+<span class="material-symbols-outlined text-xl">verified_user</span>
+            Approve Owners
+        </button>
+<button class="flex items-center justify-center gap-3 px-6 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-on-primary-fixed hover:scale-[1.02] transition-all shadow-md active:scale-95 group">
+<span class="material-symbols-outlined text-xl">assessment</span>
+            View Reports
+        </button>
+</section>
+<!-- Top Metrics Grid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+<!-- Card 1 -->
+<div class="kpi-card cursor-pointer bg-surface-container-lowest p-6 rounded-2xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border border-transparent transition-all">
+<div class="flex items-center justify-between mb-4">
+<span class="p-3 bg-blue-50 text-primary rounded-xl material-symbols-outlined" data-icon="group">group</span>
+<span class="text-on-tertiary-container font-bold text-xs bg-tertiary-fixed/30 px-2 py-1 rounded-lg">+12%</span>
+</div>
+<p class="text-sm font-semibold text-slate-500 mb-1">Total Users</p>
+<h2 class="text-3xl font-extrabold text-primary">24,512</h2>
+</div>
+<!-- Card 2 -->
+<div class="kpi-card cursor-pointer bg-surface-container-lowest p-6 rounded-2xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border border-transparent transition-all">
+<div class="flex items-center justify-between mb-4">
+<span class="p-3 bg-blue-50 text-primary rounded-xl material-symbols-outlined" data-icon="real_estate_agent">real_estate_agent</span>
+<span class="text-on-tertiary-container font-bold text-xs bg-tertiary-fixed/30 px-2 py-1 rounded-lg">+5%</span>
+</div>
+<p class="text-sm font-semibold text-slate-500 mb-1">Total Owners</p>
+<h2 class="text-3xl font-extrabold text-primary">1,820</h2>
+</div>
+<!-- Card 3 -->
+<div class="kpi-card cursor-pointer bg-surface-container-lowest p-6 rounded-2xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border border-transparent transition-all">
+<div class="flex items-center justify-between mb-4">
+<span class="p-3 bg-blue-50 text-primary rounded-xl material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-on-tertiary-container font-bold text-xs bg-tertiary-fixed/30 px-2 py-1 rounded-lg">+18%</span>
+</div>
+<p class="text-sm font-semibold text-slate-500 mb-1">Total Earnings</p>
+<h2 class="text-3xl font-extrabold text-primary">$142.8k</h2>
+</div>
+<!-- Card 4 -->
+<div class="kpi-card cursor-pointer bg-surface-container-lowest p-6 rounded-2xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border border-transparent transition-all">
+<div class="flex items-center justify-between mb-4">
+<span class="p-3 bg-blue-50 text-primary rounded-xl material-symbols-outlined" data-icon="book_online">book_online</span>
+<span class="text-error font-bold text-xs bg-error-container/30 px-2 py-1 rounded-lg">-2%</span>
+</div>
+<p class="text-sm font-semibold text-slate-500 mb-1">Total Bookings</p>
+<h2 class="text-3xl font-extrabold text-primary">8,944</h2>
+</div>
+<!-- Card 5 -->
+<div class="kpi-card cursor-pointer bg-surface-container-lowest p-6 rounded-2xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border border-transparent transition-all">
+<div class="flex items-center justify-between mb-4">
+<span class="p-3 bg-blue-50 text-primary rounded-xl material-symbols-outlined" data-icon="star">star</span>
+<span class="text-on-tertiary-container font-bold text-xs bg-tertiary-fixed/30 px-2 py-1 rounded-lg">4.9/5</span>
+</div>
+<p class="text-sm font-semibold text-slate-500 mb-1">Total Reviews</p>
+<h2 class="text-3xl font-extrabold text-primary">12.2k</h2>
+</div>
+</section>
+<!-- Analytics Section -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="bg-surface-container-lowest p-8 rounded-3xl shadow-[0_20px_40px_rgba(30,58,138,0.06)]">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="text-xl font-bold text-primary">Users Growth</h3>
+<p class="text-sm text-slate-500 font-medium">Monthly acquisition trend</p>
+</div>
+<div class="text-right">
+<p class="text-2xl font-extrabold text-primary">8.4k</p>
+<p class="text-[10px] font-bold text-on-tertiary-container tracking-widest uppercase">New this quarter</p>
+</div>
+</div>
+<!-- Enhanced Mock Bar Chart -->
+<div class="flex items-end justify-between h-48 gap-4 px-4">
+<div class="w-full bg-slate-100 rounded-t-lg h-[40%] hover:bg-primary transition-all cursor-pointer group relative bar-group">
+<div class="tooltip absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg opacity-0 invisible transition-all whitespace-nowrap z-10 font-bold after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-slate-900 shadow-lg">Jan: 1.2k</div>
+</div>
+<div class="w-full bg-slate-100 rounded-t-lg h-[55%] hover:bg-primary transition-all cursor-pointer group relative bar-group">
+<div class="tooltip absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg opacity-0 invisible transition-all whitespace-nowrap z-10 font-bold shadow-lg">Feb: 2.1k</div>
+</div>
+<div class="w-full bg-slate-100 rounded-t-lg h-[45%] hover:bg-primary transition-all cursor-pointer group relative bar-group">
+<div class="tooltip absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg opacity-0 invisible transition-all whitespace-nowrap z-10 font-bold shadow-lg">Mar: 1.8k</div>
+</div>
+<div class="w-full bg-slate-100 rounded-t-lg h-[70%] hover:bg-primary transition-all cursor-pointer group relative bar-group">
+<div class="tooltip absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg opacity-0 invisible transition-all whitespace-nowrap z-10 font-bold shadow-lg">Apr: 3.2k</div>
+</div>
+<div class="w-full bg-slate-100 rounded-t-lg h-[85%] hover:bg-primary transition-all cursor-pointer group relative bar-group">
+<div class="tooltip absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg opacity-0 invisible transition-all whitespace-nowrap z-10 font-bold shadow-lg">May: 4.1k</div>
+</div>
+<div class="w-full bg-blue-600 rounded-t-lg h-[95%] cursor-pointer group relative bar-group ring-2 ring-blue-200">
+<div class="tooltip absolute -top-10 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] px-2 py-1.5 rounded-lg opacity-100 transition-all whitespace-nowrap z-10 font-bold shadow-lg">Current: 4.8k</div>
+</div>
+</div>
+<div class="flex justify-between mt-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4">
+<span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-8 rounded-3xl shadow-[0_20px_40px_rgba(30,58,138,0.06)]">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="text-xl font-bold text-primary">Reviews Overview</h3>
+<p class="text-sm text-slate-500 font-medium">Sentiment comparison</p>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-on-tertiary-container"></span>
+<span class="text-xs font-bold text-slate-500 uppercase">Pos</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-error"></span>
+<span class="text-xs font-bold text-slate-500 uppercase">Neg</span>
+</div>
+</div>
+</div>
+<!-- Enhanced Mock Grouped Bar Chart -->
+<div class="flex items-end justify-between h-48 gap-8 px-6">
+<div class="flex items-end gap-2 w-full h-full bar-group relative">
+<div class="w-full bg-on-tertiary-container rounded-t h-[80%] hover:brightness-110 transition-all"></div>
+<div class="w-full bg-error rounded-t h-[15%] hover:brightness-110 transition-all"></div>
+</div>
+<div class="flex items-end gap-2 w-full h-full bar-group relative">
+<div class="w-full bg-on-tertiary-container rounded-t h-[90%] hover:brightness-110 transition-all"></div>
+<div class="w-full bg-error rounded-t h-[10%] hover:brightness-110 transition-all"></div>
+</div>
+<div class="flex items-end gap-2 w-full h-full bar-group relative">
+<div class="w-full bg-on-tertiary-container rounded-t h-[75%] hover:brightness-110 transition-all"></div>
+<div class="w-full bg-error rounded-t h-[20%] hover:brightness-110 transition-all"></div>
+</div>
+<div class="flex items-end gap-2 w-full h-full bar-group relative">
+<div class="w-full bg-blue-600 rounded-t h-[85%] hover:brightness-110 transition-all ring-1 ring-blue-100"></div>
+<div class="w-full bg-error rounded-t h-[12%] hover:brightness-110 transition-all ring-1 ring-red-100"></div>
+<div class="tooltip absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg opacity-0 invisible transition-all whitespace-nowrap z-10 font-bold shadow-lg">W4: 85% Positive</div>
+</div>
+</div>
+<div class="flex justify-between mt-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest px-6">
+<span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span>
+</div>
+</div>
+</section>
+<!-- Review Management Section -->
+<section class="space-y-6">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+<h3 class="text-2xl font-bold text-primary">Review Management</h3>
+<div class="flex flex-wrap items-center gap-4 w-full md:w-auto">
+<div class="relative flex-grow md:flex-grow-0">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="w-full md:w-64 pl-9 pr-4 py-2 bg-white border border-outline-variant/20 rounded-xl text-sm focus:ring-primary/20 focus:border-primary transition-all font-medium" placeholder="Search reviews..." type="text"/>
+</div>
+<div class="flex bg-surface-container-low p-1 rounded-xl">
+<button class="px-4 py-1.5 bg-white shadow-sm rounded-lg text-xs font-bold text-primary transition-all">All</button>
+<button class="px-4 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-primary transition-all">Positive</button>
+<button class="px-4 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-primary transition-all">Negative</button>
+</div>
+<select class="text-xs font-bold border-none bg-surface-container-low rounded-xl px-4 py-2 focus:ring-primary/20">
+<option>Sort: Recent</option>
+<option>Sort: Oldest</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container-low p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all">
+<div class="p-3 bg-white rounded-xl shadow-sm"><span class="material-symbols-outlined text-primary">all_inbox</span></div>
+<div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Reviews</p><p class="text-xl font-bold">12,240</p></div>
+</div>
+<div class="bg-tertiary-fixed/10 p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all">
+<div class="p-3 bg-white rounded-xl shadow-sm"><span class="material-symbols-outlined text-on-tertiary-container">sentiment_very_satisfied</span></div>
+<div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Positive</p><p class="text-xl font-bold text-on-tertiary-container">11,050</p></div>
+</div>
+<div class="bg-error-container/10 p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all">
+<div class="p-3 bg-white rounded-xl shadow-sm"><span class="material-symbols-outlined text-error">sentiment_very_dissatisfied</span></div>
+<div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Negative</p><p class="text-xl font-bold text-error">1,190</p></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-[0_20px_40px_rgba(30,58,138,0.06)]">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">User</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Location</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Rating</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Feedback</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Date</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="hover:bg-blue-50/40 transition-all cursor-default">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs">JD</div>
+<span class="font-semibold text-sm">John Doe</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600">Downtown Plaza</td>
+<td class="px-6 py-4">
+<div class="flex text-[#FFD700] text-sm">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm max-w-xs truncate">Excellent spot, very secure and easy to find!</td>
+<td class="px-6 py-4 text-sm text-slate-500">2 mins ago</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-tertiary-fixed/20 text-on-tertiary-container text-[10px] font-bold uppercase rounded-full">Positive</span>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/40 transition-all cursor-default">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs">SM</div>
+<span class="font-semibold text-sm">Sarah Miller</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600">Central Hub</td>
+<td class="px-6 py-4">
+<div class="flex text-[#FFD700] text-sm">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">star</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm max-w-xs truncate">The gate was locked when I arrived. Waited 15 mins.</td>
+<td class="px-6 py-4 text-sm text-slate-500">1 hour ago</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-error-container/20 text-error text-[10px] font-bold uppercase rounded-full">Negative</span>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="p-4 border-t border-slate-100 flex justify-center">
+<button class="text-sm font-bold text-primary hover:underline transition-all">View All Reviews</button>
+</div>
+</div>
+</section>
+<!-- Management Tables Bento Grid -->
+<section class="grid grid-cols-1 xl:grid-cols-3 gap-8 items-stretch">
+<!-- Recent Users -->
+<div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] space-y-4 flex flex-col h-full">
+<div class="flex justify-between items-center mb-2">
+<h3 class="font-bold text-lg text-primary">Recent Users</h3>
+<button class="text-xs font-bold text-primary uppercase tracking-widest hover:underline">See All</button>
+</div>
+<div class="space-y-3 flex-grow">
+<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all group cursor-pointer">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7PZYUseHXL77SlO9WD5CawVdTXrHcXZGDMOBKw4ZCuGqPuI-ChJ6PYufwC5BIhkLu5b7s5hKZ9m5sRxInPet3c06yKbPS5isR5wGr5iJIP5J69-RVZLbTxIcmxbtyyiG3eoipCNt_WryXT3jXI3dtXpfGe4-ZwbJgn21d3C8B9wvPa2DoDZRmbiQQ0Lzia6DBvJzzaJ4dWsXWnESdDheahJqvgjZA8j3oWhjL6q6RZyOrAQ2qi8rEAlT75z3-zBDDyyrjYsp88So"/>
+<div>
+<p class="text-sm font-bold">Liam Taylor</p>
+<p class="text-xs text-slate-500 font-medium">liam@example.com</p>
+</div>
+</div>
+<span class="px-2 py-0.5 bg-tertiary-fixed/20 text-on-tertiary-container text-[8px] font-bold uppercase rounded">Active</span>
+</div>
+<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all group cursor-pointer">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdnpO6r2G3WuMJ40bjnAEtMZtqIKdIUMviDKtPwd6lg2y9Rv1Nr-W8vkxaIqtiV-7gmFqbyO34a1mrir2w3YUKojQRsAH2AxGzp-OBXA1ZEiGc3ogYqRrCFk4-bIFFCb0vedzMHKhFEmG_BNaDRZ3kRxBwFwRNwfUVDIY4PlOzaKpx3ZVBAj_phc8VlFMfBammW-ijFx0d61D9pxx4C0SsHUtRVPNQ0keRf5UcsS7cymXYn4DeWTvwsyET8Fmk-SkeeV8jD8KjSG4"/>
+<div>
+<p class="text-sm font-bold">Emma Wilson</p>
+<p class="text-xs text-slate-500 font-medium">emma.w@mail.com</p>
+</div>
+</div>
+<span class="px-2 py-0.5 bg-secondary-container/30 text-secondary text-[8px] font-bold uppercase rounded">Pending</span>
+</div>
+</div>
+</div>
+<!-- Recent Parking Spaces -->
+<div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] space-y-4 flex flex-col h-full">
+<div class="flex justify-between items-center mb-2">
+<h3 class="font-bold text-lg text-primary">Recent Spaces</h3>
+<button class="text-xs font-bold text-primary uppercase tracking-widest hover:underline">Manage</button>
+</div>
+<div class="space-y-3 flex-grow">
+<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center"><span class="material-symbols-outlined text-primary text-xl">local_parking</span></div>
+<div>
+<p class="text-sm font-bold">Skyline Garage</p>
+<p class="text-xs text-slate-500 font-medium">London, UK</p>
+</div>
+</div>
+<p class="text-sm font-bold text-primary">$25/hr</p>
+</div>
+<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center"><span class="material-symbols-outlined text-primary text-xl">garage</span></div>
+<div>
+<p class="text-sm font-bold">Oak Street Lot</p>
+<p class="text-xs text-slate-500 font-medium">Manchester, UK</p>
+</div>
+</div>
+<p class="text-sm font-bold text-primary">$12/hr</p>
+</div>
+</div>
+</div>
+<!-- Recent Bookings -->
+<div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] space-y-4 flex flex-col h-full">
+<div class="flex justify-between items-center mb-2">
+<h3 class="font-bold text-lg text-primary">Recent Bookings</h3>
+<button class="text-xs font-bold text-primary uppercase tracking-widest hover:underline">History</button>
+</div>
+<div class="space-y-3 flex-grow">
+<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
+<div class="flex flex-col">
+<p class="text-sm font-bold">Order #8841</p>
+<p class="text-[10px] text-slate-500 uppercase font-bold">2 Hours Duration</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-primary">$45.00</p>
+<p class="text-[8px] font-bold text-on-tertiary-container uppercase">Confirmed</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
+<div class="flex flex-col">
+<p class="text-sm font-bold">Order #8839</p>
+<p class="text-[10px] text-slate-500 uppercase font-bold">1 Day Duration</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-primary">$120.00</p>
+<p class="text-[8px] font-bold text-error uppercase">Blocked</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Shell -->
+<footer class="w-full flex flex-col items-center justify-center space-y-4 px-4 py-8 bg-slate-50 border-t border-slate-200">
+<p class="text-slate-600 text-sm font-inter tracking-wide">© 2024 ParkMe. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-slate-500 text-xs font-medium hover:text-primary transition-all" href="#">Privacy Policy</a>
+<a class="text-slate-500 text-xs font-medium hover:text-primary transition-all" href="#">Terms of Service</a>
+</div>
+</footer>
+
+
+```</body></html>

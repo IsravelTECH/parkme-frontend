@@ -162,7 +162,7 @@
 <a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="index.html">Home</a>
 <a class="nav-link relative text-primary font-bold text-sm bg-primary/5 px-3 py-1 rounded-full duration-300" href="nearby.html">Nearby Parking</a>
 <a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="myspace.html">My Space</a>
-<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="my-bookings.html">My Bookings</a>
+<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="mybooking.html">My Bookings</a>
 <a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="profile.html">My Profile</a>
 </nav>
 <!-- Profile -->
@@ -292,31 +292,46 @@
 </button>
 </div>
 <div class="space-y-6">
+<!-- Vehicle -->
 <div>
-<label class="block text-sm font-bold text-gray-700 mb-2">Vehicle Number</label>
-<input class="w-full px-4 py-3 rounded-xl border-gray-200 focus:ring-brand focus:border-brand" placeholder="TN 01 AB 1234" type="text"/>
+  <label class="block text-sm font-bold mb-2">Vehicle Number</label>
+  <input id="vehicleNumber"
+         class="w-full px-4 py-3 rounded-xl border"
+         placeholder="TN 01 AB 1234" />
 </div>
+
+<!-- Booking Date -->
+<div>
+  <label class="block text-sm font-bold mb-2">Booking Date</label>
+  <input id="bookingDate"
+         type="date"
+         class="w-full px-4 py-3 rounded-xl border" />
+</div>
+
+<!-- Slot Days -->
+<div>
+  <label class="block text-sm font-bold mb-2">Select Day</label>
+  <div id="slotDays" class="flex flex-wrap gap-2"></div>
+</div>
+
+<!-- Time -->
 <div class="grid grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-bold text-gray-700 mb-2">Start Time</label>
-<input class="w-full px-4 py-3 rounded-xl border-gray-200 focus:ring-brand focus:border-brand" id="startTime" onchange="calculateTotal()" type="time"/>
+  <input id="startTime" type="time" onchange="calculateTotal()" class="border p-2 rounded"/>
+  <input id="endTime" type="time" onchange="calculateTotal()" class="border p-2 rounded"/>
 </div>
-<div>
-<label class="block text-sm font-bold text-gray-700 mb-2">End Time</label>
-<input class="w-full px-4 py-3 rounded-xl border-gray-200 focus:ring-brand focus:border-brand" id="endTime" onchange="calculateTotal()" type="time"/>
-</div>
-</div>
-<div class="bg-gray-50 p-4 rounded-xl flex justify-between items-center">
-<span class="text-gray-600 font-medium">Estimated Total</span>
-<span class="text-2xl font-bold text-brand" id="estimatedTotal">₹0</span>
+
+<!-- Total -->
+<div class="bg-gray-100 p-3 rounded">
+  ₹<span id="estimatedTotal">0</span>
 </div>
 <div class="flex gap-3 pt-2">
 <button class="flex-1 py-3 px-6 rounded-xl border border-gray-200 font-bold text-gray-600 hover:bg-gray-50 transition-colors" onclick="closeBookingModal()">
             Cancel
           </button>
-<button class="flex-1 py-3 px-6 rounded-xl text-white font-bold btn-gradient">
-            Book Now
-          </button>
+<!-- Button -->
+<button onclick="bookSlot()" class="w-full bg-blue-600 text-white py-3 rounded">
+  Book Now
+</button>
 </div>
 </div>
 </div>
@@ -400,12 +415,18 @@ function getLocation() {
 
 /* ================= BOOKING ================= */
 
-let currentRate = 0;
+let selectedParking = null;
 
-function openBookingModal(name, rate) {
+function openBookingModal(place) {
   document.getElementById('bookingModal').classList.remove('hidden');
-  document.getElementById('modalParkingName').innerText = name;
-  currentRate = rate;
+
+  document.getElementById('modalParkingName').innerText = place.name;
+
+  selectedParking = place;
+  currentRate = place.price_per_hour;
+
+  renderSlotDays(place.available_days);
+
   calculateTotal();
 }
 
@@ -427,9 +448,9 @@ function calculateTotal() {
 
     if (duration > 0) {
       const total = Math.ceil(duration * currentRate);
-      document.getElementById('estimatedTotal').innerText = `₹${total}`;
+      document.getElementById('estimatedTotal').innerText = total;
     } else {
-      document.getElementById('estimatedTotal').innerText = `₹0`;
+      document.getElementById('estimatedTotal').innerText = `0`;
     }
   }
 }
@@ -491,7 +512,7 @@ function renderParkings(list) {
             ${(place.distance / 1000).toFixed(2)} km away
           </p>
 
-          <button onclick="openBookingModal('${place.name}', ${place.price_per_hour})"
+          <button onclick='openBookingModal(${JSON.stringify(place)})'
             class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-lg">
             Book Now
           </button>
@@ -553,6 +574,115 @@ document.getElementById("searchInput").addEventListener("input", function () {
 });
 
 
+
+function renderSlotDays(days) {
+  const container = document.getElementById("slotDays");
+  container.innerHTML = "";
+
+  days.forEach(day => {
+    container.innerHTML += `
+      <label class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded cursor-pointer">
+        <input type="checkbox" name="slotDay" value="${day}" />
+        ${day}
+      </label>
+    `;
+  });
+}
+
+async function bookSlot() {
+
+  const token = localStorage.getItem("token");
+
+  const vehicle = document.getElementById("vehicleNumber").value;
+  const date = document.getElementById("bookingDate").value;
+  const start = document.getElementById("startTime").value;
+  const end = document.getElementById("endTime").value;
+
+  const selectedDays = Array.from(
+  document.querySelectorAll('input[name="slotDay"]:checked')
+).map(el => el.value);
+
+  if (!vehicle || !date || !start || !end || selectedDays.length === 0) {
+  alert("Fill all fields");
+  return;
+}
+
+  const payload = {
+    parking_id: selectedParking.parking_id,
+    vehicle_number: vehicle,
+    booking_date: date,
+    start_time: start,
+    end_time: end,
+    selected_days: selectedDays
+  };
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/book-slot", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (!data.error) {
+
+  // store booking details
+  const bookingData = {
+    parking_name: selectedParking.name,
+    parking_address: selectedParking.address,
+    vehicle_number: vehicle,
+    date: date,
+    start_time: start,
+    end_time: end,
+    total: document.getElementById("estimatedTotal").innerText
+  };
+
+  localStorage.setItem("bookingData", JSON.stringify(bookingData));
+
+  // redirect to payment page
+  window.location.href = "payment1.html";
+}
+
+  } catch (err) {
+    console.error(err);
+    alert("Booking failed");
+  }
+}
+
+
+function formatTime(time) {
+  const [h, m] = time.split(":");
+  let hour = parseInt(h);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  return `${hour}:${m} ${ampm}`;
+}
+
+
+function startCountdown(endTime) {
+  const el = document.getElementById("countdown");
+
+  setInterval(() => {
+    const now = new Date();
+    const end = new Date(endTime);
+
+    const diff = end - now;
+
+    if (diff <= 0) {
+      el.innerText = "Expired";
+      return;
+    }
+
+    const mins = Math.floor(diff / 60000);
+    const secs = Math.floor((diff % 60000) / 1000);
+
+    el.innerText = `${mins}m ${secs}s`;
+  }, 1000);
+}
 
 /* ================= INIT ================= */
 
