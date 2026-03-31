@@ -1,8 +1,5 @@
-<html class="light" lang="en"><head></head><body class="text-on-surface animate-fade-in">```html
-
-
-
-    <meta charset="utf-8"/>
+<html class="light" lang="en"><head></head><body class="text-on-surface animate-fade-in">
+<meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>ParkMe | Admin Dashboard</title>
 <!-- Google Fonts: Manrope (Headlines) & Inter (Body) -->
@@ -109,57 +106,56 @@
     </style>
 <!-- TopNavBar Shell -->
 <nav class="fixed top-0 left-0 w-full flex justify-between items-center px-8 h-20 bg-white/80 backdrop-blur-md z-50 shadow-[0_20px_40px_rgba(30,58,138,0.06)]">
-<div class="flex items-center gap-8">
-<span class="text-2xl font-extrabold text-blue-900 tracking-tight">ParkMe</span>
-<div class="hidden md:flex gap-6">
-<a class="text-blue-900 font-bold border-b-2 border-blue-900 pb-1" href="#">Home</a>
-<a class="text-slate-500 font-medium hover:text-blue-800 transition-all" href="#">My Bookings</a>
-<a class="text-slate-500 font-medium hover:text-blue-800 transition-all" href="#">My Space</a>
+
+  <!-- LEFT SIDE (Logo) -->
+  <div class="flex items-center gap-2">
+<svg class="w-8 h-8 text-primary" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-4.66l.12-.34h13.77l.11.34V17z"></path><circle cx="7.5" cy="14.5" r="1.5"></circle><circle cx="16.5" cy="14.5" r="1.5"></circle>
+</svg>
+<span class="text-2xl font-extrabold text-primary tracking-tight">ParkMe</span>
 </div>
-</div>
-<div class="flex items-center gap-4">
-<div class="relative flex items-center bg-surface-container-low rounded-full px-4 py-2 border border-outline-variant/15">
-<span class="material-symbols-outlined text-outline text-lg mr-2">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-medium" placeholder="Search data..." type="text"/>
-</div>
-<!-- Notifications with Badge & Simulated Dropdown -->
-<div class="relative notification-trigger">
-<button class="p-2 rounded-full hover:bg-slate-50 transition-all relative">
-<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
-<span class="absolute top-2 right-2 w-4 h-4 bg-error text-white text-[10px] flex items-center justify-center rounded-full font-bold">3</span>
-</button>
-<div class="notification-dropdown absolute right-0 mt-2 w-64 bg-white border border-outline-variant/20 rounded-2xl shadow-xl overflow-hidden animate-fade-in z-[60]">
-<div class="p-4 border-b border-slate-100 flex justify-between items-center">
-<span class="font-bold text-sm text-primary">Notifications</span>
-<span class="text-[10px] font-bold text-primary cursor-pointer uppercase">Mark all read</span>
-</div>
-<div class="divide-y divide-slate-50">
-<div class="p-4 hover:bg-slate-50 transition-all cursor-pointer">
-<p class="text-xs font-bold text-slate-800">New user registered</p>
-<p class="text-[10px] text-slate-500">2 minutes ago</p>
-</div>
-<div class="p-4 hover:bg-slate-50 transition-all cursor-pointer">
-<p class="text-xs font-bold text-slate-800">Withdrawal request</p>
-<p class="text-[10px] text-slate-500">1 hour ago</p>
-</div>
-<div class="p-4 hover:bg-slate-50 transition-all cursor-pointer">
-<p class="text-xs font-bold text-slate-800">Space review flagged</p>
-<p class="text-[10px] text-slate-500">4 hours ago</p>
-</div>
-</div>
-<div class="p-3 bg-slate-50 text-center">
-<button class="text-xs font-bold text-primary">See All Notifications</button>
-</div>
-</div>
-</div>
-<div class="flex items-center gap-3 pl-4 ml-4 border-l border-slate-200">
-<div class="text-right hidden sm:block">
-<p class="text-xs font-bold text-primary uppercase tracking-tighter">Administrator</p>
-<p class="text-sm font-semibold">Alex Rivera</p>
-</div>
-<img alt="Admin Profile Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-primary-fixed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmw40gXPBQ0QYoIJBM_Oc1JHSmb_QIcDK_FKbNxmkQsvYWjRX_-Z23Si4eMCrchE9Jhf5aubraUk75AMCExDt0sq1dS4wG5K6E5DSGQVIY6Eegapyefho_yFXEUnHiptE_rhofV7f3kubirRbk8pX19hapxAt_iBH7S_a9eFqsxde0Q1ofxYzujIg1quo934EawnGxglzzGwGODHOoaKUjhk58NsimTWKbLZONSmruHXay1VmghWgmMOtCrsLJGGrH1PlJnXhfGx8"/>
-</div>
-</div>
+  <!-- RIGHT SIDE (Search + Profile) -->
+  <div class="flex items-center gap-6">
+
+    <!-- Search -->
+    <div class="relative flex items-center bg-surface-container-low rounded-full px-4 py-2 border border-outline-variant/15">
+      <span class="material-symbols-outlined text-outline text-lg mr-2">search</span>
+      <input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-medium"
+        placeholder="Search data..." type="text"/>
+    </div>
+
+    <!-- Profile -->
+   <!-- Profile -->
+<div class="relative">
+  <div id="profileToggle" class="flex items-center gap-3 cursor-pointer">
+    
+    <!-- Avatar -->
+    <div id="profileInitial"
+      class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
+      A
+    </div>
+
+    <!-- Text -->
+    <div class="flex flex-col leading-tight">
+      <span class="text-[11px] text-slate-500 font-semibold uppercase">
+        Administration
+      </span>
+      <span id="profileName" class="text-sm font-bold text-primary"></span>
+    </div>
+  </div>
+
+  <!-- Dropdown -->
+  <div id="profileDropdown"
+    class="hidden absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+    
+    <button id="logoutBtn"
+      class="w-full text-left px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-50">
+      Logout
+    </button>
+
+  </div>
+  </div>
+
 </nav>
 <main class="pt-28 pb-16 px-8 max-w-[1600px] mx-auto space-y-8">
 <!-- Header Section -->
@@ -172,11 +168,13 @@
 <div class="flex items-center gap-6 px-6 py-3 bg-surface-container-low/50 rounded-2xl border border-outline-variant/10">
 <div class="flex items-center gap-2">
 <span class="w-2 h-2 rounded-full bg-on-tertiary-container animate-pulse"></span>
-<span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Active Bookings: 142</span>
+<span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Active Bookings:</span>
+<h2 id="activeBookings" class="text-3xl font-extrabold text-primary">0</h2>
 </div>
 <div class="flex items-center gap-2">
 <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-<span class="text-xs font-bold text-slate-600 uppercase tracking-wider">New Users: 28</span>
+<span class="text-xs font-bold text-slate-600 uppercase tracking-wider">total Users:</span>
+<h2 class="text-3xl font-extrabold text-primary">0</h2>
 </div>
 <div class="flex items-center gap-2">
 <span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
@@ -186,18 +184,11 @@
 </header>
 <!-- Quick Action Panel -->
 <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-<button class="flex items-center justify-center gap-3 px-6 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-on-primary-fixed hover:scale-[1.02] transition-all shadow-md active:scale-95 group">
-<span class="material-symbols-outlined text-xl">add_circle</span>
-            Add Parking Space
-        </button>
-<button class="flex items-center justify-center gap-3 px-6 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-on-primary-fixed hover:scale-[1.02] transition-all shadow-md active:scale-95 group">
-<span class="material-symbols-outlined text-xl">verified_user</span>
-            Approve Owners
-        </button>
-<button class="flex items-center justify-center gap-3 px-6 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-on-primary-fixed hover:scale-[1.02] transition-all shadow-md active:scale-95 group">
-<span class="material-symbols-outlined text-xl">assessment</span>
-            View Reports
-        </button>
+<button class="flex items-center justify-center gap-3 px-6 py-4 bg-primary text-white rounded-2xl font-bold">
+  <span class="material-symbols-outlined text-xl">add_circle</span>
+  Add Parking Space
+</button>
+
 </section>
 <!-- Top Metrics Grid -->
 <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -205,43 +196,32 @@
 <div class="kpi-card cursor-pointer bg-surface-container-lowest p-6 rounded-2xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border border-transparent transition-all">
 <div class="flex items-center justify-between mb-4">
 <span class="p-3 bg-blue-50 text-primary rounded-xl material-symbols-outlined" data-icon="group">group</span>
-<span class="text-on-tertiary-container font-bold text-xs bg-tertiary-fixed/30 px-2 py-1 rounded-lg">+12%</span>
 </div>
 <p class="text-sm font-semibold text-slate-500 mb-1">Total Users</p>
-<h2 class="text-3xl font-extrabold text-primary">24,512</h2>
+<h2 id="totalUsers" class="text-3xl font-extrabold text-primary">0</h2>
 </div>
 <!-- Card 2 -->
-<div class="kpi-card cursor-pointer bg-surface-container-lowest p-6 rounded-2xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border border-transparent transition-all">
-<div class="flex items-center justify-between mb-4">
-<span class="p-3 bg-blue-50 text-primary rounded-xl material-symbols-outlined" data-icon="real_estate_agent">real_estate_agent</span>
-<span class="text-on-tertiary-container font-bold text-xs bg-tertiary-fixed/30 px-2 py-1 rounded-lg">+5%</span>
-</div>
-<p class="text-sm font-semibold text-slate-500 mb-1">Total Owners</p>
-<h2 class="text-3xl font-extrabold text-primary">1,820</h2>
-</div>
+
 <!-- Card 3 -->
 <div class="kpi-card cursor-pointer bg-surface-container-lowest p-6 rounded-2xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border border-transparent transition-all">
 <div class="flex items-center justify-between mb-4">
 <span class="p-3 bg-blue-50 text-primary rounded-xl material-symbols-outlined" data-icon="payments">payments</span>
-<span class="text-on-tertiary-container font-bold text-xs bg-tertiary-fixed/30 px-2 py-1 rounded-lg">+18%</span>
 </div>
 <p class="text-sm font-semibold text-slate-500 mb-1">Total Earnings</p>
-<h2 class="text-3xl font-extrabold text-primary">$142.8k</h2>
+<h2 id="totalEarnings" class="text-3xl font-extrabold text-primary">0</h2>
 </div>
 <!-- Card 4 -->
 <div class="kpi-card cursor-pointer bg-surface-container-lowest p-6 rounded-2xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border border-transparent transition-all">
 <div class="flex items-center justify-between mb-4">
 <span class="p-3 bg-blue-50 text-primary rounded-xl material-symbols-outlined" data-icon="book_online">book_online</span>
-<span class="text-error font-bold text-xs bg-error-container/30 px-2 py-1 rounded-lg">-2%</span>
 </div>
 <p class="text-sm font-semibold text-slate-500 mb-1">Total Bookings</p>
-<h2 class="text-3xl font-extrabold text-primary">8,944</h2>
+<h2 id="totalBookings" class="text-3xl font-extrabold text-primary">0</h2>
 </div>
 <!-- Card 5 -->
 <div class="kpi-card cursor-pointer bg-surface-container-lowest p-6 rounded-2xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] border border-transparent transition-all">
 <div class="flex items-center justify-between mb-4">
 <span class="p-3 bg-blue-50 text-primary rounded-xl material-symbols-outlined" data-icon="star">star</span>
-<span class="text-on-tertiary-container font-bold text-xs bg-tertiary-fixed/30 px-2 py-1 rounded-lg">4.9/5</span>
 </div>
 <p class="text-sm font-semibold text-slate-500 mb-1">Total Reviews</p>
 <h2 class="text-3xl font-extrabold text-primary">12.2k</h2>
@@ -520,12 +500,92 @@
 </main>
 <!-- Footer Shell -->
 <footer class="w-full flex flex-col items-center justify-center space-y-4 px-4 py-8 bg-slate-50 border-t border-slate-200">
-<p class="text-slate-600 text-sm font-inter tracking-wide">© 2024 ParkMe. All rights reserved.</p>
+<p class="text-slate-600 text-sm font-inter tracking-wide">© 2026 ParkMe. All rights reserved.</p>
 <div class="flex gap-6">
 <a class="text-slate-500 text-xs font-medium hover:text-primary transition-all" href="#">Privacy Policy</a>
 <a class="text-slate-500 text-xs font-medium hover:text-primary transition-all" href="#">Terms of Service</a>
 </div>
 </footer>
 
+<script>
+async function loadDashboard() {
+  try {
+    const token = localStorage.getItem("token");
 
-```</body></html>
+    const response = await fetch("http://127.0.0.1:8000/admin-dashboard", {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
+      }
+    });
+
+    const data = await response.json();
+    console.log("Dashboard Data:", data);
+
+    // ✅ Update UI
+    document.getElementById("totalUsers").innerText = data.total_users;
+    document.getElementById("totalBookings").innerText = data.total_bookings;
+    document.getElementById("activeBookings").innerText = data.active_bookings;
+    document.getElementById("totalEarnings").innerText = "₹ " + data.total_earnings;
+
+  } catch (error) {
+    console.error("Error loading dashboard:", error);
+  }
+}
+
+// Load on page start
+loadDashboard();
+
+
+const role = localStorage.getItem("role");
+
+if(role !== "owner"){
+    window.location.href = "index.html";
+}
+
+function loadProfile() {
+  const username = localStorage.getItem("username");
+
+  if (username) {
+    // Show name
+    document.getElementById("profileName").innerText = username;
+
+    // First letter as avatar
+    const firstLetter = username.charAt(0).toUpperCase();
+    document.getElementById("profileInitial").innerText = firstLetter;
+  }
+}
+
+loadProfile();
+
+const colors = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-pink-500"];
+
+const randomColor = colors[Math.floor(Math.random() * colors.length)];
+document.getElementById("profileInitial").classList.add(randomColor);
+
+
+// Toggle dropdown
+const profileToggle = document.getElementById("profileToggle");
+const dropdown = document.getElementById("profileDropdown");
+
+profileToggle.addEventListener("click", () => {
+  dropdown.classList.toggle("hidden");
+});
+
+// Close when clicking outside
+document.addEventListener("click", (e) => {
+  if (!profileToggle.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.add("hidden");
+  }
+});
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.clear(); // remove token, role, username
+
+  window.location.href = "index.html"; // redirect
+});
+
+</script>
+</body></html>
