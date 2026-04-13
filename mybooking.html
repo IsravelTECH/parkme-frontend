@@ -428,7 +428,7 @@ async function loadMyDashboard() {
       return;
     }
 
-    const res = await fetch(`http://127.0.0.1:8000/user-booking-dashboard`, {
+    const res = await fetch(`https://parkme-backend.onrender.com/user-booking-dashboard`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -462,7 +462,7 @@ if (data.active_booking && data.active_booking.length > 0) {
   <div class="min-w-[280px] max-w-[280px] bg-white p-5 rounded-xl shadow hover:shadow-xl transition flex flex-col justify-between">
 
     <!-- Image -->
-    <img src="http://127.0.0.1:8000/${item.image}" 
+    <img src="https://parkme-backend.onrender.com/${item.image}" 
          class="w-full h-32 object-cover rounded-lg mb-3"/>
 
     <!-- Content -->
@@ -497,7 +497,7 @@ if (data.active_booking && data.active_booking.length > 0) {
   });
 
 } else {
-  activeContainer.innerHTML = `<p>No Active Bookings</p>`;
+  activeContainer.innerHTML = `<p class="text-gray-500"> No Active Bookings</p>`;
 }
 
     /* ================= HISTORY ================= */
@@ -510,7 +510,7 @@ if (data.active_booking && data.active_booking.length > 0) {
   <div class="min-w-[220px] max-w-[220px] aspect-square bg-white p-4 rounded-xl shadow hover:shadow-xl transition flex flex-col justify-between">
 
     <!-- Image -->
-    <img src="http://127.0.0.1:8000/${item.image}" 
+    <img src="https://parkme-backend.onrender.com/${item.image}" 
          class="w-full h-24 object-cover rounded-lg mb-2"/>
 
     <!-- Content -->

@@ -78,6 +78,14 @@
       background-color: #1e3a8a; transition: width 0.3s ease;
     }
     .nav-link:hover::after { width: 100%; }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+     -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
   </style>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/></head>
 <body class="bg-slate-50 text-slate-900 overflow-x-hidden font-sans">
@@ -323,33 +331,35 @@
 </section>
 <!-- END: Why Choose ParkMe -->
 <!-- BEGIN: Customer Reviews -->
-<section class="py-24 px-6 bg-slate-100/30">
+<section class="py-24 px-6 bg-slate-100/30 overflow-x-hidden">
 <div class="max-w-6xl mx-auto">
 <div class="text-center mb-16">
 <h2 class="text-4xl font-extrabold text-slate-900 mb-2">Customer Reviews</h2>
 <p class="text-slate-500">See what our community is saying.</p>
 </div>
-<div class="grid md:grid-cols-2 gap-8 mb-20">
-<div class="glass p-8 rounded-3xl border border-white">
-<div class="flex items-center gap-4 mb-4">
-<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">RS</div>
-<div><h4 class="font-bold">Rahul Sharma</h4><div class="flex text-yellow-400 text-sm">★★★★★</div></div>
+<div class="relative">
+  <!-- Left Arrow -->
+  <button id="scrollLeft"
+    class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow p-2 rounded-full">
+    &lt;
+  </button>
+
+  <!-- Reviews Row -->
+  <div id="reviews-container"
+    class="flex gap-6 overflow-x-auto scroll-smooth no-scrollbar px-10">
+  </div>
+
+  <!-- Right Arrow -->
+  <button id="scrollRight"
+    class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow p-2 rounded-full">
+    &gt;
+  </button>
 </div>
-<p class="text-slate-600 italic leading-relaxed">"Absolutely seamless experience. I used to spend 20 minutes looking for parking in Bandra. Now it takes 20 seconds."</p>
-</div>
-<div class="glass p-8 rounded-3xl border border-white">
-<div class="flex items-center gap-4 mb-4">
-<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">PV</div>
-<div><h4 class="font-bold">Priya Verma</h4><div class="flex text-yellow-400 text-sm">★★★★★</div></div>
-</div>
-<p class="text-slate-600 italic leading-relaxed">"The app is very intuitive. Booking a space for my office commute has saved me so much stress and money."</p>
-</div>
-</div>
+<br/><br/>
 <div class="max-w-2xl mx-auto glass p-10 rounded-[2.5rem] shadow-xl">
 <h3 class="text-2xl font-bold text-center mb-8">Leave a Review</h3>
 <form class="space-y-5" id="review-form">
 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-<div><label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Full Name</label><input class="w-full px-4 py-3 rounded-xl border-slate-200 focus:ring-primary focus:border-primary" placeholder="Enter your name" type="text"/></div>
 <div><label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Rating</label><div class="flex gap-1" id="star-rating">
 <button class="text-2xl text-slate-300 hover:text-yellow-400 transition-colors" data-star="1" type="button">★</button>
 <button class="text-2xl text-slate-300 hover:text-yellow-400 transition-colors" data-star="2" type="button">★</button>
@@ -521,6 +531,143 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+});
+
+
+
+let selectedRating = 0;
+
+// ⭐ Capture rating
+function setupStarRating() {
+  const stars = document.querySelectorAll('#star-rating button');
+
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      selectedRating = parseInt(star.getAttribute('data-star'));
+
+      stars.forEach((s, index) => {
+        s.classList.toggle('text-yellow-400', index < selectedRating);
+        s.classList.toggle('text-slate-300', index >= selectedRating);
+      });
+    });
+  });
+}
+
+// ⭐ Generate stars UI
+function generateStars(rating) {
+  let stars = "";
+  for (let i = 1; i <= 5; i++) {
+    stars += `<span class="${i <= rating ? 'text-yellow-400' : 'text-slate-300'}">★</span>`;
+  }
+  return stars;
+}
+
+// ⭐ Get Reviews API
+async function loadReviews() {
+  try {
+    const res = await fetch("http://parkme-backend.onrender.com/reviews");
+    const data = await res.json();
+
+    const container = document.getElementById("reviews-container");
+    container.innerHTML = "";
+
+    data.reviews.forEach(review => {
+
+      const initial = review.name ? review.name.charAt(0).toUpperCase() : "U";
+
+      const card = `
+       <div class="min-w-[300px] max-w-[300px] glass p-8 rounded-3xl border border-white flex-shrink-0">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+              ${initial}
+            </div>
+            <div>
+              <h4 class="font-bold">${review.name}</h4>
+              <div class="flex text-sm">
+                ${generateStars(review.rating)}
+              </div>
+            </div>
+          </div>
+          <p class="text-slate-600 italic leading-relaxed">
+            "${review.message}"
+          </p>
+        </div>
+      `;
+
+      container.innerHTML += card;
+    });
+
+  } catch (err) {
+    console.error("Error loading reviews", err);
+  }
+}
+
+// ⭐ POST Review API
+document.getElementById("review-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    alert("Please login first");
+    return;
+  }
+
+  const message = document.querySelector("textarea").value;
+
+  if (!selectedRating) {
+    alert("Please select rating");
+    return;
+  }
+
+  try {
+    const res = await fetch("https://parkme-backend.onrender.com/reviews", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        rating: selectedRating,
+        message: message
+      })
+    });
+
+    const data = await res.json();
+
+    alert(data.message);
+
+    // Reset form
+    document.querySelector("textarea").value = "";
+    selectedRating = 0;
+
+    // Reload reviews
+    loadReviews();
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to post review");
+  }
+});
+
+// Load on page start
+window.addEventListener("DOMContentLoaded", () => {
+  setupStarRating();
+  loadReviews();
+});
+
+document.getElementById("scrollLeft").addEventListener("click", () => {
+  document.getElementById("reviews-container").scrollBy({
+    left: -300,
+    behavior: "smooth"
+  });
+});
+
+document.getElementById("scrollRight").addEventListener("click", () => {
+  document.getElementById("reviews-container").scrollBy({
+    left: 300,
+    behavior: "smooth"
+  });
 });
 
 </script>

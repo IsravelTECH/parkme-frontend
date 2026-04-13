@@ -334,7 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ✅ PAY BUTTON
   document.getElementById("payNowBtn").addEventListener("click", async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/create-checkout-session", {
+      const res = await fetch("https://parkme-backend.onrender.com/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

@@ -219,7 +219,13 @@
 <label class="block text-sm font-semibold text-gray-700 mb-4 flex justify-between">
                 Max Price (Hourly) <span>₹<span id="priceVal">250</span></span>
 </label>
-<input class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand" max="500" min="50" oninput="document.getElementById('priceVal').innerText = this.value" step="50" type="range" value="250"/>
+<input id="priceFilter"
+  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand"
+  max="500" min="50"
+  step="50"
+  value="250"
+  oninput="document.getElementById('priceVal').innerText = this.value"
+/>
 <div class="flex justify-between text-xs text-gray-400 mt-2">
 <span>₹50</span>
 <span>₹500</span>
@@ -231,11 +237,11 @@
 <div class="grid grid-cols-2 gap-2">
 <div>
 <span class="text-[10px] uppercase text-gray-400 font-bold mb-1 block">Start</span>
-<input class="w-full rounded-lg border-gray-200 text-sm focus:border-brand focus:ring-brand" type="time"/>
+<input id="filterStartTime" type="time" class="w-full rounded-lg border-gray-200 text-sm"/>
 </div>
 <div>
 <span class="text-[10px] uppercase text-gray-400 font-bold mb-1 block">End</span>
-<input class="w-full rounded-lg border-gray-200 text-sm focus:border-brand focus:ring-brand" type="time"/>
+<input id="filterEndTime" type="time" class="w-full rounded-lg border-gray-200 text-sm"/>
 </div>
 </div>
 </div>
@@ -243,27 +249,44 @@
 <div>
 <label class="block text-sm font-semibold text-gray-700 mb-4">Amenities</label>
 <div class="space-y-3">
+
 <label class="flex items-center gap-3 cursor-pointer group">
-<input class="rounded text-brand focus:ring-brand" type="checkbox"/>
-<span class="text-sm text-gray-600 group-hover:text-brand transition-colors"><i class="fas fa-video w-5 text-gray-400"></i> CCTV Surveillance</span>
+<input type="checkbox" value="CCTV" class="filter-feature"/>
+<span class="text-sm text-gray-600 group-hover:text-brand transition-colors">
+<i class="fas fa-video w-5 text-gray-400"></i> CCTV Surveillance
+</span>
 </label>
+
 <label class="flex items-center gap-3 cursor-pointer group">
-<input class="rounded text-brand focus:ring-brand" type="checkbox"/>
-<span class="text-sm text-gray-600 group-hover:text-brand transition-colors"><i class="fas fa-bolt w-5 text-gray-400"></i> EV Charging</span>
+<input type="checkbox" value="EV" class="filter-feature"/>
+<span class="text-sm text-gray-600 group-hover:text-brand transition-colors">
+<i class="fas fa-bolt w-5 text-gray-400"></i> EV Charging
+</span>
 </label>
+
 <label class="flex items-center gap-3 cursor-pointer group">
-<input class="rounded text-brand focus:ring-brand" type="checkbox"/>
-<span class="text-sm text-gray-600 group-hover:text-brand transition-colors"><i class="fas fa-users w-5 text-gray-400"></i> Family Friendly</span>
+<input type="checkbox" value="Covered" class="filter-feature"/>
+<span class="text-sm text-gray-600 group-hover:text-brand transition-colors">
+<i class="fas fa-warehouse w-5 text-gray-400"></i> Covered Parking
+</span>
 </label>
+
 <label class="flex items-center gap-3 cursor-pointer group">
-<input class="rounded text-brand focus:ring-brand" type="checkbox"/>
-<span class="text-sm text-gray-600 group-hover:text-brand transition-colors"><i class="fas fa-wheelchair w-5 text-gray-400"></i> Elder Friendly</span>
+<input type="checkbox" value="Security" class="filter-feature"/>
+<span class="text-sm text-gray-600 group-hover:text-brand transition-colors">
+<i class="fas fa-shield-halved w-5 text-gray-400"></i> Security Guard
+</span>
 </label>
+
 </div>
 </div>
-<button class="w-full py-3 rounded-xl text-white font-bold btn-gradient flex items-center justify-center gap-2">
-              Apply Filters
-            </button>
+<button onclick="applyFilters()"
+  class="w-full py-3 rounded-xl text-white font-bold btn-gradient">
+  Apply Filters
+</button>
+<button onclick="resetFilters()" class="mt-3 w-full border py-2 rounded">
+  Reset Filters
+</button>
 </div>
 </div>
 </aside>
@@ -467,7 +490,7 @@ function renderParkings(list) {
     listingsGrid.innerHTML += `
       <div class="parking-card bg-white rounded-2xl border border-gray-100 overflow-hidden">
 
-        <img src="http://127.0.0.1:8000/${place.image}"
+        <img src="https://parkme-backend.onrender.com/${place.image}"
              class="w-full h-30 object-cover" />
 
         <div class="p-4">
@@ -562,18 +585,44 @@ function loadProfileUI() {
 
 
 
+let searchTimeout;
+
 document.getElementById("searchInput").addEventListener("input", function () {
-  const value = this.value.toLowerCase();
+  const query = this.value.trim();
 
-  const filtered = allParkings.filter(p =>
-    (p.name && p.name.toLowerCase().includes(value)) ||
-    (p.address && p.address.toLowerCase().includes(value))
-  );
+  clearTimeout(searchTimeout);
 
-  renderParkings(filtered);
+  // ⏳ debounce (avoid too many API calls)
+  searchTimeout = setTimeout(() => {
+
+    if (query.length === 0) {
+      renderParkings(allParkings); // show default
+      return;
+    }
+
+    searchFromDB(query);
+
+  }, 500);
 });
 
 
+async function searchFromDB(query) {
+  try {
+    const res = await fetch(`https://parkme-backend.onrender.com/search?query=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    if (!data.results || data.results.length === 0) {
+      document.getElementById("listings-grid").innerHTML =
+        `<p class="text-gray-500">No parking found</p>`;
+      return;
+    }
+
+    renderParkings(data.results);
+
+  } catch (err) {
+    console.error("Search error:", err);
+  }
+}
 
 function renderSlotDays(days) {
   const container = document.getElementById("slotDays");
@@ -617,7 +666,7 @@ async function bookSlot() {
   };
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/book-slot", {
+    const res = await fetch("https://parkme-backend.onrender.com/book-slot", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -690,5 +739,55 @@ document.addEventListener("DOMContentLoaded", () => {
   initMap();
   loadProfileUI();
 });
+
+function applyFilters() {
+
+  const maxPrice = parseInt(document.getElementById("priceFilter").value);
+  const startTime = document.getElementById("filterStartTime").value;
+  const endTime = document.getElementById("filterEndTime").value;
+
+  const selectedFeatures = Array.from(
+    document.querySelectorAll(".filter-feature:checked")
+  ).map(el => el.value.toLowerCase());
+
+  const filtered = allParkings.filter(p => {
+
+    // ✅ Price filter
+    if (p.price_per_hour > maxPrice) return false;
+
+    // ✅ Feature filter
+    if (selectedFeatures.length > 0) {
+      const features = (p.features || []).join(" ").toLowerCase();
+
+      for (let f of selectedFeatures) {
+        if (!features.includes(f)) return false;
+      }
+    }
+
+    // ✅ Time filter (basic logic)
+    if (startTime && endTime) {
+      const s = parseInt(startTime.split(":")[0]);
+      const e = parseInt(endTime.split(":")[0]);
+
+      if (e <= s) return false; // invalid time
+    }
+
+    return true;
+  });
+
+  renderParkings(filtered);
+}
+
+function resetFilters() {
+  document.getElementById("priceFilter").value = 250;
+  document.getElementById("filterStartTime").value = "";
+  document.getElementById("filterEndTime").value = "";
+
+  document.querySelectorAll(".filter-feature")
+    .forEach(cb => cb.checked = false);
+
+  renderParkings(allParkings);
+}
+
 </script>
 </body></html>

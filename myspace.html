@@ -298,8 +298,11 @@
 <input type="file" id="imageInput" accept="image/*" class="hidden" />
 
 <div onclick="document.getElementById('imageInput').click()"
-     class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center bg-slate-50 cursor-pointer">
-  <p>Select Image</p>
+     class="border-2 border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center bg-slate-50 cursor-pointer">
+
+  <img id="previewImage" class="hidden rounded-lg mb-2 max-h-32" />
+
+  <p id="uploadText">Select Image</p>
 </div>
 <div class="space-y-3">
 <label class="block text-sm font-semibold text-slate-700">Available Days</label>
@@ -362,49 +365,6 @@
 </div>
 <!-- Grid of Active Slots -->
 <div id="parkingList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-<!-- Slot Card 1 -->
-<div class="glass-card rounded-2xl overflow-hidden hover-lift group relative shadow-sm">
-<input class="absolute top-4 left-4 w-5 h-5 rounded text-red-600 focus:ring-red-500 hidden selection-checkbox z-10" data-purpose="slot-selector" type="checkbox"/>
-<div class="h-48 overflow-hidden">
-<img alt="Slot Image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiT86Zf59yhnOX1onX-vrF6vx6nFVvSk-MIljKVCCthqAstgOr33RHBDe4hvnkRggLK1XZbm0sfAXJTabjp5mYPf2iQfmYSFqZ4Jsj_gnQgHw2C5HtVTnIqCr19VocnZQXB2DoKtGNlgH6XUBM57H84j2q1KlwAtS515YG4igb1zNfCG-btztMilCt88XiQG3ATjlVnEnWwBi_D9y32tbGurvn92WBsooYgD9vRmkuf14145Df4JdgIeeOufFETsUAqbeJFICwuhM"/>
-</div>
-<div class="p-6 space-y-4">
-<div class="flex justify-between items-start">
-<h4 class="font-bold text-lg text-slate-800">Skyline Premium Parking</h4>
-<p class="text-parkBlue font-bold">₹60/hr</p>
-</div>
-<p class="text-slate-500 text-sm leading-relaxed">MG Road, Behind Apex Mall, Pune, Maharashtra 411001</p>
-<div class="flex flex-wrap gap-2">
-<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">CCTV</span>
-<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">Covered</span>
-<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">EV Charging</span>
-</div>
-<button class="w-full py-2.5 mt-4 border border-parkBlue text-parkBlue font-semibold rounded-lg hover:bg-parkBlue hover:text-white transition-all" onclick="document.getElementById('editModal').classList.remove('hidden')">
-              Edit Space
-            </button>
-</div>
-</div>
-<!-- Slot Card 2 -->
-<div class="glass-card rounded-2xl overflow-hidden hover-lift group relative shadow-sm">
-<input class="absolute top-4 left-4 w-5 h-5 rounded text-red-600 focus:ring-red-500 hidden selection-checkbox z-10" data-purpose="slot-selector" type="checkbox"/>
-<div class="h-48 overflow-hidden">
-<img alt="Slot Image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdfd6qH5xVsG7rZMaGCiTVXlS8xJTPRbYfYLsTeCL1J0b5zbSiaicXOtpZp-y1B7jmMwRAatccOTBung4NOfFY5bzUiU9VJQr0yHXZgDn6eO-ZxF0cZLy2-4PTZPLD7Z78fTTJkbJVakE3FucQyUeFEGOVhEfvzTWjk-8Tc8ORZ-9uG3V6fp_RuWf2mMmU-rxoqw8uK5qzaxldvFHdzwXiwJdb0BGwafxkIeqNkwjL4rrIVDRIIeBIFB7QfEkYyQ7b-N_YZ5qQSFU"/>
-</div>
-<div class="p-6 space-y-4">
-<div class="flex justify-between items-start">
-<h4 class="font-bold text-lg text-slate-800">Home Driveway Space</h4>
-<p class="text-parkBlue font-bold">₹40/hr</p>
-</div>
-<p class="text-slate-500 text-sm leading-relaxed">B-12, Green Valleys, Sector 15, Vashi, Navi Mumbai</p>
-<div class="flex flex-wrap gap-2">
-<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">Security</span>
-<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">24/7 Access</span>
-</div>
-<button class="w-full py-2.5 mt-4 border border-parkBlue text-parkBlue font-semibold rounded-lg hover:bg-parkBlue hover:text-white transition-all" onclick="document.getElementById('editModal').classList.remove('hidden')">
-              Edit Space
-            </button>
-</div>
-</div>
 
 <!-- Delete Selected Button (hidden by default) -->
 <div class="hidden flex justify-center mt-10" id="deleteActionContainer">
@@ -570,7 +530,7 @@ async function loadMyDashboard() {
   const token = localStorage.getItem("token");
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/my-dashboard", {
+    const res = await fetch("https://parkme-backend.onrender.com/my-dashboard", {
       headers: {
         "Authorization": `Bearer ${token}`
       }
@@ -597,7 +557,7 @@ async function loadMyDashboard() {
     address: p.address || "No Address", // fallback
     price: p.price, // ✅ CORRECT FIELD
     features: p.features || [],
-    image: "http://127.0.0.1:8000/" + (p.image || ""),
+    image: "https://parkme-backend.onrender.com/" + (p.image || ""),
     landmark: p.landmark || "",
     slots: p.total_slots || 0
   });
@@ -661,7 +621,7 @@ form.addEventListener("submit", async (e) => {
   formData.append("image", imageFile);
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/add-parking", {
+    const res = await fetch("https://parkme-backend.onrender.com/add-parking", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`
@@ -801,7 +761,7 @@ document.getElementById("updateBtn").addEventListener("click", async () => {
   }
 
   try {
-    const res = await fetch(`http://127.0.0.1:8000/update-parking/${currentParkingId}`, {
+    const res = await fetch(`https://parkme-backend.onrender.com/update-parking/${currentParkingId}`, {
   method: "PUT",
   headers: {
     "Authorization": `Bearer ${token}`
@@ -826,6 +786,36 @@ document.getElementById("updateBtn").addEventListener("click", async () => {
     alert("❌ Update failed");
   }
 });
+
+
+const imageInput = document.getElementById("imageInput");
+const previewImage = document.getElementById("previewImage");
+const uploadText = document.getElementById("uploadText");
+
+imageInput.addEventListener("change", function () {
+  const file = this.files[0];
+
+  if (file) {
+    const url = URL.createObjectURL(file);
+
+    previewImage.src = url;
+    previewImage.classList.remove("hidden");
+
+    uploadText.innerText = "Image Selected ✅";
+  }
+});
+
+function previewEditImage(input) {
+  const file = input.files[0];
+
+  if (file) {
+    const url = URL.createObjectURL(file);
+    document.getElementById("editImagePreview").src = url;
+  }
+}
+form.reset();
+previewImage.classList.add("hidden");
+uploadText.innerText = "Select Image";
 
 </script>
 <!-- END: Interactive Logic -->
