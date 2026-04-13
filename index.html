@@ -468,18 +468,18 @@
       }
     }
 
-    function setupStarRating() {
-      const stars = document.querySelectorAll('#star-rating button');
-      stars.forEach(star => {
-        star.addEventListener('click', () => {
-          const rating = parseInt(star.getAttribute('data-star'));
-          stars.forEach((s, index) => {
-            s.classList.toggle('text-yellow-400', index < rating);
-            s.classList.toggle('text-slate-300', index >= rating);
-          });
-        });
-      });
-    }
+    // function setupStarRating() {
+    //   const stars = document.querySelectorAll('#star-rating button');
+    //   stars.forEach(star => {
+    //     star.addEventListener('click', () => {
+    //       const rating = parseInt(star.getAttribute('data-star'));
+    //       stars.forEach((s, index) => {
+    //         s.classList.toggle('text-yellow-400', index < rating);
+    //         s.classList.toggle('text-slate-300', index >= rating);
+    //       });
+    //     });
+    //   });
+    // }
 
     window.onload = () => {
       createBackgroundElements();
@@ -506,6 +506,9 @@
 
     // Check login status
 document.addEventListener("DOMContentLoaded", () => {
+  createBackgroundElements();
+  setupStarRating();
+  loadReviews();
 
   const token = localStorage.getItem("token");
   const username = localStorage.getItem("username");
@@ -565,18 +568,23 @@ function generateStars(rating) {
 // ⭐ Get Reviews API
 async function loadReviews() {
   try {
-    const res = await fetch("http://parkme-backend.onrender.com/reviews");
+    const res = await fetch("https://parkme-backend.onrender.com/reviews");
     const data = await res.json();
 
     const container = document.getElementById("reviews-container");
+
+    if (!container) {
+      console.error("❌ reviews-container not found");
+      return;
+    }
+
     container.innerHTML = "";
 
     data.reviews.forEach(review => {
-
       const initial = review.name ? review.name.charAt(0).toUpperCase() : "U";
 
       const card = `
-       <div class="min-w-[300px] max-w-[300px] glass p-8 rounded-3xl border border-white flex-shrink-0">
+        <div class="min-w-[300px] max-w-[300px] glass p-8 rounded-3xl border border-white flex-shrink-0">
           <div class="flex items-center gap-4 mb-4">
             <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
               ${initial}
@@ -598,7 +606,7 @@ async function loadReviews() {
     });
 
   } catch (err) {
-    console.error("Error loading reviews", err);
+    console.error("❌ Error loading reviews", err);
   }
 }
 
@@ -650,11 +658,7 @@ document.getElementById("review-form").addEventListener("submit", async (e) => {
   }
 });
 
-// Load on page start
-window.addEventListener("DOMContentLoaded", () => {
-  setupStarRating();
-  loadReviews();
-});
+
 
 document.getElementById("scrollLeft").addEventListener("click", () => {
   document.getElementById("reviews-container").scrollBy({
