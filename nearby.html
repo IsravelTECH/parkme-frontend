@@ -389,7 +389,7 @@ function initMap() {
 
 async function loadNearby(lat, lng) {
   try {
-    const res = await fetch(`http://localhost:8000/nearby?lat=${lat}&lng=${lng}`);
+    const res = await fetch(`https://parkme-backend.onrender.com/nearby?lat=${lat}&lng=${lng}`);
     const data = await res.json();
 
     if (!data.results || data.results.length === 0) {
