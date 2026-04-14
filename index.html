@@ -508,7 +508,7 @@ function updateNavbarAfterLogin(username, profileImage){
          onerror="this.style.display='none'; this.parentElement.innerText='${username.charAt(0).toUpperCase()}'"/>
   `;
 } else {
-  const baseURL = "http://127.0.0.1:8000";
+  const baseURL = "https://parkme-backend.onrender.com";
   profileIcon.innerHTML = `
     <img src="${baseURL}/${profileImage}" 
          class="w-10 h-10 rounded-full object-cover"
@@ -691,7 +691,7 @@ document.getElementById("scrollRight").addEventListener("click", () => {
 async function fetchProfile() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("http://127.0.0.1:8000/profile", {
+  const res = await fetch("https://parkme-backend.onrender.com/profile", {
     headers: {
       "Authorization": `Bearer ${token}`
     }
