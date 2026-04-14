@@ -241,8 +241,8 @@
 
   <!-- Profile Icon -->
   <div id="profileIcon"
-       class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold cursor-pointer">
-  </div>
+     class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-blue-500 text-white font-bold cursor-pointer">
+</div>
 
 </div>
 
@@ -392,21 +392,35 @@
 function loadProfileUI() {
   const token = localStorage.getItem("token");
   const username = localStorage.getItem("username");
+  const profileImage = localStorage.getItem("profileImage"); // ✅ get image
 
   const profileSection = document.getElementById("profileSection");
   const profileIcon = document.getElementById("profileIcon");
 
-  if (token) {
-    profileSection.classList.remove("hidden");
-    profileSection.classList.add("flex");
+  if (token && username) {
 
-    profileIcon.innerText = username
-      ? username.charAt(0).toUpperCase()
-      : "U"; // fallback
+    // Show section
+    if (profileSection) {
+      profileSection.classList.remove("hidden");
+      profileSection.classList.add("flex");
+    }
+
+    // 🔥 If image exists → show image
+    if (profileImage && profileImage !== "null") {
+      profileIcon.innerHTML = `
+        <img src="${profileImage}" 
+             class="w-10 h-10 rounded-full object-cover border cursor-pointer" />
+      `;
+    } 
+    // 🔥 Else → show initial
+    else {
+      profileIcon.innerText = username.charAt(0).toUpperCase();
+    }
+
+    // Click → profile page
     profileIcon.onclick = () => {
-        window.location.href = "profile.html";
+      window.location.href = "profile.html";
     };
-    
   }
 }
 

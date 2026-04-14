@@ -119,8 +119,8 @@
 
   <!-- Profile Icon -->
   <div id="profileIcon"
-       class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold cursor-pointer">
-  </div>
+     class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-blue-500 text-white font-bold cursor-pointer">
+</div>
 
 </div>
 
@@ -145,12 +145,15 @@
           The ultimate platform to find, book, and manage your parking spots with ease. Save time and money with ParkMe.
         </p>
 <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-<button href="nearby.html" class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-primary to-blue-700 text-white font-bold rounded-2xl shadow-xl hover:scale-105 transition-transform">
-            Find My Space
-          </button>
-<button href="myspace.html" class="w-full sm:w-auto px-10 py-4 glass text-primary font-bold rounded-2xl border-2 border-primary/20 hover:bg-white/50 transition-all">
-            Rent My Space
-          </button>
+<a href="nearby.html"
+   class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-primary to-blue-700 text-white font-bold rounded-2xl shadow-xl hover:scale-105 transition-transform text-center">
+   Find My Space
+</a>
+
+<a href="myspace.html"
+   class="w-full sm:w-auto px-10 py-4 glass text-primary font-bold rounded-2xl border-2 border-primary/20 hover:bg-white/50 transition-all text-center">
+   Rent My Space
+</a>
 </div>
 </div>
 </section>
@@ -486,22 +489,33 @@
       setupStarRating();
     };
     
-    function updateNavbarAfterLogin(username){
+function updateNavbarAfterLogin(username, profileImage){
 
   const authButtons = document.getElementById("authButtons");
   const profileSection = document.getElementById("profileSection");
   const profileIcon = document.getElementById("profileIcon");
 
   if(authButtons) authButtons.style.display = "none";
-  if(profileSection) profileSection.style.display = "block";
-
-  // Get first letter
-  const initial = username.charAt(0).toUpperCase();
+  if(profileSection) profileSection.style.display = "flex";
 
   if(profileIcon){
-    profileIcon.innerText = initial;
-  }
 
+    // ✅ If profile image exists
+    if (profileImage.startsWith("http")) {
+  profileIcon.innerHTML = `
+    <img src="${profileImage}" 
+         class="w-10 h-10 rounded-full object-cover"
+         onerror="this.style.display='none'; this.parentElement.innerText='${username.charAt(0).toUpperCase()}'"/>
+  `;
+} else {
+  const baseURL = "http://127.0.0.1:8000";
+  profileIcon.innerHTML = `
+    <img src="${baseURL}/${profileImage}" 
+         class="w-10 h-10 rounded-full object-cover"
+         onerror="this.style.display='none'; this.parentElement.innerText='${username.charAt(0).toUpperCase()}'"/>
+  `;
+}
+  }
 }
 
     // Check login status
@@ -512,14 +526,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const token = localStorage.getItem("token");
   const username = localStorage.getItem("username");
-
+  const profileImage = localStorage.getItem("profileImage"); 
   const authButtons = document.getElementById("authButtons");
   const profileSection = document.getElementById("profileSection");
   const profileIcon = document.getElementById("profileIcon");
 
   if(token && username){
-
-    updateNavbarAfterLogin(username);
+    fetchProfile(); 
+    updateNavbarAfterLogin(username , profileImage);
 
   } else {
 
@@ -674,5 +688,23 @@ document.getElementById("scrollRight").addEventListener("click", () => {
   });
 });
 
+async function fetchProfile() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("http://127.0.0.1:8000/profile", {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+
+  const data = await res.json();
+
+  // ✅ store correctly
+  localStorage.setItem("username", data.name);
+  localStorage.setItem("profileImage", data.profile_image);
+
+  // ✅ update navbar
+  updateNavbarAfterLogin(data.name, data.profile_image);
+}
 </script>
 </body></html>

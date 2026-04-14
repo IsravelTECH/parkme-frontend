@@ -166,9 +166,12 @@
 <div class="flex flex-col items-center gap-4">
 <div class="relative group">
 <div class="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all"></div>
-<div id="avatar-letter" class="w-40 h-40 rounded-full flex items-center justify-center text-5xl font-bold text-white bg-primary">
-</div>
-<button class="absolute bottom-2 right-2 p-2 bg-primary text-white rounded-full shadow-lg hover:scale-110 transition-transform">
+<img id="profile-image" class="w-40 h-40 rounded-full object-cover hidden" />
+<div id="avatar-letter" class="w-40 h-40 rounded-full flex items-center justify-center text-5xl font-bold text-white bg-primary"></div>
+
+<input type="file" id="image-input" class="hidden" />
+<button onclick="document.getElementById('image-input').click()" 
+class="absolute bottom-2 right-2 p-2 bg-primary text-white rounded-full shadow-lg">
 <span class="material-symbols-outlined !text-sm">photo_camera</span>
 </button>
 </div>
@@ -325,7 +328,7 @@ return;
 
 try{
 
-const res = await fetch("https://parkme-backend.onrender.com/profile",{
+const res = await fetch("http://127.0.0.1:8000/profile",{
 headers:{
 "Authorization":"Bearer "+token
 }
@@ -336,6 +339,15 @@ console.log("STATUS:",res.status);
 const user = await res.json();
 
 console.log("USER DATA:",user);
+
+// ✅ PROFILE IMAGE LOGIC
+if (user.profile_image) {
+    document.getElementById("profile-image").src = user.profile_image;
+    document.getElementById("profile-image").classList.remove("hidden");
+    document.getElementById("avatar-letter").classList.add("hidden");
+} else {
+    document.getElementById("avatar-letter").innerText = user.name.charAt(0).toUpperCase();
+}
 
 if(!user.name){
 console.error("Profile API error:", user);
@@ -373,6 +385,29 @@ console.error(error)
 }
 
 document.addEventListener("DOMContentLoaded", loadProfile);
+
+
+document.getElementById("image-input").addEventListener("change", async function () {
+    const file = this.files[0];
+    const token = localStorage.getItem("token");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("http://127.0.0.1:8000/upload-profile-image", {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        body: formData
+    });
+
+    const data = await res.json();
+
+    document.getElementById("profile-image").src = data.image_url;
+    document.getElementById("profile-image").classList.remove("hidden");
+    document.getElementById("avatar-letter").classList.add("hidden");
+});
 
 </script>
 </body></html>

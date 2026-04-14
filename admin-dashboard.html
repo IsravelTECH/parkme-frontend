@@ -128,7 +128,7 @@
    <!-- Profile -->
 <div class="relative">
   <div id="profileToggle" class="flex items-center gap-3 cursor-pointer">
-    
+    <input type="file" id="profileImageInput" accept="image/*" class="hidden" />
     <!-- Avatar -->
     <div id="profileInitial"
       class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
@@ -146,14 +146,21 @@
 
   <!-- Dropdown -->
   <div id="profileDropdown"
-    class="hidden absolute right-0 mt-3 w-40 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
-    
-    <button id="logoutBtn"
-      class="w-full text-left px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-50">
-      Logout
-    </button>
+  class="hidden absolute right-0 mt-3 w-44 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
 
-  </div>
+  <!-- Upload Image -->
+  <button id="uploadImageBtn"
+    class="w-full flex items-center gap-2 px-4 py-2 text-sm font-semibold hover:bg-gray-50">
+    Upload Image
+  </button>
+
+  <!-- Logout -->
+  <button id="logoutBtn"
+    class="w-full text-left px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-50">
+    Logout
+  </button>
+
+</div>
   </div>
 
 </nav>
@@ -330,15 +337,15 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <div class="bg-surface-container-low p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all">
 <div class="p-3 bg-white rounded-xl shadow-sm"><span class="material-symbols-outlined text-primary">all_inbox</span></div>
-<div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Reviews</p><p class="text-xl font-bold">12,240</p></div>
+<div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Reviews</p><p id="totalReviewsCount" class="text-xl font-bold">0</p></div>
 </div>
 <div class="bg-tertiary-fixed/10 p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all">
 <div class="p-3 bg-white rounded-xl shadow-sm"><span class="material-symbols-outlined text-on-tertiary-container">sentiment_very_satisfied</span></div>
-<div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Positive</p><p class="text-xl font-bold text-on-tertiary-container">11,050</p></div>
+<div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Positive</p><p id="positiveReviewsCount" class="text-xl font-bold text-on-tertiary-container">0</p></div>
 </div>
 <div class="bg-error-container/10 p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all">
 <div class="p-3 bg-white rounded-xl shadow-sm"><span class="material-symbols-outlined text-error">sentiment_very_dissatisfied</span></div>
-<div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Negative</p><p class="text-xl font-bold text-error">1,190</p></div>
+<div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Negative</p><p id="negativeReviewsCount" class="text-xl font-bold text-error">0</p></div>
 </div>
 </div>
 <div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-[0_20px_40px_rgba(30,58,138,0.06)]">
@@ -353,149 +360,60 @@
 <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-slate-100">
-<tr class="hover:bg-blue-50/40 transition-all cursor-default">
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs">JD</div>
-<span class="font-semibold text-sm">John Doe</span>
-</div>
-</td>
-<td class="px-6 py-4 text-sm text-slate-600">Downtown Plaza</td>
-<td class="px-6 py-4">
-<div class="flex text-[#FFD700] text-sm">
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-</div>
-</td>
-<td class="px-6 py-4 text-sm max-w-xs truncate">Excellent spot, very secure and easy to find!</td>
-<td class="px-6 py-4 text-sm text-slate-500">2 mins ago</td>
-<td class="px-6 py-4">
-<span class="px-3 py-1 bg-tertiary-fixed/20 text-on-tertiary-container text-[10px] font-bold uppercase rounded-full">Positive</span>
-</td>
-</tr>
-<tr class="hover:bg-blue-50/40 transition-all cursor-default">
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs">SM</div>
-<span class="font-semibold text-sm">Sarah Miller</span>
-</div>
-</td>
-<td class="px-6 py-4 text-sm text-slate-600">Central Hub</td>
-<td class="px-6 py-4">
-<div class="flex text-[#FFD700] text-sm">
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">star</span>
-</div>
-</td>
-<td class="px-6 py-4 text-sm max-w-xs truncate">The gate was locked when I arrived. Waited 15 mins.</td>
-<td class="px-6 py-4 text-sm text-slate-500">1 hour ago</td>
-<td class="px-6 py-4">
-<span class="px-3 py-1 bg-error-container/20 text-error text-[10px] font-bold uppercase rounded-full">Negative</span>
-</td>
-</tr>
+<tbody id="reviewsTable" class="divide-y divide-slate-100">
+
+
 </tbody>
 </table>
 <div class="p-4 border-t border-slate-100 flex justify-center">
-<button class="text-sm font-bold text-primary hover:underline transition-all">View All Reviews</button>
+<button id="viewAllReviewsBtn"
+ class="text-sm font-bold text-primary hover:underline">
+  View All Reviews
+</button>
 </div>
 </div>
 </section>
-<!-- Management Tables Bento Grid -->
-<section class="grid grid-cols-1 xl:grid-cols-3 gap-8 items-stretch">
-<!-- Recent Users -->
-<div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] space-y-4 flex flex-col h-full">
-<div class="flex justify-between items-center mb-2">
-<h3 class="font-bold text-lg text-primary">Recent Users</h3>
-<button class="text-xs font-bold text-primary uppercase tracking-widest hover:underline">See All</button>
-</div>
-<div class="space-y-3 flex-grow">
-<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all group cursor-pointer">
-<div class="flex items-center gap-3">
-<img class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7PZYUseHXL77SlO9WD5CawVdTXrHcXZGDMOBKw4ZCuGqPuI-ChJ6PYufwC5BIhkLu5b7s5hKZ9m5sRxInPet3c06yKbPS5isR5wGr5iJIP5J69-RVZLbTxIcmxbtyyiG3eoipCNt_WryXT3jXI3dtXpfGe4-ZwbJgn21d3C8B9wvPa2DoDZRmbiQQ0Lzia6DBvJzzaJ4dWsXWnESdDheahJqvgjZA8j3oWhjL6q6RZyOrAQ2qi8rEAlT75z3-zBDDyyrjYsp88So"/>
-<div>
-<p class="text-sm font-bold">Liam Taylor</p>
-<p class="text-xs text-slate-500 font-medium">liam@example.com</p>
-</div>
-</div>
-<span class="px-2 py-0.5 bg-tertiary-fixed/20 text-on-tertiary-container text-[8px] font-bold uppercase rounded">Active</span>
-</div>
-<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all group cursor-pointer">
-<div class="flex items-center gap-3">
-<img class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdnpO6r2G3WuMJ40bjnAEtMZtqIKdIUMviDKtPwd6lg2y9Rv1Nr-W8vkxaIqtiV-7gmFqbyO34a1mrir2w3YUKojQRsAH2AxGzp-OBXA1ZEiGc3ogYqRrCFk4-bIFFCb0vedzMHKhFEmG_BNaDRZ3kRxBwFwRNwfUVDIY4PlOzaKpx3ZVBAj_phc8VlFMfBammW-ijFx0d61D9pxx4C0SsHUtRVPNQ0keRf5UcsS7cymXYn4DeWTvwsyET8Fmk-SkeeV8jD8KjSG4"/>
-<div>
-<p class="text-sm font-bold">Emma Wilson</p>
-<p class="text-xs text-slate-500 font-medium">emma.w@mail.com</p>
-</div>
-</div>
-<span class="px-2 py-0.5 bg-secondary-container/30 text-secondary text-[8px] font-bold uppercase rounded">Pending</span>
-</div>
-</div>
-</div>
-<!-- Recent Parking Spaces -->
-<div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] space-y-4 flex flex-col h-full">
-<div class="flex justify-between items-center mb-2">
-<h3 class="font-bold text-lg text-primary">Recent Spaces</h3>
-<button class="text-xs font-bold text-primary uppercase tracking-widest hover:underline">Manage</button>
-</div>
-<div class="space-y-3 flex-grow">
-<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center"><span class="material-symbols-outlined text-primary text-xl">local_parking</span></div>
-<div>
-<p class="text-sm font-bold">Skyline Garage</p>
-<p class="text-xs text-slate-500 font-medium">London, UK</p>
-</div>
-</div>
-<p class="text-sm font-bold text-primary">$25/hr</p>
-</div>
-<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center"><span class="material-symbols-outlined text-primary text-xl">garage</span></div>
-<div>
-<p class="text-sm font-bold">Oak Street Lot</p>
-<p class="text-xs text-slate-500 font-medium">Manchester, UK</p>
-</div>
-</div>
-<p class="text-sm font-bold text-primary">$12/hr</p>
-</div>
-</div>
-</div>
-<!-- Recent Bookings -->
-<div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0_20px_40px_rgba(30,58,138,0.06)] space-y-4 flex flex-col h-full">
-<div class="flex justify-between items-center mb-2">
-<h3 class="font-bold text-lg text-primary">Recent Bookings</h3>
-<button class="text-xs font-bold text-primary uppercase tracking-widest hover:underline">History</button>
-</div>
-<div class="space-y-3 flex-grow">
-<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
-<div class="flex flex-col">
-<p class="text-sm font-bold">Order #8841</p>
-<p class="text-[10px] text-slate-500 uppercase font-bold">2 Hours Duration</p>
-</div>
-<div class="text-right">
-<p class="text-sm font-bold text-primary">$45.00</p>
-<p class="text-[8px] font-bold text-on-tertiary-container uppercase">Confirmed</p>
-</div>
-</div>
-<div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
-<div class="flex flex-col">
-<p class="text-sm font-bold">Order #8839</p>
-<p class="text-[10px] text-slate-500 uppercase font-bold">1 Day Duration</p>
-</div>
-<div class="text-right">
-<p class="text-sm font-bold text-primary">$120.00</p>
-<p class="text-[8px] font-bold text-error uppercase">Blocked</p>
-</div>
-</div>
-</div>
-</div>
+<!-- Management Cards -->
+<section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 items-start">
+
+  <!-- Recent Users -->
+  <div class="bg-surface-container-lowest p-6 rounded-3xl shadow space-y-4 flex flex-col h-full">
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="font-bold text-lg text-primary">Recent Users</h3>
+      <button id="seeAllUsersBtn"
+        class="text-xs font-bold text-primary uppercase tracking-widest hover:underline">
+        See All
+      </button>
+    </div>
+    <div id="recentUsersContainer" class="space-y-3 max-h-80 overflow-y-auto"></div>
+  </div>
+
+  <!-- Recent Spaces -->
+  <div class="bg-surface-container-lowest p-6 rounded-3xl shadow space-y-4 flex flex-col h-full">
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="font-bold text-lg text-primary">Recent Spaces</h3>
+      <button id="spacesToggleBtn"
+        onclick="toggleSpaces()"
+        class="text-xs font-bold text-primary uppercase tracking-widest hover:underline">
+        Manage
+      </button>
+    </div>
+    <div id="spacesContainer" class="space-y-3 max-h-80 overflow-y-auto"></div>
+  </div>
+
+  <!-- Recent Bookings -->
+  <div class="bg-surface-container-lowest p-6 rounded-3xl shadow space-y-4 flex flex-col h-full">
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="font-bold text-lg text-primary">Recent Bookings</h3>
+      <button id="bookingToggleBtn"
+        onclick="toggleBookings()"
+        class="text-xs font-bold text-primary uppercase tracking-widest hover:underline">
+        History
+      </button>
+    </div>
+    <div id="recentBookingsContainer" class="space-y-3 max-h-80 overflow-y-auto"></div>
+  </div>
+
 </section>
 </main>
 <!-- Footer Shell -->
@@ -508,6 +426,252 @@
 </footer>
 
 <script>
+
+let allUsersData = [];
+let showAllUsers = false;
+
+let allReviewsData = [];
+let showAllReviews = false;
+
+let showAllBookings = false;
+let showAllSpaces = false;
+
+async function loadRecentUsers() {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://127.0.0.1:8000/admin/recent-users", {
+      headers: {
+        Authorization: "Bearer " + token
+      }
+    });
+
+    const data = await res.json();
+    allUsersData = data.recent_users;
+
+    renderUsers();
+
+  } catch (err) {
+    console.error("Recent users error:", err);
+  }
+}
+
+function renderUsers() {
+  const container = document.querySelector("#recentUsersContainer");
+  container.innerHTML = "";
+
+  const users = showAllUsers 
+    ? allUsersData 
+    : allUsersData.slice(0, 3); // 👈 default 3
+
+  users.forEach(user => {
+    const name = user.name || "User";
+    const email = user.email || "No Email";
+    const status = user.role || "Active";
+    const initials = name.charAt(0).toUpperCase();
+    const image = user.profile_image;
+
+    container.innerHTML += `
+      <div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl">
+        <div class="flex items-center gap-3">
+          ${
+            image
+            ? `<img src="${image}" class="w-10 h-10 rounded-full object-cover border"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"/>`
+            : `<div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs">
+                ${initials}
+              </div>`
+          }
+
+          <div>
+            <p class="text-sm font-bold">${name}</p>
+            <p class="text-xs text-slate-500">${email}</p>
+          </div>
+        </div>
+
+        <span class="px-2 py-0.5 text-[8px] font-bold uppercase rounded bg-green-100 text-green-600">
+          ${status}
+        </span>
+      </div>
+    `;
+  });
+}
+
+async function loadBookings() {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://127.0.0.1:8000/admin/bookings", {
+      headers: {
+        Authorization: "Bearer " + token
+      }
+    });
+
+    const data = await res.json();
+    const bookings = data.bookings || [];
+
+    const container = document.querySelector("#recentBookingsContainer");
+    const btn = document.querySelector("#bookingToggleBtn");
+
+    container.innerHTML = "";
+
+    const visibleBookings = showAllBookings ? bookings : bookings.slice(0, 4);
+
+    visibleBookings.forEach(b => {
+      container.innerHTML += `
+        <div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl">
+          <div>
+            <p class="text-sm font-bold">Order #${b._id.slice(-4)}</p>
+            <p class="text-xs text-slate-500">${b.hours || "N/A"} hrs</p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm font-bold text-primary">₹${b.total_price || 0}</p>
+            <p class="text-xs ${b.status === "completed" ? "text-green-500" : "text-red-500"}">
+              ${b.status || "pending"}
+            </p>
+          </div>
+        </div>
+      `;
+    });
+
+    // 🔥 Change button text
+    if (btn) {
+      btn.innerText = showAllBookings ? "View Less" : "See All";
+    }
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function loadSpaces() {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://127.0.0.1:8000/admin/spaces", {
+      headers: {
+        Authorization: "Bearer " + token
+      }
+    });
+
+    const data = await res.json();
+    const spaces = data.spaces || [];
+
+    const container = document.querySelector("#spacesContainer");
+    const btn = document.querySelector("#spacesToggleBtn");
+
+    container.innerHTML = "";
+
+    const visibleSpaces = showAllSpaces ? spaces : spaces.slice(0, 4);
+
+    visibleSpaces.forEach(space => {
+      container.innerHTML += `
+        <div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl">
+          <div>
+            <p class="text-sm font-bold">${space.name}</p>
+            <p class="text-xs text-slate-500">${space.address}</p>
+          </div>
+          <p class="text-sm font-bold text-primary">₹${space.price_per_hour}/hr</p>
+        </div>
+      `;
+    });
+
+    // 🔥 Change button text
+    if (btn) {
+      btn.innerText = showAllSpaces ? "View Less" : "See All";
+    }
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function loadReviews() {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://127.0.0.1:8000/admin/reviews", {
+      headers: {
+        Authorization: "Bearer " + token
+      }
+    });
+
+    const data = await res.json();
+    allReviewsData = data.reviews;
+
+    renderReviews();
+
+  } catch (err) {
+    console.error("Reviews error:", err);
+  }
+}
+
+function renderReviews() {
+  const table = document.querySelector("#reviewsTable");
+  table.innerHTML = "";
+
+  const reviews = showAllReviews
+    ? allReviewsData
+    : allReviewsData.slice(0, 4);
+
+  let total = allReviewsData.length;
+  let positive = 0;
+  let negative = 0;
+
+  allReviewsData.forEach(r => {
+    if (r.rating >= 4) {
+      positive++;
+    } else {
+      negative++;
+    }
+  });
+
+  // ✅ Update UI counts
+  document.getElementById("totalReviewsCount").innerText = total;
+  document.getElementById("positiveReviewsCount").innerText = positive;
+  document.getElementById("negativeReviewsCount").innerText = negative;
+
+  // ✅ Render table
+  reviews.forEach(r => {
+    const initials = r.name.charAt(0).toUpperCase();
+
+    table.innerHTML += `
+      <tr class="hover:bg-blue-50/40">
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center font-bold text-xs">
+              ${initials}
+            </div>
+            <span class="font-semibold text-sm">${r.name}</span>
+          </div>
+        </td>
+
+        <td class="px-6 py-4 text-sm text-slate-600">Chennai</td>
+
+        <td class="px-6 py-4 text-[#FFD700]">
+          ${"⭐".repeat(r.rating)}
+        </td>
+
+        <td class="px-6 py-4 text-sm max-w-xs truncate">
+          ${r.message}
+        </td>
+
+        <td class="px-6 py-4 text-sm text-slate-500">
+          ${new Date(r.created_at).toLocaleDateString()}
+        </td>
+
+        <td class="px-6 py-4">
+          <span class="px-3 py-1 text-[10px] font-bold rounded-full
+            ${r.rating >= 4 ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}">
+            ${r.rating >= 4 ? "Positive" : "Negative"}
+          </span>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
 async function loadDashboard() {
   try {
     const token = localStorage.getItem("token");
@@ -534,10 +698,6 @@ async function loadDashboard() {
   }
 }
 
-// Load on page start
-loadDashboard();
-
-
 const role = localStorage.getItem("role");
 
 if(role !== "owner"){
@@ -546,12 +706,15 @@ if(role !== "owner"){
 
 function loadProfile() {
   const username = localStorage.getItem("username");
+  const image = localStorage.getItem("profile_image");
 
   if (username) {
-    // Show name
     document.getElementById("profileName").innerText = username;
+  }
 
-    // First letter as avatar
+  if (image) {
+    updateProfileImage(image);
+  } else {
     const firstLetter = username.charAt(0).toUpperCase();
     document.getElementById("profileInitial").innerText = firstLetter;
   }
@@ -567,6 +730,14 @@ document.getElementById("profileInitial").classList.add(randomColor);
 
 // Toggle dropdown
 const profileToggle = document.getElementById("profileToggle");
+const fileInput = document.getElementById("profileImageInput");
+
+const uploadBtn = document.getElementById("uploadImageBtn");
+
+uploadBtn.addEventListener("click", () => {
+  fileInput.click(); // open file picker
+});
+
 const dropdown = document.getElementById("profileDropdown");
 
 profileToggle.addEventListener("click", () => {
@@ -586,6 +757,95 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
 
   window.location.href = "index.html"; // redirect
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadDashboard();
+  loadRecentUsers();
+  loadBookings();
+  loadSpaces();
+  loadReviews();
+  loadProfile();
+});
+
+document.getElementById("seeAllUsersBtn").addEventListener("click", () => {
+  showAllUsers = !showAllUsers;
+
+  document.getElementById("seeAllUsersBtn").innerText =
+    showAllUsers ? "Show Less" : "See All";
+
+  renderUsers();
+});
+
+document.getElementById("viewAllReviewsBtn").addEventListener("click", () => {
+  showAllReviews = !showAllReviews;
+
+  document.getElementById("viewAllReviewsBtn").innerText =
+    showAllReviews ? "View Less Reviews" : "View All Reviews";
+
+  renderReviews();
+});
+
+function toggleBookings() {
+  showAllBookings = !showAllBookings;
+  loadBookings();
+}
+
+function toggleSpaces() {
+  showAllSpaces = !showAllSpaces;
+  loadSpaces();
+}
+
+fileInput.addEventListener("change", async () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const token = localStorage.getItem("token");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/upload-profile-image", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + token
+      },
+      body: formData
+    });
+
+    const data = await res.json();
+
+    console.log("Upload response:", data);
+
+    if (data.image_url) {
+      updateProfileImage(data.image_url);
+
+      // Save in localStorage (important)
+      localStorage.setItem("profile_image", data.image_url);
+    }
+
+  } catch (err) {
+    console.error("Upload error:", err);
+  }
+});
+
+function updateProfileImage(imageUrl) {
+  const profileDiv = document.getElementById("profileInitial");
+
+  profileDiv.innerHTML = `
+    <img src="${imageUrl}" 
+         class="w-10 h-10 rounded-full object-cover"
+         onerror="this.parentElement.innerHTML='A'" />
+  `;
+}
+
+if (data.image_url) {
+  updateProfileImage(data.image_url);
+  localStorage.setItem("profile_image", data.image_url);
+
+  // Close dropdown after upload
+  dropdown.classList.add("hidden");
+}
 
 </script>
 </body></html>
