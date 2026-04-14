@@ -328,7 +328,7 @@ return;
 
 try{
 
-const res = await fetch("http://127.0.0.1:8000/profile",{
+const res = await fetch("https://parkme-backend.onrender.com/profile",{
 headers:{
 "Authorization":"Bearer "+token
 }
@@ -394,7 +394,7 @@ document.getElementById("image-input").addEventListener("change", async function
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("http://127.0.0.1:8000/upload-profile-image", {
+    const res = await fetch("https://parkme-backend.onrender.com/upload-profile-image", {
         method: "POST",
         headers: {
             "Authorization": "Bearer " + token
