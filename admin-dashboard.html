@@ -106,6 +106,9 @@
         .kpi-card:hover {
             transform: translateY(-6px) scale(1.02);
         }
+        .transform transition-all duration-300 scale-95 {
+            transition: all 0.3s ease;
+        }
     </style>
 <!-- TopNavBar Shell -->
 <nav class="fixed top-0 left-0 w-full flex justify-between items-center px-8 h-20 bg-white/80 backdrop-blur-md z-50 shadow-[0_20px_40px_rgba(30,58,138,0.06)]">
@@ -123,10 +126,13 @@
     <!-- Search -->
     <div class="relative flex items-center bg-surface-container-low rounded-full px-4 py-2 border border-outline-variant/15">
       <span class="material-symbols-outlined text-outline text-lg mr-2">search</span>
-      <input id="globalSearch"
+      <input
   class="bg-transparent border-none focus:ring-0 text-sm w-48 font-medium"
   placeholder="Search users, bookings..."
   type="text"/>
+    <div id="searchResults"
+  class="hidden absolute top-12 left-0 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
+</div>
     </div>
 
     <!-- Profile -->
@@ -170,22 +176,28 @@
 
 </nav>
 
-<!-- 🔍 Global Search Result Modal -->
-<div id="searchModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+<!-- 🔥 Global Detail Modal -->
+<div id="globalModal"
+  class="hidden fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center">
 
-  <div class="bg-white w-[90%] md:w-[500px] rounded-2xl shadow-2xl p-6 animate-fade-in">
+  <div class="bg-white w-[90%] max-w-4xl rounded-2xl shadow-2xl p-8 relative">
 
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-bold text-primary">Search Result</h2>
-      <button onclick="closeSearchModal()" 
-        class="text-red-500 font-bold text-lg">✕</button>
-    </div>
+<button id="closeModal"
+  class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" 
+       class="w-5 h-5 text-gray-600" 
+       fill="none" 
+       viewBox="0 0 24 24" 
+       stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+          d="M6 18L18 6M6 6l12 12"/>
+  </svg>
+
+</button>
 
     <!-- Content -->
-    <div id="searchResultContent" class="space-y-3 text-sm">
-      <!-- Dynamic content here -->
-    </div>
+    <div id="modalContent"></div>
 
   </div>
 </div>
@@ -791,18 +803,22 @@ if(role !== "owner"){
 }
 
 function loadProfile() {
-  const username = localStorage.getItem("username");
+  const username = localStorage.getItem("username") || "A";
   const image = localStorage.getItem("profile_image");
 
-  if (username) {
-    document.getElementById("profileName").innerText = username;
-  }
+  const profileDiv = document.getElementById("profileInitial");
+  const nameEl = document.getElementById("profileName");
 
-  if (image) {
-    updateProfileImage(image);
+  nameEl.innerText = username;
+
+  if (image && image !== "null" && image !== "undefined" && image !== "") {
+    profileDiv.innerHTML = `
+      <img src="${image}" 
+           class="w-10 h-10 rounded-full object-cover"
+           onerror="this.parentElement.innerHTML='${username.charAt(0).toUpperCase()}'" />
+    `;
   } else {
-    const firstLetter = username.charAt(0).toUpperCase();
-    document.getElementById("profileInitial").innerText = firstLetter;
+    profileDiv.innerHTML = username.charAt(0).toUpperCase();
   }
 }
 
@@ -927,18 +943,12 @@ function updateProfileImage(imageUrl) {
   `;
 }
 
-if (data.image_url) {
-  updateProfileImage(data.image_url);
-  localStorage.setItem("profile_image", data.image_url);
 
-  // Close dropdown after upload
-  dropdown.classList.add("hidden");
-}
 
 async function loadUserGrowth() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("http://127.0.0.1:8000/admin/user-growth", {
+  const res = await fetch("https://parkme-backend.onrender.com/admin/user-growth", {
     headers: { Authorization: "Bearer " + token }
   });
 
@@ -1017,7 +1027,7 @@ function convertWeeklyToMonthly(weekly) {
 async function loadReviewStats() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("http://127.0.0.1:8000/admin/review-stats", {
+  const res = await fetch("https://parkme-backend.onrender.com/admin/review-stats", {
     headers: { Authorization: "Bearer " + token }
   });
 
@@ -1111,146 +1121,179 @@ function animateValue(id, value) {
   }, 16);
 }
 
-// 🔍 SEARCH EVENT
-document.getElementById("globalSearch").addEventListener("keydown", function (e) {
-  if (e.key === "Enter") {
-    performGlobalSearch(this.value.trim());
-  }
-});
-
-async function performGlobalSearch(query) {
-  if (!query) return;
-
-  const token = localStorage.getItem("token");
-  const lowerQuery = query.toLowerCase();
-
-  const modal = document.getElementById("searchModal");
-  const content = document.getElementById("searchResultContent");
-
-  // Show modal + loading
-  modal.classList.remove("hidden");
-  modal.classList.add("flex");
-  content.innerHTML = "🔍 Searching...";
-
-  try {
-    const res = await fetch(
-      `http://127.0.0.1:8000/admin/global-search?query=${encodeURIComponent(query)}`,
-      {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      }
-    );
-
-    const data = await res.json();
-
-    let resultHTML = "";
-    let found = false;
-
-    // ================= USERS =================
-    if (data.users?.length) {
-      found = true;
-      data.users.forEach(user => {
-        resultHTML += `
-          <div class="p-3 bg-blue-50 rounded-xl">
-            <p class="font-bold text-primary">👤 User</p>
-            <p><b>Name:</b> ${user.name || "N/A"}</p>
-            <p><b>Email:</b> ${user.email || "N/A"}</p>
-            <p><b>Role:</b> ${user.role || "N/A"}</p>
-          </div>
-        `;
-      });
-    }
-
-    // ================= SPACES =================
-    if (data.spaces?.length) {
-      found = true;
-      data.spaces.forEach(space => {
-        resultHTML += `
-          <div class="p-3 bg-purple-50 rounded-xl">
-            <p class="font-bold text-purple-600">🅿️ Space</p>
-            <p><b>Name:</b> ${space.name || "N/A"}</p>
-            <p><b>Address:</b> ${space.address || "N/A"}</p>
-            <p><b>Slots:</b> ${space.available_slots}/${space.total_slots}</p>
-            <p><b>Price:</b> ₹${space.price_per_hour}</p>
-          </div>
-        `;
-      });
-    }
-
-    // ================= BOOKINGS =================
-    if (data.bookings?.length) {
-      found = true;
-      data.bookings.forEach(b => {
-        resultHTML += `
-          <div class="p-3 bg-yellow-50 rounded-xl">
-            <p class="font-bold text-yellow-600">📦 Booking</p>
-            <p><b>ID:</b> ${b.short_id || b.id}</p>
-            <p><b>User:</b> ${b.user?.name || "N/A"}</p>
-            <p><b>Email:</b> ${b.user?.email || "N/A"}</p>
-            <p><b>Status:</b> ${b.status || "N/A"}</p>
-            <p><b>Price:</b> ₹${b.total_price || 0}</p>
-          </div>
-        `;
-      });
-    }
-
-    // ================= LOCAL REVIEWS (OPTIONAL) =================
-    if (window.allReviewsData) {
-      const reviews = allReviewsData.filter(r =>
-        r.name?.toLowerCase().includes(lowerQuery) ||
-        r.message?.toLowerCase().includes(lowerQuery) ||
-        String(r.rating).includes(lowerQuery)
-      );
-
-      if (reviews.length) {
-        found = true;
-        reviews.forEach(r => {
-          resultHTML += `
-            <div class="p-3 bg-green-50 rounded-xl">
-              <p class="font-bold text-green-600">⭐ Review</p>
-              <p><b>User:</b> ${r.name}</p>
-              <p><b>Rating:</b> ${r.rating}</p>
-              <p><b>Message:</b> ${r.message}</p>
-            </div>
-          `;
-        });
-      }
-    }
-
-    // ================= NO RESULT =================
-    if (!found) {
-      resultHTML = `
-        <div class="text-center text-gray-500 py-6">
-          ❌ No results found
-        </div>
-      `;
-    }
-
-    content.innerHTML = resultHTML;
-
-  } catch (err) {
-    console.error("Search error:", err);
-    content.innerHTML = "❌ Error fetching search results";
-  }
-}
-
-// ❌ CLOSE MODAL
-function closeSearchModal() {
-  const modal = document.getElementById("searchModal");
-  modal.classList.remove("flex");
-  modal.classList.add("hidden");
-}
-
-// click outside close
-document.getElementById("searchModal").addEventListener("click", (e) => {
-  if (e.target.id === "searchModal") {
-    closeSearchModal();
-  }
-});
-
-document.getElementById("searchResultContent").innerHTML = "Searching...";
-
-
 </script>
+
+<script>
+const searchInput = document.querySelector("input[placeholder='Search users, bookings...']");
+const resultsBox = document.getElementById("searchResults");
+
+const TOKEN = localStorage.getItem("token"); // replace dynamically
+
+
+function renderResults(data) {
+  let html = "";
+
+  // USERS
+  if (data.users.length) {
+    html += `<div class="px-3 py-2 text-xs font-bold text-gray-400">Users</div>`;
+    data.users.forEach(user => {
+      html += `
+  <div onclick="openUserModal('${user.id}', '${user.name}', '${user.email}', '${user.role}')"
+       class="px-4 py-2 hover:bg-gray-50 cursor-pointer">
+    <div class="font-semibold">${user.name}</div>
+    <div class="text-xs text-gray-500">${user.email}</div>
+  </div>
+`;
+    });
+  }
+
+  // SPACES
+  if (data.spaces.length) {
+    html += `<div class="px-3 py-2 text-xs font-bold text-gray-400">Spaces</div>`;
+    data.spaces.forEach(space => {
+      html += `
+  <div onclick="openSpaceModal('${space.name}', '${space.address}', ${space.price_per_hour}, ${space.available_slots})"
+       class="px-4 py-2 hover:bg-gray-50 cursor-pointer">
+    <div class="font-semibold">${space.name}</div>
+    <div class="text-xs text-gray-500">${space.address}</div>
+  </div>
+`;
+    });
+  }
+
+  // BOOKINGS
+    // BOOKINGS
+  if (data.bookings?.length) {
+    html += `<div class="px-3 py-2 text-xs font-bold text-gray-400">Bookings</div>`;
+    data.bookings.forEach(b => {
+      html += `
+      <div onclick="openBookingModal('${b.short_id}', '${b.status}', ${b.hours}, ${b.total_price}, '${b.user?.name || "Unknown"}')"
+        class="px-4 py-3 hover:bg-purple-50 cursor-pointer">
+
+        <div class="flex justify-between items-center">
+          <span class="font-semibold text-sm">Order #${b.short_id}</span>
+          <span class="text-xs px-2 py-1 rounded-full ${b.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}">
+            ${b.status}
+          </span>
+        </div>
+
+        <div class="text-xs text-gray-500 mt-1">${b.hours} hrs • ₹${b.total_price}</div>
+        <div class="text-xs text-purple-600">${b.user?.name || "Unknown"}</div>
+
+      </div>`;
+    });
+  }
+
+  if (!html) {
+    html = `<div class="p-4 text-sm text-gray-500">No results found</div>`;
+  }
+
+  resultsBox.innerHTML = html;
+  resultsBox.classList.remove("hidden");
+}
+
+// click outside to close
+document.addEventListener("click", (e) => {
+  if (!searchInput.contains(e.target) && !resultsBox.contains(e.target)) {
+    resultsBox.classList.add("hidden");
+  }
+});
+
+
+let timeout;
+searchInput.addEventListener("input", (e) => {
+  clearTimeout(timeout);
+  timeout = setTimeout(() => handleSearch(e), 400);
+});
+
+async function handleSearch(e) {
+  const query = e.target.value.trim();
+  if (!query) {
+    resultsBox.classList.add("hidden");
+    return;
+  }
+
+  const res = await fetch(`https://parkme-backend.onrender.com/admin/global-search?query=${query}`, {
+    headers: { Authorization: `Bearer ${TOKEN}` }
+  });
+
+  const data = await res.json();
+  renderResults(data);
+}
+
+const modal = document.getElementById("globalModal");
+const modalContent = document.getElementById("modalContent");
+const closeModal = document.getElementById("closeModal");
+
+// OPEN USER
+function openUserModal(id, name, email, role) {
+  modalContent.innerHTML = `
+    <h2 class="text-xl font-bold mb-4">User Details</h2>
+    <p><b>Name:</b> ${name}</p>
+    <p><b>Email:</b> ${email}</p>
+    <p><b>Role:</b> ${role}</p>
+  `;
+  modal.classList.remove("hidden");
+}
+
+// OPEN SPACE
+function openSpaceModal(name, address, price, slots) {
+  modalContent.innerHTML = `
+    <h2 class="text-xl font-bold mb-4">Space Details</h2>
+    <p><b>Name:</b> ${name}</p>
+    <p><b>Address:</b> ${address}</p>
+    <p><b>Price:</b> ₹${price}/hr</p>
+    <p><b>Available Slots:</b> ${slots}</p>
+  `;
+  modal.classList.remove("hidden");
+}
+
+// OPEN BOOKING
+function openBookingModal(id, status, hours, price, user) {
+  modalContent.innerHTML = `
+    <h2 class="text-xl font-bold mb-4">Booking Details</h2>
+    <p><b>Booking ID:</b> ${id}</p>
+    <p><b>Status:</b> ${status}</p>
+    <p><b>Hours:</b> ${hours}</p>
+    <p><b>Total Price:</b> ₹${price}</p>
+    <p><b>User:</b> ${user}</p>
+  `;
+  modal.classList.remove("hidden");
+}
+
+// CLOSE
+closeModal.addEventListener("click", () => {
+  modal.classList.add("hidden");
+});
+
+// click outside to close
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    modal.classList.add("hidden");
+  }
+});
+
+
+
+function openModal() {
+  const modal = document.getElementById("globalModal");
+  modal.classList.remove("hidden");
+
+  // 🚫 STOP PAGE SCROLL
+  document.body.style.overflow = "hidden";
+}
+
+function closeModalFunc() {
+  const modal = document.getElementById("globalModal");
+  modal.classList.add("hidden");
+
+  // ✅ ENABLE SCROLL AGAIN
+  document.body.style.overflow = "auto";
+}
+
+document.getElementById("closeModal").addEventListener("click", closeModalFunc);
+
+localStorage.setItem("token", data.access_token);
+</script>
+
 </body></html>
