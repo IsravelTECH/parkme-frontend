@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <!-- Material Symbols for Car Outlines -->
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script>
@@ -205,9 +207,6 @@
     }
   </style>
 
-
-
-
 </head>
 <body class="font-sans min-h-screen text-slate-800 bg-white">
 <!-- BEGIN: Background Elements -->
@@ -293,6 +292,24 @@
 <label class="block text-sm font-semibold text-slate-700">Full Address</label>
 <input class="w-full rounded-lg border-slate-200 focus:ring-parkBlue focus:border-parkBlue" placeholder="House/Flat No, Street Name, Area..." type="text"/>
 </div>
+<div id="map" class="w-full h-80 mt-4 rounded-xl"></div>
+<div class="grid grid-cols-2 gap-4">
+  <div>
+    <label class="text-sm font-bold">Latitude</label>
+    <input id="lat" name="lat" type="text" class="w-full border p-2 rounded" readonly>
+  </div>
+
+  <div>
+    <label class="text-sm font-bold">Longitude</label>
+    <input id="lng" name="lng" type="text" class="w-full border p-2 rounded" readonly>
+  </div>
+</div>
+
+<button type="button"
+        onclick="setCurrentLocation()"
+        class="mt-3 px-4 py-2 bg-blue-600 text-white rounded">
+  📍 Use Current Location
+</button>
 <!-- Row 3: Upload & Days -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 <input type="file" id="imageInput" accept="image/*" class="hidden" />
@@ -367,10 +384,6 @@
 <div id="parkingList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
 <!-- Delete Selected Button (hidden by default) -->
-<div class="hidden flex justify-center mt-10" id="deleteActionContainer">
-<button class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-200 transition-transform active:scale-95">
-          Delete Selected Slots
-        </button>
 </div>
 </section>
 <!-- END: Active Slots Section -->
@@ -379,9 +392,35 @@
 <footer class="py-10 text-center text-slate-400 text-sm border-t border-slate-100">
 <p>© 2026 ParkMe. All Rights Reserved.</p>
 </footer>
+
+<!-- ✅ DELETE MODAL (MOVE HERE) -->
+<div id="deleteModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 z-50">
+  <div class="bg-white p-6 rounded-xl w-80 space-y-4 text-center">
+    
+    <h2 class="text-lg font-bold">Delete Parking?</h2>
+
+    <p class="text-sm text-gray-500">
+      Are you sure you want to delete this parking?
+    </p>
+
+    <div class="flex gap-4 justify-center">
+      <button onclick="closeDeleteModal()" class="px-4 py-2 border rounded">
+        Cancel
+      </button>
+
+      <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded">
+        Delete
+      </button>
+    </div>
+
+  </div>
+</div>
+
 <!-- END: Footer -->
 <!-- BEGIN: Edit Modal -->
+
 <div class="fixed inset-0 z-[100] modal-backdrop hidden flex items-center justify-center p-4" id="editModal">
+
 <div class="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 shadow-2xl scale-in transform transition-all">
 <div class="flex justify-between items-center mb-6">
 <h2 class="text-2xl font-bold text-slate-800">Edit Parking Space</h2>
@@ -563,17 +602,21 @@ async function loadMyDashboard() {
     document.querySelectorAll("h3")[2].innerText = "₹" + data.total_earnings;
 
     // Add each parking
-    data.parkings.forEach(p => {
+data.parkings.forEach(p => {
   addParkingCard({
     id: p.id,
     name: p.name,
     city: p.city,
-    address: p.address || "No Address", // fallback
-    price: p.price, // ✅ CORRECT FIELD
+    address: p.address || "No Address",
+    price: p.price,
     features: p.features || [],
     image: "https://parkme-backend.onrender.com/" + (p.image || ""),
     landmark: p.landmark || "",
-    slots: p.total_slots || 0
+    slots: p.total_slots || 0,
+
+    // ✅ ADD THIS
+    lat: p.lat,
+    lng: p.lng
   });
 });
 
@@ -590,51 +633,51 @@ form.addEventListener("submit", async (e) => {
 
   const token = localStorage.getItem("token");
 
-  const name = document.querySelector("input[placeholder*='Garage']").value;
+  // ✅ GET VALUES FROM FORM
+  const name = document.querySelector("input[placeholder='e.g. Downtown Central Garage']").value;
   const city = document.querySelector("input[placeholder='e.g. Mumbai']").value;
-  const landmark = document.querySelector("input[placeholder*='Mall']").value;
-  const address = document.querySelector("input[placeholder*='House']").value;
-  const price = parseInt(document.querySelector("input[type='number']").value);
-  const availableSlots = parseInt(document.getElementById("availableSlots").value);
+  const landmark = document.querySelector("input[placeholder='e.g. Near Grand Mall']").value;
+  const address = document.querySelector("input[placeholder='House/Flat No, Street Name, Area...']").value;
 
-  const features = [];
-  document.querySelectorAll(".feature-checkbox").forEach(cb => {
-    if (cb.checked) {
-      features.push(cb.parentElement.innerText.trim());
-    }
-  });
-
-  const days = [];
-  document.querySelectorAll(".day-checkbox").forEach(cb => {
-    if (cb.checked) {
-      days.push(cb.parentElement.innerText.trim());
-    }
-  });
+  const price = document.querySelector("input[placeholder='50']").value;
+  const availableSlots = document.getElementById("availableSlots").value;
 
   const imageFile = document.getElementById("imageInput").files[0];
 
-  if (!imageFile) {
-    alert("❌ Please select an image");
-    return;
-  }
+  // ✅ FEATURES
+  const features = [];
+  document.querySelectorAll(".feature-checkbox:checked").forEach(cb => {
+    features.push(cb.parentElement.textContent.trim());
+  });
 
-  const formData = new FormData();
-  formData.append("name", name);
-  formData.append("city", city);
-  formData.append("landmark", landmark);
-  formData.append("address", address);
-  formData.append("lat", 13.0418);
-  formData.append("lng", 80.2341);
-  formData.append("price_per_hour", price);
-  formData.append("available_slots", availableSlots);
-  formData.append("total_slots", availableSlots);
-
-  features.forEach(f => formData.append("features", f));
-  days.forEach(d => formData.append("available_days", d));
-
-  formData.append("image", imageFile);
+  // ✅ DAYS
+  const days = [];
+  document.querySelectorAll(".day-checkbox:checked").forEach(cb => {
+    days.push(cb.parentElement.textContent.trim());
+  });
 
   try {
+    const formData = new FormData();
+
+    formData.append("name", name);
+    formData.append("city", city);
+    formData.append("landmark", landmark);
+    formData.append("address", address);
+
+    formData.append("lat", document.getElementById("lat").value);
+    formData.append("lng", document.getElementById("lng").value);
+
+    formData.append("price_per_hour", price);
+    formData.append("available_slots", availableSlots);
+    formData.append("total_slots", availableSlots);
+
+    features.forEach(f => formData.append("features", f));
+    days.forEach(d => formData.append("available_days", d));
+
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
     const res = await fetch("https://parkme-backend.onrender.com/add-parking", {
       method: "POST",
       headers: {
@@ -645,36 +688,44 @@ form.addEventListener("submit", async (e) => {
 
     const result = await res.json();
 
-    if (res.ok) {
-      alert("✅ Parking added successfully");
+    if (!res.ok) {
+      throw new Error(result.error || "Failed to add parking");
+    }
 
-      // 🔥 SHOW IN UI
-      addParkingCard({
-  id: result.parking_space.id, // 🔥 ADD THIS
-  name,
-  city,
-  landmark,
-  address,
-  price,
-  features,
-  image: URL.createObjectURL(imageFile)
+    alert("✅ Parking added successfully");
+
+    loadMyDashboard(); // refresh UI
+
+    // RESET FORM
+form.reset();
+
+// CLEAR IMAGE INPUT
+document.getElementById("imageInput").value = "";
+
+// HIDE PREVIEW
+previewImage.src = "";
+previewImage.classList.add("hidden");
+
+// RESET TEXT
+uploadText.innerText = "Select Image";
+
+  } catch (err) {
+    console.error(err);
+    alert("❌ " + err.message);
+  }
 });
 
-      // 🔥 RESET FORM
-      form.reset();
-
-    } else {
-      alert("❌ Error: " + JSON.stringify(result));
-    
-  }} catch (err) {
-    console.error("❌ Failed to add parking", err);
-    alert("❌ Failed to add parking");
-  }   
-});
-
+let distanceText = "";
 
 // 🔥 FUNCTION TO ADD CARD
 function addParkingCard(data) {
+
+  let distanceText = "";
+
+  if (userLat && userLng && data.lat && data.lng) {
+    const km = calculateDistance(userLat, userLng, data.lat, data.lng);
+    distanceText = `<p class="text-xs text-green-600 font-semibold">${km.toFixed(2)} km away</p>`;
+  }
 
   const featureHTML = data.features.map(f =>
     `<span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded border border-slate-200">${f}</span>`
@@ -682,35 +733,41 @@ function addParkingCard(data) {
 
   const card = `
   <div class="glass-card rounded-2xl overflow-hidden hover-lift group relative shadow-sm">
+      <!-- 🔥 DELETE ICON -->
+  <button onclick="openDeleteModal('${data.id}')"
+    class="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:bg-red-100">
+    🗑️
+  </button>
     <div class="h-48 overflow-hidden">
       <img src="${data.image}" class="w-full h-full object-cover"/>
     </div>
     <div class="p-6 space-y-4">
       <div class="flex justify-between items-start">
         <h4 class="font-bold text-lg text-slate-800">${data.name}</h4>
-        <p class="text-parkBlue font-bold">
-  ₹${data.price ?? "N/A"}/hr
-</p>
+        <p class="text-parkBlue font-bold">₹${data.price ?? "N/A"}/hr</p>
       </div>
+
       <p class="text-slate-500 text-sm">
-  ${data.address ?? "No Address"}, ${data.city ? data.city : ""}
-</p>
+        ${data.address ?? "No Address"}, ${data.city || ""}
+      </p>
+
+      ${distanceText} <!-- ✅ SHOW DISTANCE -->
+
       <div class="flex flex-wrap gap-2">
         ${featureHTML}
       </div>
 
-      <button 
-        onclick='openEditModal(
-  ${JSON.stringify(data.id)}, 
-  ${JSON.stringify(data.name)}, 
-  ${JSON.stringify(data.city)}, 
-  ${JSON.stringify(data.address)}, 
-  ${JSON.stringify(data.price)}, 
-  ${JSON.stringify(data.image)},
-  ${JSON.stringify(data.landmark || "")},
-  ${JSON.stringify(data.slots || "")}
-)'
-        class="w-full py-2.5 mt-4 border border-parkBlue text-parkBlue font-semibold rounded-lg">
+      <button onclick='openEditModal(
+        ${JSON.stringify(data.id)}, 
+        ${JSON.stringify(data.name)}, 
+        ${JSON.stringify(data.city)}, 
+        ${JSON.stringify(data.address)}, 
+        ${JSON.stringify(data.price)}, 
+        ${JSON.stringify(data.image)},
+        ${JSON.stringify(data.landmark || "")},
+        ${JSON.stringify(data.slots || "")}
+      )'
+      class="w-full py-2.5 mt-4 border border-parkBlue text-parkBlue font-semibold rounded-lg">
         Edit Space
       </button>
 
@@ -755,6 +812,9 @@ document.getElementById("updateBtn").addEventListener("click", async () => {
   formData.append("city", document.getElementById("editCity").value);
   formData.append("landmark", document.getElementById("editLandmark").value);
   formData.append("address", document.getElementById("editAddress").value);
+    // ✅ IMPORTANT
+  formData.append("lat", document.getElementById("lat").value);
+  formData.append("lng", document.getElementById("lng").value);
   formData.append("slots", document.getElementById("editSlots").value);
   formData.append("price_per_hour", document.getElementById("editPrice").value);
 
@@ -831,6 +891,162 @@ form.reset();
 previewImage.classList.add("hidden");
 uploadText.innerText = "Select Image";
 
+</script>
+
+<script>
+let map;
+let marker;
+let userLat = null;
+let userLng = null;
+
+navigator.geolocation.getCurrentPosition((pos) => {
+  userLat = pos.coords.latitude;
+  userLng = pos.coords.longitude;
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  initMap();
+});
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // km
+
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+}
+
+async function getAddress(lat, lng) {
+  const res = await fetch(
+    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+  );
+  const data = await res.json();
+
+  document.querySelector("input[placeholder='House/Flat No, Street Name, Area...']").value =
+    data.display_name;
+}
+
+function initMap() {
+  // Default location (Chennai)
+  const defaultLat = 13.0827;
+  const defaultLng = 80.2707;
+
+  map = L.map("map").setView([defaultLat, defaultLng], 13);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap"
+  }).addTo(map);
+
+  // Click to set location
+  map.on("click", function (e) {
+    const { lat, lng } = e.latlng;
+
+    setMarker(lat, lng);
+    getAddress(lat, lng);
+  });
+}
+
+function setMarker(lat, lng) {
+  // Remove old marker
+  if (marker) {
+    map.removeLayer(marker);
+  }
+
+  marker = L.marker([lat, lng]).addTo(map);
+
+  // Set values to input
+  document.getElementById("lat").value = lat;
+  document.getElementById("lng").value = lng;
+}
+
+// 📍 Current Location Button
+function setCurrentLocation() {
+  if (!navigator.geolocation) {
+    alert("Geolocation not supported");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      setMarker(lat, lng);
+      map.setView([lat, lng], 15);
+    },
+    () => {
+      alert("Location permission denied");
+    }
+  );
+}
+
+let deleteParkingId = null;
+
+// ✅ Open modal
+function openDeleteModal(id) {
+  deleteParkingId = id;
+  document.getElementById("deleteModal").classList.remove("hidden");
+  document.getElementById("deleteModal").classList.add("flex");
+  window.openDeleteModal = function(id) {
+  deleteParkingId = id;
+
+  const modal = document.getElementById("deleteModal");
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+};
+}
+
+// ✅ Close modal
+function closeDeleteModal() {
+  document.getElementById("deleteModal").classList.add("hidden");
+}
+
+// ✅ Confirm delete
+async function confirmDelete() {
+
+  const token = localStorage.getItem("token");
+
+  if (!deleteParkingId) return;
+
+  try {
+    console.log("Deleting:", deleteParkingId);
+
+    const res = await fetch(
+      `https://parkme-backend.onrender.com/delete-parking/${deleteParkingId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      }
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("✅ Deleted successfully");
+
+      closeDeleteModal();
+
+      loadMyDashboard(); // refresh UI
+    } else {
+      alert("❌ " + (data.detail || data.message));
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("❌ Delete failed");
+  }
+}
 </script>
 <!-- END: Interactive Logic -->
 </body></html>
