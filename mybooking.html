@@ -221,32 +221,68 @@
 <div class="bubble w-80 h-80 right-[15%]" style="animation-delay: 18s;"></div>
 </div>
 <!-- Top Navigation Bar -->
-<header class="sticky top-0 z-50 glass border-b border-primary/10 px-6 py-4">
-<div class="max-w-7xl mx-auto flex items-center justify-between">
-<div class="flex items-center gap-3">
-<div class="p-2 bg-primary rounded-lg text-white">
-<span class="material-symbols-outlined !text-2xl">local_parking</span>
-</div>
-<h1 class="text-2xl font-extrabold text-primary tracking-tight">ParkMe</h1>
-</div>
-<nav class="hidden lg:flex items-center gap-8 flex-1 justify-center">
-<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="index.html">Home</a>
-<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="nearby.html">Nearby Parking</a>
-<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="myspace.html">My Space</a>
-<a class="nav-link relative text-primary font-bold text-sm bg-primary/5 px-3 py-1 rounded-full duration-300" href="mybooking.html">My Bookings</a>
-<a class="nav-link relative text-slate-700 dark:text-slate-300 font-medium text-sm transition-all duration-300 hover:text-primary" href="profile.html">My Profile</a>
-</nav>
-<!-- Profile -->
-<div id="profileSection" class="hidden relative items-center gap-2">
+<header class="fixed top-0 left-0 right-0 z-50 px-6 py-4">
+  <div class="max-w-7xl mx-auto glass rounded-2xl px-6 py-3 flex items-center justify-between shadow-sm">
 
-  <!-- Profile Icon -->
-  <div id="profileIcon"
-     class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-blue-500 text-white font-bold cursor-pointer">
-</div>
+    <!-- Logo -->
+    <div class="flex items-center gap-2">
+      <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-4.66l.12-.34h13.77l.11.34V17z"></path>
+        <circle cx="7.5" cy="14.5" r="1.5"></circle>
+        <circle cx="16.5" cy="14.5" r="1.5"></circle>
+      </svg>
+      <span class="text-2xl font-extrabold text-primary tracking-tight">ParkMe</span>
+    </div>
 
-</div>
+    <!-- Menu -->
+    <div class="hidden md:flex items-center gap-8 font-medium">
 
+      <a href="index.html"
+         class="nav-link text-slate-700 hover:text-primary transition-colors">
+         Home
+      </a>
+
+      <!-- ✅ Active -->
+      <a href="nearby.html"
+         class="nav-link text-slate-700 hover:text-primary transition-colors">
+         Nearby Parking
+      </a>
+
+      <a href="myspace.html"
+         class="nav-link text-slate-700 hover:text-primary transition-colors">
+         My Space
+      </a>
+
+      <a href="mybooking.html"
+         class="nav-link text-primary font-bold bg-primary/5 px-3 py-1 rounded-full">
+         My Bookings
+      </a>
+
+      <a href="profile.html"
+         class="nav-link text-slate-700 hover:text-primary transition-colors">
+         My Profile
+      </a>
+
+    </div>
+
+    <!-- Profile Only -->
+    <div id="profileSection" class="hidden md:flex items-center gap-2">
+      <div id="profileIcon"
+           class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-blue-500 text-white font-bold cursor-pointer">
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <button class="md:hidden text-primary p-2">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16m-7 6h7"></path>
+      </svg>
+    </button>
+
+  </div>
 </header>
+<br><br><br>
 <!-- Summary Cards Section -->
  <br/>
 <main class="max-w-7xl mx-auto px-6 py-8">
@@ -494,16 +530,17 @@ if (data.active_booking && data.active_booking.length > 0) {
       </p>
     </div>
 
-    <!-- Status -->
-    <div class="mt-3">
-      <span class="text-xs px-3 py-1 rounded ${
-        item.status === "active"
-          ? "bg-green-100 text-green-600"
-          : "bg-red-100 text-red-600"
-      }">
+    <!-- Status + Cancel -->
+    <div class="mt-3 flex items-center justify-between">
+      <span class="text-xs px-3 py-1 rounded bg-green-100 text-green-600">
         ${item.status}
       </span>
-    </div>
+
+      <!-- ✅ Cancel Button -->
+      <button onclick="cancelBooking('${item.booking_id}')"
+        class="text-xs px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
+        Cancel
+      </button>
 
   </div>
 `;
@@ -511,7 +548,13 @@ if (data.active_booking && data.active_booking.length > 0) {
   });
 
 } else {
-  activeContainer.innerHTML = `<p class="text-gray-500"> No Active Bookings</p>`;
+  activeContainer.innerHTML = `
+  <div class="w-full flex justify-center items-center py-10">
+    <p class="text-gray-500 text-lg font-medium">
+      🚫 No Active Bookings
+    </p>
+  </div>
+`;
 }
 
     /* ================= HISTORY ================= */
@@ -563,7 +606,13 @@ if (data.active_booking && data.active_booking.length > 0) {
         container.innerHTML += card;
       });
     } else {
-      container.innerHTML = `<p class="text-gray-500">No booking history</p>`;
+        activeContainer.innerHTML = `
+  <div class="w-full flex justify-center items-center py-10">
+    <p class="text-gray-500 text-lg font-medium">
+      🚫 No Bookings History
+    </p>
+  </div>
+`;
     }
 
   } catch (err) {
@@ -580,6 +629,42 @@ function scrollHistory(amount) {
 function scrollActive(amount) {
   const container = document.getElementById("activeContainer");
   container.scrollBy({ left: amount, behavior: "smooth" });
+}
+
+
+async function cancelBooking(bookingId) {
+  const confirmCancel = confirm("Are you sure to cancel this booking?");
+  if (!confirmCancel) return;
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `https://parkme-backend.onrender.com/cancel-booking/${bookingId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Booking Cancelled ✅");
+
+      // 🔄 reload dashboard
+      loadMyDashboard();
+    } else {
+      alert(data.detail || "Cancel failed");
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Error cancelling booking");
+  }
 }
 
 </script>     
