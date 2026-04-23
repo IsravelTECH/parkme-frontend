@@ -328,7 +328,7 @@
 
     <!-- SCROLL CONTAINER -->
     <div id="activeContainer"
-         class="flex gap-10 overflow-x-auto scroll-smooth px-1000 py-2">
+     class="flex gap-6 overflow-x-auto scroll-smooth px-4 py-2">
     </div>
                     
     <!-- RIGHT BUTTON -->
@@ -508,7 +508,7 @@ if (data.active_booking && data.active_booking.length > 0) {
 
   data.active_booking.forEach(item => {
 
-    const card = `
+const card = `
   <div class="min-w-[280px] max-w-[280px] bg-white p-5 rounded-xl shadow hover:shadow-xl transition flex flex-col justify-between">
 
     <!-- Image -->
@@ -536,13 +536,13 @@ if (data.active_booking && data.active_booking.length > 0) {
         ${item.status}
       </span>
 
-      <!-- ✅ Cancel Button -->
       <button onclick="cancelBooking('${item.booking_id}')"
         class="text-xs px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
         Cancel
       </button>
+    </div>
 
-  </div>
+  </div> <!-- ✅ THIS WAS MISSING -->
 `;
     activeContainer.innerHTML += card;
   });
@@ -605,15 +605,15 @@ if (data.active_booking && data.active_booking.length > 0) {
 
         container.innerHTML += card;
       });
-    } else {
-        activeContainer.innerHTML = `
-  <div class="w-full flex justify-center items-center py-10">
-    <p class="text-gray-500 text-lg font-medium">
-      🚫 No Bookings History
-    </p>
-  </div>
-`;
-    }
+   } else {
+  container.innerHTML = `
+    <div class="w-full flex justify-center items-center py-10">
+      <p class="text-gray-500 text-lg font-medium">
+        🚫 No Bookings History
+      </p>
+    </div>
+  `;
+}
 
   } catch (err) {
     console.error("Dashboard Load Error:", err);

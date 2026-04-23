@@ -110,7 +110,22 @@
       pointer-events: none;
       z-index: -5;
       animation: particle-drift 20s ease-in-out infinite;
-    }</style>
+    }
+    
+    /* Remove default browser password reveal icons */
+   input[type="password"]::-ms-reveal,
+   input[type="password"]::-ms-clear {
+     display: none;
+   }
+
+   input[type="password"]::-webkit-credentials-auto-fill-button {
+     display: none !important;
+   }
+
+   input[type="password"]::-webkit-textfield-decoration-container {
+     display: none !important;
+   }
+    </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col items-center justify-center font-sans overflow-x-hidden">
 <!-- BEGIN: Background Layer -->

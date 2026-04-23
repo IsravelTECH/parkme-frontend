@@ -371,6 +371,7 @@
 <div>
   <label class="block text-sm font-bold mb-2">Select Day</label>
   <div id="slotDays" class="flex flex-wrap gap-2"></div>
+  <p id="selectedDayText" class="text-sm text-blue-600 font-semibold"></p>
 </div>
 
 <!-- Time -->
@@ -419,6 +420,16 @@ function initMap() {
   // Load default nearby (Chennai center)
   loadNearby(13.0418, 80.2341);
 }
+
+function showError(msg) {
+  const div = document.createElement("div");
+  div.innerText = msg;
+  div.className = "fixed top-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow z-[3000]";
+  document.body.appendChild(div);
+
+  setTimeout(() => div.remove(), 3000);
+}
+
 
 
 /* ================= LOAD NEARBY ================= */
@@ -480,6 +491,12 @@ function openBookingModal(place) {
   document.getElementById('bookingModal').classList.remove('hidden');
 
   document.getElementById('modalParkingName').innerText = place.name;
+  document.getElementById("modalParkingName").innerText =
+  `${place.name} (${place.available_slots} slots left)`;
+
+    // ✅ ADD HERE
+  document.getElementById("availableDaysText").innerText =
+    place.available_days.join(", ");
 
   selectedParking = place;
   currentRate = place.price_per_hour;
@@ -559,22 +576,44 @@ function renderParkings(list) {
             Available: ${(place.available_days || []).join(", ")}
           </p>
 
-          <p class="text-sm text-green-600 font-semibold mt-2">
-            Available Slots: ${place.available_slots ?? 0}
+          <p class="text-sm text-green-600 mt-2">
+            Available Days: <span id="availableDaysText"></span>
           </p>
 
           <p class="text-lg text-gray-500 mt-2">
-            ₹${place.price_per_hour}/hr
-          </p>
+  ₹${place.price_per_hour}/hr
+</p>
+
+<!-- 🆕 Available Slots -->
+<p class="text-sm mt-1 ${
+  place.available_slots === 0 
+    ? "text-red-500 font-semibold" 
+    : "text-green-600 font-semibold"
+}">
+  ${
+    place.available_slots === 0
+      ? "❌ Full"
+      : `🅿️ ${place.available_slots} slots available`
+  }
+</p>
 
           <p class="text-xs text-gray-400">
             ${(place.distance / 1000).toFixed(2)} km away
           </p>
 
-          <button onclick='openBookingModal(${JSON.stringify(place)})'
-            class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-lg">
-            Book Now
-          </button>
+          <button 
+  ${place.available_slots === 0 ? "disabled" : ""}
+  onclick='openBookingModal(${JSON.stringify(place)})'
+  class="mt-4 w-full px-4 py-2 rounded-lg 
+  ${place.available_slots === 0 
+    ? "bg-gray-300 text-gray-500 cursor-not-allowed" 
+    : "bg-blue-600 text-white"}">
+  ${
+  place.available_slots === 0
+    ? "Parking Full"
+    : `Book Now (${place.available_slots})`
+}
+</button>
         </div>
       </div>
     `;
@@ -591,6 +630,7 @@ function renderParkings(list) {
     }
   });
 }
+
 
 
 /* ================= PROFILE ================= */
@@ -678,30 +718,42 @@ function renderSlotDays(days) {
   days.forEach(day => {
     container.innerHTML += `
       <label class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded cursor-pointer">
-        <input type="checkbox" name="slotDay" value="${day}" />
+        <input type="radio" name="slotDay" value="${day}" />
         ${day}
       </label>
     `;
   });
 }
 
+function getDayName(dateString) {
+  const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const date = new Date(dateString);
+  return days[date.getDay()];
+}
+
 async function bookSlot() {
 
   const token = localStorage.getItem("token");
+
+  // ❗ NEW CHECK (IMPORTANT)
+  if (selectedParking.available_slots === 0) {
+    showError("All slots are booked for this parking ❌");
+    return;
+  }
 
   const vehicle = document.getElementById("vehicleNumber").value;
   const date = document.getElementById("bookingDate").value;
   const start = document.getElementById("startTime").value;
   const end = document.getElementById("endTime").value;
 
-  const selectedDays = Array.from(
-  document.querySelectorAll('input[name="slotDay"]:checked')
-).map(el => el.value);
+  const selectedDayEl = document.querySelector('input[name="slotDay"]:checked');
+  const selectedDay = selectedDayEl ? selectedDayEl.value : null;
 
-  if (!vehicle || !date || !start || !end || selectedDays.length === 0) {
-  alert("Fill all fields");
-  return;
-}
+  if (!vehicle || !date || !start || !end || !selectedDay) {
+    showError("Fill all fields");
+    return;
+  }
+
 
   const payload = {
     parking_id: selectedParking.parking_id,
@@ -709,7 +761,7 @@ async function bookSlot() {
     booking_date: date,
     start_time: start,
     end_time: end,
-    selected_days: selectedDays
+    selected_days: [selectedDay]   // ✅ FIXED
   };
 
   try {
@@ -836,5 +888,45 @@ function resetFilters() {
   renderParkings(allParkings);
 }
 
+document.getElementById("bookingDate").addEventListener("input", function () {
+
+  if (!selectedParking) return;
+
+  const selectedDate = this.value;
+  if (!selectedDate) return;
+
+  const daysFull = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const daysShort = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+  const dateObj = new Date(selectedDate);
+
+  const fullDay = daysFull[dateObj.getDay()];
+  const shortDay = daysShort[dateObj.getDay()];
+
+  const availableDays = selectedParking.available_days || [];
+
+  // ✅ Show selected day
+  document.getElementById("selectedDayText").innerText =
+    `Selected Day: ${fullDay}`;
+
+  // ❌ Not available
+  if (!availableDays.includes(shortDay)) {
+
+    showError(`${fullDay} is NOT available ❌`);
+
+    this.value = "";
+    document.getElementById("selectedDayText").innerText = "";
+
+    return;
+  }
+
+  // ✅ Auto-select matching radio
+  const radios = document.querySelectorAll('input[name="slotDay"]');
+
+  radios.forEach(r => {
+    r.checked = (r.value === shortDay);
+  });
+
+});
 </script>
 </body></html>

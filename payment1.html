@@ -333,34 +333,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ✅ PAY BUTTON
   document.getElementById("payNowBtn").addEventListener("click", async () => {
-    try {
-      const res = await fetch("https://parkme-backend.onrender.com/create-checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          parking_name: booking.parking_name,
-          amount: booking.total
-        })
-      });
+  try {
+    const amount = Number(booking.total);
 
-      const data = await res.json();
+    // ✅ VALIDATION (ADD THIS)
+    if (amount < 50) {
+  const popup = document.createElement("div");
+  popup.innerHTML = `
+    <div style="
+      position:fixed;
+      top:20px;
+      left:50%;
+      transform:translateX(-50%);
+      background:#ef4444;
+      color:white;
+      padding:12px 20px;
+      border-radius:8px;
+      font-weight:bold;
+      z-index:9999;
+    ">
+      Minimum payment amount is ₹50
+    </div>
+  `;
+  document.body.appendChild(popup);
 
-      if (!data.id) {
-        alert("Payment session failed");
-        return;
-      }
+  setTimeout(() => popup.remove(), 3000);
+  return;
+}
 
-      await stripe.redirectToCheckout({
-        sessionId: data.id
-      });
+    const res = await fetch("https://parkme-backend.onrender.com/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        parking_name: booking.parking_name,
+        amount: amount
+      })
+    });
 
-    } catch (err) {
-      console.error(err);
-      alert("Payment failed");
+    const data = await res.json();
+
+    if (!data.id) {
+      alert("Payment session failed");
+      return;
     }
-  });
+
+    await stripe.redirectToCheckout({
+      sessionId: data.id
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert("Payment failed");
+  }
+});
 
   // ✅ CANCEL BUTTON (FIXED)
   document.getElementById("cancelBtn").addEventListener("click", () => {
