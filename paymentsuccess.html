@@ -238,7 +238,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   try {
-    const res = await fetch(`https://parkme-api.onrender.com/verify-payment/${sessionId}`);
+    const res = await fetch(`https://parkme-backend.onrender.com/verify-payment/${sessionId}`);
     const result = await res.json();
     console.log(result); // 🔥 DEBUG
 
