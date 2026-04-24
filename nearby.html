@@ -786,7 +786,7 @@ async function bookSlot() {
     date: date,
     start_time: start,
     end_time: end,
-    total: document.getElementById("estimatedTotal").innerText
+    total: data.booking_details.total_price
   };
 
 localStorage.setItem("bookingData", JSON.stringify({
