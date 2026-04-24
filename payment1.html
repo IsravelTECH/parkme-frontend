@@ -112,23 +112,23 @@
 <div class="space-y-3">
 <div class="flex justify-between items-center">
 <span class="text-sm text-slate-500">Location</span>
-<span class="text-sm font-semibold text-slate-900">Downtown Plaza, Level 2</span>
+<span class="text-sm font-semibold text-slate-900"></span>
 </div>
 <div class="flex justify-between items-center">
 <span class="text-sm text-slate-500">Parking Slot</span>
-<span class="text-sm font-semibold text-slate-900">A-142</span>
+<span class="text-sm font-semibold text-slate-900"></span>
 </div>
 <div class="flex justify-between items-center">
 <span class="text-sm text-slate-500">Vehicle</span>
-<span class="text-sm font-semibold text-slate-900">Tesla Model 3 (ABC-1234)</span>
+<span class="text-sm font-semibold text-slate-900"></span>
 </div>
 <div class="flex justify-between items-center">
 <span class="text-sm text-slate-500">Duration</span>
-<span class="text-sm font-semibold text-slate-900">4 Hours</span>
+<span class="text-sm font-semibold text-slate-900"></span>
 </div>
 <div class="pt-3 border-t border-slate-200 flex justify-between items-center">
 <span class="text-base font-bold text-slate-900">Total Price</span>
-<span class="text-xl font-bold text-parkme-primary">$12.00</span>
+<span class="text-xl font-bold text-parkme-primary"></span>
 </div>
 </div>
 </div>
@@ -136,91 +136,7 @@
     Confirm &amp; Pay
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
 </button>
-</div><form class="space-y-4 hidden" id="payment-form" onsubmit="return false;">
-<!-- UPI Method -->
-<div class="method-card group border border-slate-200 rounded-xl cursor-pointer" data-method="upi">
-<div class="flex items-center justify-between p-4" onclick="toggleMethod('upi')">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 flex items-center justify-center bg-white border border-slate-100 rounded shadow-sm">
-<span class="text-xs font-bold text-slate-700">UPI</span>
 </div>
-<span class="font-medium text-slate-700">UPI Payment</span>
-</div>
-<svg class="w-5 h-5 text-slate-400 transition-transform duration-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-</div>
-<div class="px-4 pb-4 space-y-3">
-<input class="w-full px-4 py-2.5 rounded-lg border border-slate-200 input-focus text-sm outline-none transition-all" placeholder="username@upi" type="text"/>
-<button class="w-full bg-parkme-primary text-white py-3 rounded-lg font-semibold text-sm btn-primary">Pay with UPI</button>
-</div>
-</div>
-<!-- Google Pay Method -->
-<div class="method-card group border border-slate-200 rounded-xl cursor-pointer" data-method="gpay">
-<div class="flex items-center justify-between p-4" onclick="toggleMethod('gpay')">
-<div class="flex items-center gap-3">
-<img alt="GPay" class="w-8 h-8 rounded" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkkpO86I_g116M95K_MtsXwnwpi0UrLtQyjpvfYENbupeyYkebC-3slOzOMenwy_u3wgJiLtYcN54iR4a8toF93cIhin5QYvpWM2C3TU-7giBHlr-OGi46xWe3aDzXgZHFnB6yzu8I8CwQsjsH9irpjlMc3rnuYGucefmVpep2rin0e80KYKHbT8uSnfsd4t5-MAgjE8Xn1rP5W7UwiYQOv3MrVPHrwPL4L-rDP023CiMEmjGMpVepJMeqCiIXB5ZUoh9LI5gXSEc"/>
-<span class="font-medium text-slate-700">Google Pay</span>
-</div>
-<svg class="w-5 h-5 text-slate-400 transition-transform duration-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-</div>
-<div class="px-4 pb-4 space-y-3">
-<p class="text-xs text-slate-500">You will be redirected to Google Pay to complete the transaction.</p>
-<button class="w-full bg-slate-900 text-white py-3 rounded-lg font-semibold text-sm btn-primary">Continue with Google Pay</button>
-</div>
-</div>
-<!-- PhonePe Method -->
-<div class="method-card group border border-slate-200 rounded-xl cursor-pointer" data-method="phonepe">
-<div class="flex items-center justify-between p-4" onclick="toggleMethod('phonepe')">
-<div class="flex items-center gap-3">
-<img alt="PhonePe" class="w-8 h-8 rounded" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJnTU4zbTG8CffNA0jicN4MBULBGoEn-Eh_Y8ljk_tI-HkdGX14QGt_5DcfBgahrH9OK7o61j8t5QFc342H1zPXXMy8XYfuAA-iee4TNvR4JZOM4Tp9gmwOiJsL3JwR5XyUaZXiHVSfj79l7hBbvrlfrWn7wgox34A6zzMR_nSTN8n2wM2xUHCUGjtEXI4XLk4iLropvuYq5GUEWcGYDwwMZi8pMnqTaLPyHiCwAA00fx3z9sPSP-vvx8Tmm362ONZoLEVJ4rspLM"/>
-<span class="font-medium text-slate-700">PhonePe</span>
-</div>
-<svg class="w-5 h-5 text-slate-400 transition-transform duration-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-</div>
-<div class="px-4 pb-4 space-y-3">
-<input class="w-full px-4 py-2.5 rounded-lg border border-slate-200 input-focus text-sm outline-none transition-all" placeholder="+91 00000 00000" type="tel"/>
-<button class="w-full bg-purple-700 text-white py-3 rounded-lg font-semibold text-sm btn-primary">Continue with PhonePe</button>
-</div>
-</div>
-<!-- Credit/Debit Card Method (Active by Default) -->
-<div class="method-card group border border-slate-200 rounded-xl cursor-pointer active" data-method="card">
-<div class="flex items-center justify-between p-4" onclick="toggleMethod('card')">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 flex items-center justify-center bg-white border border-slate-100 rounded shadow-sm">
-<svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>
-</div>
-<span class="font-medium text-slate-700">Credit / Debit Card</span>
-</div>
-<svg class="w-5 h-5 text-slate-400 transition-transform duration-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-</div>
-<div class="px-4 pb-4 space-y-3" data-purpose="card-form-fields">
-<div class="space-y-1">
-<label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Cardholder Name</label>
-<input class="w-full px-4 py-2.5 rounded-lg border border-slate-200 input-focus text-sm outline-none transition-all" placeholder="John Doe" type="text"/>
-</div>
-<div class="space-y-1">
-<label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Card Number</label>
-<div class="relative">
-<input class="w-full px-4 py-2.5 rounded-lg border border-slate-200 input-focus text-sm outline-none transition-all pr-12" placeholder="4242 4242 4242 4242" type="text"/>
-<img alt="Visa" class="absolute right-3 top-1/2 -translate-y-1/2 h-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaCbAbEpmOWlo0Mc6vUfuvNze3FwEJAhZRVzjlcD96Zg57vD9KPzvAc6RDtM6rEM0_kWqjG5jwMO2Mpx2JnBW8Qws2coXc1XkuOMb_g1dv9Gj9GHj4QVDzaf0qf1HXpPsIhpCItXWs3DUf5x7JOvtnBIpLc_bt4xekygoSTbQAmvoqlnxeXCBaAcknIA1MSmaWVCVKnBknSaWZImV0WQAgYKBr2UJu0YW5oSWWKAzyA5imxffO9MjdFiJXnN8swH10K_3MSJcIWtU"/>
-</div>
-</div>
-<div class="flex gap-3">
-<div class="w-1/2 space-y-1">
-<label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Expiry Date</label>
-<input class="w-full px-4 py-2.5 rounded-lg border border-slate-200 input-focus text-sm outline-none transition-all" placeholder="MM / YY" type="text"/>
-</div>
-<div class="w-1/2 space-y-1">
-<label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">CVV</label>
-<input class="w-full px-4 py-2.5 rounded-lg border border-slate-200 input-focus text-sm outline-none transition-all" placeholder="•••" type="password"/>
-</div>
-</div>
-<button class="w-full bg-parkme-primary text-white py-3.5 rounded-lg font-semibold text-sm btn-primary mt-2">Pay Now</button>
-</div>
-</div>
-</form>
-<!-- END: Payment Form -->
 <!-- BEGIN: Footer -->
 <footer class="mt-8 flex flex-col items-center gap-4" data-purpose="form-footer">
 <p class="text-[12px] text-slate-400 flex items-center gap-1.5">
