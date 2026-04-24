@@ -789,7 +789,16 @@ async function bookSlot() {
     total: document.getElementById("estimatedTotal").innerText
   };
 
-  localStorage.setItem("bookingData", JSON.stringify(bookingData));
+localStorage.setItem("bookingData", JSON.stringify({
+  booking_id: data.booking_details._id,   // ✅ FIX
+  parking_name: selectedParking.name,
+  parking_address: selectedParking.address,
+  vehicle_number: vehicle,
+  date: date,
+  start_time: start,
+  end_time: end,
+  total: data.booking_details.total_price
+}));
 
   // redirect to payment page
   window.location.href = "payment1.html";

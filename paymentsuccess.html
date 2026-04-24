@@ -227,40 +227,40 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
-  const data = JSON.parse(localStorage.getItem("bookingData"));
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionId = urlParams.get("session_id");
 
-  if (!data) {
-    console.log("No booking data found");
+  if (!sessionId) {
+    alert("Invalid payment session");
     return;
   }
 
-  // Generate booking ID
-  const bookingId = "PKM-" + Math.floor(Math.random() * 10000000);
+  try {
+    const res = await fetch(`https://parkme-api.onrender.com/verify-payment/${sessionId}`);
+    const result = await res.json();
+    console.log(result); // 🔥 DEBUG
 
-  // Fill data
-  document.getElementById("bookingId").innerText = bookingId;
+    if (!result.booking_details) {
+      alert("Payment verification failed");
+      return;
+    }
 
-  document.getElementById("parkingName").innerText = data.parking_name;
+    const data = result.booking_details;
 
-  document.getElementById("dateTime").innerText =
-    `${data.date} • ${data.start_time} - ${data.end_time}`;
+    // ✅ Fill UI from backend (REAL DATA)
+    document.getElementById("bookingId").innerText = data.booking_id;
+    document.getElementById("parkingName").innerText = data.parking_name;
+    document.getElementById("dateTime").innerText = `${data.date} • ${data.time}`;
+    document.getElementById("locationText").innerText = data.location;
+    document.getElementById("paymentMethod").innerText = data.payment_method;
+    document.getElementById("amountPaid").innerText = `₹${data.amount_paid}`;
 
-  document.getElementById("locationText").innerText =
-    data.parking_address;
-
-  document.getElementById("paymentMethod").innerText =
-    "Card Payment (Stripe)";
-
-  document.getElementById("amountPaid").innerText =
-    `₹${data.total}`;
-
-  // ✅ REMOVE AFTER DISPLAY (delay optional)
-  setTimeout(() => {
-    localStorage.removeItem("bookingData");
-  }, 5000);
-
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong");
+  }
 });
 
 document.getElementById("goBookings").addEventListener("click", () => {
