@@ -523,8 +523,8 @@ function calculateTotal() {
     const duration = (endH + endM/60) - (startH + startM/60);
 
     if (duration > 0) {
-      const total = Math.ceil(duration * currentRate);
-      document.getElementById('estimatedTotal').innerText = total;
+      const total = duration * currentRate;
+      document.getElementById('estimatedTotal').innerText = total.toFixed(0);
     } else {
       document.getElementById('estimatedTotal').innerText = `0`;
     }
