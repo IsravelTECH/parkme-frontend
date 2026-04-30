@@ -195,6 +195,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  console.log("Booking:", booking); // 🔍 debug
+
   const summary = document.getElementById("summary-card");
 
   summary.innerHTML = `
@@ -246,71 +248,49 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
 
   const stripe = Stripe("pk_test_51RZu0JRhETa6xdVHdqX8dJsFXxfLb6Gba2eDBWFgjBAK9oMxNt69OxAGqjDLy9NOOMXDKTC203V1j3C09DZAp6Nx00nMGoEUGY");
-
   // ✅ PAY BUTTON
   document.getElementById("payNowBtn").addEventListener("click", async () => {
-  try {
-    const amount = Number(booking.total);
+    try {
 
-    // ✅ VALIDATION (ADD THIS)
-    if (amount < 50) {
-  const popup = document.createElement("div");
-  popup.innerHTML = `
-    <div style="
-      position:fixed;
-      top:20px;
-      left:50%;
-      transform:translateX(-50%);
-      background:#ef4444;
-      color:white;
-      padding:12px 20px;
-      border-radius:8px;
-      font-weight:bold;
-      z-index:9999;
-    ">
-      Minimum payment amount is ₹50
-    </div>
-  `;
-  document.body.appendChild(popup);
+      const total = parseInt(booking.total || 0);
 
-  setTimeout(() => popup.remove(), 3000);
-  return;
-}
+      if (total < 50) {
+        alert("Minimum payment is ₹50");
+        return;
+      }
 
-    const res = await fetch("https://parkme-backend.onrender.com/create-checkout-session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        parking_name: booking.parking_name,
-        amount: amount,
-        booking_id: booking.booking_id
-      })
-    });
+      const res = await fetch("https://parkme-backend.onrender.com/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          booking_id: booking.booking_id   // ✅ only send ID
+        })
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!data.id) {
-      alert("Payment session failed");
-      return;
+      if (!data.id) {
+        alert("Payment session failed");
+        return;
+      }
+
+      await stripe.redirectToCheckout({
+        sessionId: data.id
+      });
+
+    } catch (err) {
+      console.error(err);
+      alert("Payment failed");
     }
+  });
 
-    await stripe.redirectToCheckout({
-      sessionId: data.id
-    });
-
-  } catch (err) {
-    console.error(err);
-    alert("Payment failed");
-  }
-});
-
-  // ✅ CANCEL BUTTON (FIXED)
+  // ✅ CANCEL
   document.getElementById("cancelBtn").addEventListener("click", () => {
-    window.location.href = "nearby.html"; // change to your actual page
+    window.location.href = "nearby.html";
   });
 
 });
-
-</script> </body></html>
+</script>
+ </body></html>

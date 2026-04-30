@@ -797,7 +797,7 @@ localStorage.setItem("bookingData", JSON.stringify({
   date: date,
   start_time: start,
   end_time: end,
-  total: estimatedTotal
+  total: data.booking_details.total_price 
 }));
 
   // redirect to payment page
@@ -935,7 +935,6 @@ document.getElementById("bookingDate").addEventListener("input", function () {
   radios.forEach(r => {
     r.checked = (r.value === shortDay);
   });
-
 });
 </script>
 </body></html>
