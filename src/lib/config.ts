@@ -3,12 +3,14 @@
  */
 export const CONFIG = {
   get API_BASE_URL() {
+    let url = process.env.NEXT_PUBLIC_API_URL || "";
     if (typeof window !== "undefined") {
       if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-        return "http://127.0.0.1:8000";
+        url = url || "http://127.0.0.1:8000";
       }
     }
-    return process.env.NEXT_PUBLIC_API_URL || "https://parkme-backend.onrender.com";
+    url = url || "https://parkme-backend.onrender.com";
+    return url.replace(/\/+$/, ""); // Strip trailing slash to eliminate //parkings double-slash bugs
   },
   STRIPE_PUBLISHABLE_KEY:
     process.env.NEXT_PUBLIC_STRIPE_KEY ||
