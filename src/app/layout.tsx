@@ -20,6 +20,14 @@ export const metadata: Metadata = {
   description:
     "Find, reserve, and navigate to premium parking spots in seconds. Effortless booking with real-time slot telemetry and verified host security.",
   keywords: ["parking", "smart parking", "ev charging", "car park booking", "valet parking"],
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/icon.svg",
+  },
 };
 
 export const viewport: Viewport = {
@@ -37,6 +45,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${jakarta.variable} ${inter.variable} antialiased`}>
       <head>
+        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+        <link rel="alternate icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
         <link
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"

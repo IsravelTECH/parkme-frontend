@@ -58,19 +58,29 @@ function ExploreContent() {
 
   // Fetch all parking locations
   useEffect(() => {
-    fetch(`${CONFIG.API_BASE_URL}/parkings`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
+    let isMounted = true;
+    async function loadParkings() {
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/parkings`);
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const data = await res.json();
+        if (isMounted && Array.isArray(data)) {
           setSpaces(data);
           if (initialSelected) {
             const found = data.find((s) => s._id === initialSelected);
             if (found) setSelectedSpace(found);
           }
         }
-      })
-      .catch((err) => console.error("Error loading parkings:", err))
-      .finally(() => setLoading(false));
+      } catch (err) {
+        console.warn("Could not load parkings from backend:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    loadParkings();
+    return () => {
+      isMounted = false;
+    };
   }, [initialSelected]);
 
   // Handle GPS Locate Me
