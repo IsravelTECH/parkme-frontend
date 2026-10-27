@@ -21,6 +21,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { CONFIG } from "@/lib/config";
+import SmartParking3D from "@/components/SmartParking3D";
 
 interface ParkingSpace {
   _id: string;
@@ -216,6 +217,16 @@ export default function HomePage() {
                   </button>
                 )
               )}
+            </div>
+
+            {/* 3D Smart Parking Simulation Viewport */}
+            <div className="pt-10">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <span className="text-[11px] font-extrabold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                  Interactive 3D Smart Bay Telemetry
+                </span>
+              </div>
+              <SmartParking3D />
             </div>
           </div>
         </div>

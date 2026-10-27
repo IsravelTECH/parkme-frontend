@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, CalendarCheck, PlusCircle, User, ShieldAlert } from "lucide-react";
+import { Home, Compass, CalendarCheck, PlusCircle, User, ShieldAlert } from "lucide-react";
 import { getStoredUser, UserSession } from "@/lib/config";
 
 export default function MobileNav() {
@@ -15,10 +15,11 @@ export default function MobileNav() {
   }, [pathname]);
 
   const items = [
+    { label: "Home", href: "/", icon: Home },
     { label: "Explore", href: "/explore", icon: Compass },
     { label: "Bookings", href: "/bookings", icon: CalendarCheck },
     { label: "Host Space", href: "/host", icon: PlusCircle },
-    user?.role === "owner"
+    user?.role === "owner" || user?.role === "admin"
       ? { label: "Admin", href: "/admin", icon: ShieldAlert }
       : { label: "Profile", href: user ? "/profile" : "/login", icon: User },
   ];

@@ -48,12 +48,6 @@ export default function RootLayout({
         <link rel="icon" type="image/svg+xml" href="/icon.svg" />
         <link rel="alternate icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icon.svg" />
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossOrigin=""
-        />
       </head>
       <body className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col pb-16 md:pb-0 selection:bg-blue-600 selection:text-white">
         <Navbar />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, Suspense } from "react";
+import React, { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import {
@@ -9,13 +9,10 @@ import {
   Navigation,
   Car,
   X,
-  Sparkles,
   ArrowRight,
-  Map as MapIcon,
-  List as ListIcon,
-  Star,
   ShieldCheck,
   CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 import { CONFIG } from "@/lib/config";
 import { ParkingSpace } from "@/components/map/ParkingMap";
@@ -26,9 +23,9 @@ import DigitalPassModal, { BookingPassData } from "@/components/booking/DigitalP
 const DynamicParkingMap = dynamic(() => import("@/components/map/ParkingMap"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full min-h-[500px] bg-slate-100 rounded-3xl flex flex-col items-center justify-center text-slate-400 gap-3 animate-pulse border border-slate-200">
-      <Car className="w-10 h-10 text-blue-500 animate-bounce" />
-      <span className="text-xs font-bold text-slate-600">Initializing Urban Radar...</span>
+    <div className="w-full h-full min-h-[320px] bg-slate-100 rounded-2xl flex flex-col items-center justify-center text-slate-400 gap-3 animate-pulse border border-slate-200">
+      <Car className="w-8 h-8 text-blue-500 animate-bounce" />
+      <span className="text-xs font-bold text-slate-600">Loading Chennai Parking Radar...</span>
     </div>
   ),
 });
@@ -48,9 +45,6 @@ function ExploreContent() {
   const [userCoords, setUserCoords] = useState<[number, number] | null>(
     initialLat && initialLng ? [initialLat, initialLng] : null
   );
-
-  // Mobile view mode: 'list' or 'map'
-  const [mobileTab, setMobileTab] = useState<"list" | "map">("list");
 
   // Booking states
   const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -100,16 +94,17 @@ function ExploreContent() {
     );
   };
 
-  // Filter and search spaces
+  // Filter and search spaces across name, city, landmark, address, and features
   const filteredSpaces = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
     return spaces.filter((space) => {
-      const query = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !query ||
         space.name.toLowerCase().includes(query) ||
         space.city.toLowerCase().includes(query) ||
         (space.landmark && space.landmark.toLowerCase().includes(query)) ||
-        (space.address && space.address.toLowerCase().includes(query));
+        (space.address && space.address.toLowerCase().includes(query)) ||
+        (space.features && space.features.some((f) => f.toLowerCase().includes(query)));
 
       if (!matchesSearch) return false;
 
@@ -129,119 +124,151 @@ function ExploreContent() {
     });
   }, [spaces, searchQuery, activeFilter]);
 
+  // Handler when selecting a space from the map
+  const handleSelectFromMap = (space: ParkingSpace) => {
+    setSelectedSpace(space);
+    // Smooth scroll down to the card in the lower grid
+    const el = document.getElementById(`space-card-${space._id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] bg-slate-100 relative overflow-hidden">
-      {/* 50/50 Desktop Split Layout */}
-      <div className="flex-1 flex flex-col md:flex-row h-full min-h-0 overflow-hidden">
-        {/* LEFT COLUMN: LIST VIEW */}
-        <aside
-          className={`w-full md:w-[480px] lg:w-[520px] xl:w-[560px] h-full flex flex-col bg-white border-r border-slate-200 z-20 shrink-0 shadow-sm transition-all duration-300 ${
-            mobileTab === "map" ? "hidden md:flex" : "flex"
-          }`}
-        >
-          {/* Search Capsule & Filters Header */}
-          <div className="p-4 sm:p-5 border-b border-slate-100 space-y-3 bg-white">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* ================= UPPER PART: SEARCH & INTERACTIVE MAP ================= */}
+      <div className="w-full bg-white border-b border-slate-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-3">
+          {/* Search Box & Controls */}
+          <div className="flex flex-col sm:flex-row items-center gap-2.5">
             {/* Search Input Box */}
-            <div className="flex items-center gap-2">
-              <div className="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 transition">
-                <Search className="w-4 h-4 text-slate-400 shrink-0" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search landmark, area, or city..."
-                  className="w-full bg-transparent text-xs font-semibold text-slate-900 focus:outline-none placeholder:text-slate-400"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery("")}>
-                    <X className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600" />
-                  </button>
-                )}
-              </div>
-
-              {/* GPS button */}
-              <button
-                onClick={handleLocateMe}
-                title="Use Current Location"
-                className="p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-blue-600 transition shrink-0"
-              >
-                <Navigation className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Filter Chips Carousel */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
-              {[
-                { id: "all", label: "All Spots" },
-                { id: "available", label: "Open Now" },
-                { id: "cheap", label: "< ₹50/hr" },
-                { id: "cctv", label: "CCTV Guarded" },
-                { id: "covered", label: "Covered Roof" },
-                { id: "ev", label: "EV Station" },
-              ].map((filter) => (
-                <button
-                  key={filter.id}
-                  onClick={() => setActiveFilter(filter.id)}
-                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition text-[11px] ${
-                    activeFilter === filter.id
-                      ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200/80"
-                  }`}
-                >
-                  {filter.label}
+            <div className="w-full flex-1 flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 transition">
+              <Search className="w-4 h-4 text-blue-600 shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search landmark, area, city, or features (e.g. Vadapalani, Beach, EV, CCTV)..."
+                className="w-full bg-transparent text-xs font-semibold text-slate-900 focus:outline-none placeholder:text-slate-400"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery("")} title="Clear search">
+                  <X className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600" />
                 </button>
-              ))}
+              )}
             </div>
 
-            {/* Results Counter Bar */}
-            <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
-              <span className="font-bold text-slate-800">
-                {filteredSpaces.length} {filteredSpaces.length === 1 ? "Space" : "Spaces"} in Chennai
-              </span>
-              <span className="text-[11px] text-emerald-600 font-extrabold flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Live Space Telemetry
-              </span>
-            </div>
+            {/* GPS Locate Me Button */}
+            <button
+              onClick={handleLocateMe}
+              title="Use Current Location"
+              className="w-full sm:w-auto px-4 py-2 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-blue-600 transition flex items-center justify-center gap-2 text-xs font-bold shrink-0"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              <span>Locate Me</span>
+            </button>
           </div>
 
-          {/* Parking Spaces Scrollable Feed */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
-            {loading ? (
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="p-4 rounded-3xl border border-slate-200 animate-pulse flex gap-4 bg-white"
-                  >
-                    <div className="w-28 h-28 bg-slate-200 rounded-2xl shrink-0" />
-                    <div className="flex-1 space-y-2.5 py-1">
-                      <div className="h-5 bg-slate-200 rounded w-3/4" />
-                      <div className="h-3 bg-slate-100 rounded w-1/2" />
-                      <div className="h-8 bg-slate-200 rounded-xl mt-3" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : filteredSpaces.length === 0 ? (
-              <div className="text-center py-16 space-y-3 bg-white rounded-3xl border border-slate-200 p-8">
-                <Car className="w-10 h-10 text-slate-300 mx-auto" />
-                <p className="font-extrabold text-base text-slate-800">No matching spaces found</p>
-                <p className="text-xs text-slate-400">
-                  Try clearing the search query or changing active filter pills.
-                </p>
-                <button
-                  onClick={() => {
-                    setSearchQuery("");
-                    setActiveFilter("all");
-                  }}
-                  className="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-xs font-bold hover:bg-blue-100"
+          {/* Filter Chips Row */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
+            {[
+              { id: "all", label: `All Spots (${spaces.length})` },
+              { id: "available", label: "Open Now" },
+              { id: "cheap", label: "< ₹50/hr" },
+              { id: "cctv", label: "CCTV Guarded" },
+              { id: "covered", label: "Covered Roof" },
+              { id: "ev", label: "EV Station" },
+            ].map((filter) => (
+              <button
+                key={filter.id}
+                onClick={() => setActiveFilter(filter.id)}
+                className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition text-[11px] ${
+                  activeFilter === filter.id
+                    ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200/80"
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Upper Interactive Map Container */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-3">
+          <div className="w-full h-[360px] md:h-[400px] rounded-2xl overflow-hidden border border-slate-200 shadow-inner">
+            <DynamicParkingMap
+              spaces={filteredSpaces}
+              selectedSpaceId={selectedSpace?._id || null}
+              onSelectSpace={handleSelectFromMap}
+              userCoords={userCoords}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ================= DOWN PART: SLOTS LIST & GRID ================= */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+        {/* Results Counter & Telemetry Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-200">
+          <div>
+            <h2 className="text-sm font-extrabold text-slate-900 tracking-wide uppercase">
+              {filteredSpaces.length} {filteredSpaces.length === 1 ? "Parking Hub" : "Parking Hubs"} Available in Chennai
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Click any card to fly to its position on the map or reserve your spot immediately.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {selectedSpace && (
+              <span className="text-xs bg-blue-50 text-blue-700 font-bold px-3 py-1 rounded-full border border-blue-200">
+                Active: {selectedSpace.name}
+              </span>
+            )}
+            <span className="text-[11px] text-emerald-600 font-extrabold flex items-center gap-1.5 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Live Telemetry
+            </span>
+          </div>
+        </div>
+
+        {/* Cards Grid */}
+        <div className="pt-6">
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div
+                  key={i}
+                  className="p-4 rounded-3xl border border-slate-200 animate-pulse bg-white space-y-3"
                 >
-                  Reset Filters
-                </button>
-              </div>
-            ) : (
-              filteredSpaces.map((space) => {
+                  <div className="w-full h-40 bg-slate-200 rounded-2xl" />
+                  <div className="h-4 bg-slate-200 rounded w-3/4" />
+                  <div className="h-3 bg-slate-100 rounded w-1/2" />
+                  <div className="h-8 bg-slate-200 rounded-xl" />
+                </div>
+              ))}
+            </div>
+          ) : filteredSpaces.length === 0 ? (
+            <div className="text-center py-16 space-y-3 bg-white rounded-3xl border border-slate-200 p-8 max-w-lg mx-auto">
+              <Car className="w-12 h-12 text-slate-300 mx-auto" />
+              <p className="font-extrabold text-base text-slate-800">No matching spaces found</p>
+              <p className="text-xs text-slate-500">
+                Try searching a different landmark or click below to reset active filters.
+              </p>
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveFilter("all");
+                }}
+                className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 shadow-md shadow-blue-500/20 transition"
+              >
+                Reset All Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {filteredSpaces.map((space) => {
                 const isSelected = selectedSpace?._id === space._id;
                 const isAvailable = space.available_slots > 0;
                 const imageUrl = space.image
@@ -253,51 +280,49 @@ function ExploreContent() {
                 return (
                   <div
                     key={space._id}
+                    id={`space-card-${space._id}`}
                     onClick={() => {
                       setSelectedSpace(space);
-                      if (window.innerWidth < 768) {
-                        setMobileTab("map");
-                      }
+                      // Scroll page to top so user can see map location
+                      window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
-                    className={`p-4 rounded-3xl border transition-all duration-200 cursor-pointer flex flex-col sm:flex-row gap-4 group ${
+                    className={`rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group bg-white shadow-sm hover:shadow-md ${
                       isSelected
-                        ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-500/20 shadow-md"
-                        : "border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-md"
+                        ? "border-blue-600 ring-2 ring-blue-500/20 shadow-lg"
+                        : "border-slate-200 hover:border-slate-300"
                     }`}
                   >
-                    {/* Thumbnail Image */}
-                    <div className="relative w-full sm:w-36 h-36 sm:h-auto rounded-2xl overflow-hidden shrink-0 bg-slate-100">
-                      <img
-                        src={imageUrl}
-                        alt={space.name}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80";
-                        }}
-                      />
-                      {/* Availability Pill */}
-                      <span
-                        className={`absolute top-2.5 left-2.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-md ${
-                          isAvailable
-                            ? "bg-emerald-500 text-white"
-                            : "bg-red-500 text-white"
-                        }`}
-                      >
-                        {isAvailable ? `${space.available_slots} Open` : "Sold Out"}
-                      </span>
-                    </div>
+                    <div>
+                      {/* Thumbnail Image with Status Badge */}
+                      <div className="relative w-full h-44 overflow-hidden bg-slate-100">
+                        <img
+                          src={imageUrl}
+                          alt={space.name}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80";
+                          }}
+                        />
+                        {/* Availability Pill */}
+                        <span
+                          className={`absolute top-3 left-3 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-md ${
+                            isAvailable
+                              ? "bg-emerald-500 text-white"
+                              : "bg-red-500 text-white"
+                          }`}
+                        >
+                          {isAvailable ? `${space.available_slots} Slots Free` : "Sold Out"}
+                        </span>
+                      </div>
 
-                    {/* Content */}
-                    <div className="flex-1 flex flex-col justify-between space-y-2">
-                      <div>
-                        <div className="flex items-start justify-between gap-1">
-                          <h4 className="font-extrabold text-base text-slate-900 group-hover:text-blue-600 transition leading-tight">
-                            {space.name}
-                          </h4>
-                        </div>
+                      {/* Card Content */}
+                      <div className="p-4 space-y-2">
+                        <h4 className="font-extrabold text-sm text-slate-900 group-hover:text-blue-600 transition leading-snug truncate">
+                          {space.name}
+                        </h4>
 
-                        <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                        <p className="text-xs text-slate-500 flex items-center gap-1">
                           <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span className="truncate">
                             {space.landmark ? `${space.landmark}, ` : ""}
@@ -306,7 +331,7 @@ function ExploreContent() {
                         </p>
 
                         {/* Amenities Chips */}
-                        <div className="flex flex-wrap gap-1.5 mt-2.5">
+                        <div className="flex flex-wrap gap-1.5 pt-1">
                           {space.features && space.features.length > 0 ? (
                             space.features.slice(0, 3).map((feat) => (
                               <span
@@ -323,121 +348,47 @@ function ExploreContent() {
                           )}
                         </div>
                       </div>
+                    </div>
 
-                      {/* Bottom Price & Reserve Button */}
-                      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                        <div>
-                          <span className="text-[9px] uppercase font-bold text-slate-400 block leading-none">
-                            Tariff
+                    {/* Bottom Tariff & Reserve Button */}
+                    <div className="p-4 pt-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                      <div>
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block leading-none">
+                          Tariff
+                        </span>
+                        <span className="font-extrabold text-blue-600 text-base">
+                          ₹{space.price_per_hour}
+                          <span className="text-[10px] text-slate-400 font-normal">
+                            /hr
                           </span>
-                          <span className="font-extrabold text-blue-600 text-lg">
-                            ₹{space.price_per_hour}
-                            <span className="text-[10px] text-slate-400 font-normal">
-                              /hr
-                            </span>
-                          </span>
-                        </div>
-
-                        <button
-                          type="button"
-                          disabled={!isAvailable}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedSpace(space);
-                            setIsBookingOpen(true);
-                          }}
-                          className={`py-2 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
-                            isAvailable
-                              ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20"
-                              : "bg-slate-100 text-slate-400 cursor-not-allowed"
-                          }`}
-                        >
-                          <span>{isAvailable ? "Reserve Spot" : "Occupied"}</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
+                        </span>
                       </div>
+
+                      <button
+                        type="button"
+                        disabled={!isAvailable}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedSpace(space);
+                          setIsBookingOpen(true);
+                        }}
+                        className={`py-2 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
+                          isAvailable
+                            ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/20"
+                            : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                        }`}
+                      >
+                        <span>{isAvailable ? "Reserve" : "Occupied"}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 );
-              })
-            )}
-          </div>
-        </aside>
-
-        {/* RIGHT COLUMN: FULL-HEIGHT LEAFLET MAP */}
-        <main
-          className={`flex-1 h-full min-h-[500px] p-3 sm:p-5 relative flex flex-col ${
-            mobileTab === "list" ? "hidden md:flex" : "flex"
-          }`}
-        >
-          <DynamicParkingMap
-            spaces={filteredSpaces}
-            selectedSpaceId={selectedSpace?._id || null}
-            onSelectSpace={(space) => setSelectedSpace(space)}
-            userCoords={userCoords}
-          />
-
-          {/* Floating Selected Spot Drawer Preview on Map */}
-          {selectedSpace && (
-            <div className="absolute bottom-6 left-6 right-6 max-w-lg mx-auto z-30 bg-white/95 backdrop-blur-md p-4 rounded-3xl border border-slate-200/90 shadow-2xl shadow-blue-900/15 animate-in slide-in-from-bottom-3 duration-200">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 truncate">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-extrabold text-sm shadow-md shrink-0">
-                    ₹{selectedSpace.price_per_hour}
-                  </div>
-                  <div className="truncate">
-                    <h5 className="font-extrabold text-sm text-slate-900 leading-tight truncate">
-                      {selectedSpace.name}
-                    </h5>
-                    <p className="text-xs text-slate-500 truncate mt-0.5">
-                      {selectedSpace.landmark || selectedSpace.city} •{" "}
-                      <span className="text-emerald-600 font-bold">
-                        {selectedSpace.available_slots} slots free
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => setSelectedSpace(null)}
-                    className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setIsBookingOpen(true)}
-                    disabled={selectedSpace.available_slots <= 0}
-                    className="py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-500/25 transition disabled:opacity-50"
-                  >
-                    Book Now
-                  </button>
-                </div>
-              </div>
+              })}
             </div>
           )}
-        </main>
-      </div>
-
-      {/* Mobile Floating Toggle Switch (Map vs List) */}
-      <div className="md:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40">
-        <button
-          onClick={() => setMobileTab(mobileTab === "list" ? "map" : "list")}
-          className="px-5 py-2.5 rounded-full bg-slate-900 text-white shadow-xl shadow-black/30 border border-slate-700 font-extrabold text-xs flex items-center gap-2 transition hover:scale-105 active:scale-95"
-        >
-          {mobileTab === "list" ? (
-            <>
-              <MapIcon className="w-4 h-4 text-blue-400" />
-              <span>Show Map ({filteredSpaces.length})</span>
-            </>
-          ) : (
-            <>
-              <ListIcon className="w-4 h-4 text-blue-400" />
-              <span>Show List</span>
-            </>
-          )}
-        </button>
-      </div>
+        </div>
+      </main>
 
       {/* Booking Drawer Slide-over */}
       <BookingDrawer

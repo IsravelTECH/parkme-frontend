@@ -16,6 +16,8 @@ import {
   AlertCircle,
   X,
   Sparkles,
+  Pencil,
+  Image as ImageIcon,
 } from "lucide-react";
 import { CONFIG, getStoredUser } from "@/lib/config";
 
@@ -33,6 +35,8 @@ interface HostSpace {
   image?: string;
   features?: string[];
   available_days?: string[];
+  lat?: number;
+  lng?: number;
 }
 
 interface HostDashboardData {
@@ -43,15 +47,37 @@ interface HostDashboardData {
   parkings: HostSpace[];
 }
 
+const IMAGE_PRESETS = [
+  {
+    title: "Commercial Bay",
+    url: "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    title: "Covered Deck",
+    url: "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    title: "Tech Park MLCP",
+    url: "https://images.unsplash.com/photo-1573348722427-f1d6819fdf98?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    title: "Open Paved Lot",
+    url: "https://images.unsplash.com/photo-1545459720-aac8509eb02c?auto=format&fit=crop&w=800&q=80",
+  },
+];
+
 export default function HostPage() {
   const router = useRouter();
   const [data, setData] = useState<HostDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingSpace, setEditingSpace] = useState<HostSpace | null>(null);
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Form states
+  // Add Form States
   const [name, setName] = useState("");
   const [city, setCity] = useState("Chennai");
   const [landmark, setLandmark] = useState("");
@@ -71,9 +97,24 @@ export default function HostPage() {
     "Thu",
     "Fri",
     "Sat",
+    "Sun",
   ]);
+  const [imageUrl, setImageUrl] = useState(IMAGE_PRESETS[0].url);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(IMAGE_PRESETS[0].url);
+
+  // Edit Form States
+  const [editName, setEditName] = useState("");
+  const [editCity, setEditCity] = useState("Chennai");
+  const [editLandmark, setEditLandmark] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editPrice, setEditPrice] = useState("40");
+  const [editSlots, setEditSlots] = useState("10");
+  const [editFeatures, setEditFeatures] = useState<string[]>([]);
+  const [editDays, setEditDays] = useState<string[]>(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
+  const [editImageUrl, setEditImageUrl] = useState("");
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
 
   const fetchHostData = async () => {
     const user = getStoredUser();
@@ -119,6 +160,14 @@ export default function HostPage() {
     }
   };
 
+  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setEditImageFile(file);
+      setEditImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser");
@@ -139,21 +188,45 @@ export default function HostPage() {
     );
   };
 
+  const handleToggleEditFeature = (feat: string) => {
+    setEditFeatures((prev) =>
+      prev.includes(feat) ? prev.filter((f) => f !== feat) : [...prev, feat]
+    );
+  };
+
   const handleToggleDay = (day: string) => {
     setSelectedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
   };
 
+  const handleToggleEditDay = (day: string) => {
+    setEditDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  const handleOpenEditModal = (space: HostSpace) => {
+    setEditingSpace(space);
+    setEditName(space.name || "");
+    setEditCity(space.city || "Chennai");
+    setEditLandmark(space.landmark || "");
+    setEditAddress(space.address || "");
+    setEditPrice((space.price || 40).toString());
+    setEditSlots((space.total_slots || 10).toString());
+    setEditFeatures(space.features || ["CCTV", "Security Guard"]);
+    setEditDays(space.available_days || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
+    const img = space.image || IMAGE_PRESETS[0].url;
+    setEditImageUrl(img);
+    setEditImagePreview(img.startsWith("http") ? img : `${CONFIG.API_BASE_URL}/${img}`);
+    setEditImageFile(null);
+    setShowEditModal(true);
+  };
+
   const handleAddParking = async (e: React.FormEvent) => {
     e.preventDefault();
     const user = getStoredUser();
     if (!user?.token) return;
-
-    if (!imageFile) {
-      alert("Please upload a photo of your parking space.");
-      return;
-    }
 
     setSubmitting(true);
     setError(null);
@@ -169,10 +242,16 @@ export default function HostPage() {
       formData.append("price_per_hour", pricePerHour);
       formData.append("total_slots", totalSlots);
       formData.append("available_slots", totalSlots);
+      if (imageUrl && imageUrl.trim()) {
+        formData.append("image_url", imageUrl.trim());
+      }
 
       selectedFeatures.forEach((f) => formData.append("features", f));
       selectedDays.forEach((d) => formData.append("available_days", d));
-      formData.append("image", imageFile);
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
 
       const res = await fetch(`${CONFIG.API_BASE_URL}/add-parking`, {
         method: "POST",
@@ -194,7 +273,58 @@ export default function HostPage() {
       setLandmark("");
       setAddress("");
       setImageFile(null);
-      setImagePreview(null);
+      await fetchHostData();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleUpdateParking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSpace) return;
+    const user = getStoredUser();
+    if (!user?.token) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("name", editName);
+      formData.append("city", editCity);
+      formData.append("landmark", editLandmark);
+      formData.append("address", editAddress);
+      formData.append("slots", editSlots);
+      formData.append("price_per_hour", editPrice);
+
+      if (editImageUrl && editImageUrl.trim()) {
+        formData.append("image_url", editImageUrl.trim());
+      }
+      if (editImageFile) {
+        formData.append("image", editImageFile);
+      }
+
+      editFeatures.forEach((f) => formData.append("features", f));
+      editDays.forEach((d) => formData.append("days", d));
+
+      const res = await fetch(`${CONFIG.API_BASE_URL}/update-parking/${editingSpace.id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: formData,
+      });
+
+      const resJson = await res.json();
+      if (!res.ok) {
+        throw new Error(resJson.detail || resJson.error || "Failed to update space");
+      }
+
+      alert("Parking space updated successfully!");
+      setShowEditModal(false);
+      setEditingSpace(null);
       await fetchHostData();
     } catch (err: any) {
       setError(err.message);
@@ -340,13 +470,13 @@ export default function HostPage() {
               return (
                 <div
                   key={space.id}
-                  className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between"
+                  className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition"
                 >
                   <div className="relative h-44 bg-slate-100 overflow-hidden">
                     <img
                       src={imageUrl}
                       alt={space.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =
                           "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=400&q=80";
@@ -362,7 +492,11 @@ export default function HostPage() {
 
                   <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
                     <div>
-                      <h3 className="font-bold text-base text-slate-900">{space.name}</h3>
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-extrabold text-base text-slate-900 leading-snug">
+                          {space.name}
+                        </h3>
+                      </div>
                       <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
                         <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span className="truncate">{space.landmark || space.city}</span>
@@ -377,13 +511,24 @@ export default function HostPage() {
                       </div>
                     </div>
 
+                    {/* Actions: Edit & Remove Buttons */}
                     <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
                       <button
+                        type="button"
+                        onClick={() => handleOpenEditModal(space)}
+                        className="flex-1 py-2 px-3 rounded-xl border border-blue-200 bg-blue-50/50 hover:bg-blue-50 text-blue-700 text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-xs"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Edit Slot</span>
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => handleDeleteSpace(space.id)}
-                        className="w-full py-2 px-3 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold flex items-center justify-center gap-1.5 transition"
+                        className="py-2 px-3 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-bold flex items-center justify-center gap-1.5 transition"
+                        title="Remove Space"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        <span>Remove Listing</span>
+                        <span className="hidden sm:inline">Delete</span>
                       </button>
                     </div>
                   </div>
@@ -394,7 +539,217 @@ export default function HostPage() {
         )}
       </section>
 
-      {/* Add Parking Modal */}
+      {/* ================= EDIT PARKING MODAL ================= */}
+      {showEditModal && editingSpace && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-xl bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8 space-y-6 my-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-extrabold text-xl text-slate-900 flex items-center gap-2">
+                  <Pencil className="w-5 h-5 text-blue-600" />
+                  <span>Edit Parking Space</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Update slot capacity, pricing, amenities, and photo
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingSpace(null);
+                }}
+                className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateParking} className="space-y-4">
+              {/* Photo Preview & Selection */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700 uppercase">
+                  Property Photo
+                </label>
+                {editImagePreview && (
+                  <div className="w-full h-36 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
+                    <img
+                      src={editImagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                {/* Photo Presets */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+                  {IMAGE_PRESETS.map((preset) => (
+                    <button
+                      key={preset.title}
+                      type="button"
+                      onClick={() => {
+                        setEditImageUrl(preset.url);
+                        setEditImagePreview(preset.url);
+                        setEditImageFile(null);
+                      }}
+                      className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition flex items-center gap-1.5 shrink-0 ${
+                        editImageUrl === preset.url
+                          ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                          : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      <ImageIcon className="w-3 h-3" />
+                      <span>{preset.title}</span>
+                    </button>
+                  ))}
+                </div>
+                {/* Custom Photo URL */}
+                <input
+                  type="text"
+                  value={editImageUrl}
+                  onChange={(e) => {
+                    setEditImageUrl(e.target.value);
+                    setEditImagePreview(e.target.value);
+                  }}
+                  placeholder="Or enter custom image URL..."
+                  className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              {/* Space Name */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 uppercase">
+                  Facility Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              {/* City and Landmark */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editCity}
+                    onChange={(e) => setEditCity(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase">
+                    Landmark
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editLandmark}
+                    onChange={(e) => setEditLandmark(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Street Address */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 uppercase">
+                  Street Address
+                </label>
+                <textarea
+                  required
+                  rows={2}
+                  value={editAddress}
+                  onChange={(e) => setEditAddress(e.target.value)}
+                  className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              {/* Price & Capacity */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase">
+                    Hourly Tariff (₹)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={editPrice}
+                    onChange={(e) => setEditPrice(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700 uppercase">
+                    Total Slots
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={editSlots}
+                    onChange={(e) => setEditSlots(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Features */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-slate-700 uppercase">
+                  Amenities & Security
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {["CCTV", "Security Guard", "Covered", "EV Charging", "24/7 Access", "Automated Lift"].map(
+                    (f) => (
+                      <button
+                        key={f}
+                        type="button"
+                        onClick={() => handleToggleEditFeature(f)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                          editFeatures.includes(f)
+                            ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                            : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                        }`}
+                      >
+                        {f}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 transition disabled:opacity-50"
+                >
+                  {submitting ? (
+                    <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <span>Save Changes</span>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= ADD PARKING MODAL ================= */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto">
           <div className="relative w-full max-w-xl bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8 space-y-6 my-8 max-h-[90vh] overflow-y-auto">
@@ -416,6 +771,55 @@ export default function HostPage() {
             </div>
 
             <form onSubmit={handleAddParking} className="space-y-4">
+              {/* Photo Preview & Selection */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700 uppercase">
+                  Property Photo
+                </label>
+                {imagePreview && (
+                  <div className="w-full h-36 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                {/* Photo Presets */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+                  {IMAGE_PRESETS.map((preset) => (
+                    <button
+                      key={preset.title}
+                      type="button"
+                      onClick={() => {
+                        setImageUrl(preset.url);
+                        setImagePreview(preset.url);
+                        setImageFile(null);
+                      }}
+                      className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition flex items-center gap-1.5 shrink-0 ${
+                        imageUrl === preset.url
+                          ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                          : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      <ImageIcon className="w-3 h-3" />
+                      <span>{preset.title}</span>
+                    </button>
+                  ))}
+                </div>
+                {/* Custom Photo URL */}
+                <input
+                  type="text"
+                  value={imageUrl}
+                  onChange={(e) => {
+                    setImageUrl(e.target.value);
+                    setImagePreview(e.target.value);
+                  }}
+                  placeholder="Or enter custom image URL..."
+                  className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
               <div className="space-y-1">
                 <label className="block text-xs font-bold text-slate-700 uppercase">
                   Space Name
@@ -583,28 +987,6 @@ export default function HostPage() {
                     </button>
                   ))}
                 </div>
-              </div>
-
-              {/* Photo Upload */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-slate-700 uppercase">
-                  Upload Space Photo
-                </label>
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleImageChange}
-                  className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
-                />
-                {imagePreview && (
-                  <div className="mt-2 w-full h-32 rounded-xl overflow-hidden border border-slate-200">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
               </div>
 
               <button

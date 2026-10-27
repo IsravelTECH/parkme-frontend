@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Car,
+  Home,
   Compass,
   CalendarCheck,
   Building2,
@@ -36,16 +37,17 @@ export default function Navbar() {
   };
 
   const navLinks = [
+    { name: "Home", href: "/", icon: Home },
     { name: "Explore Map", href: "/explore", icon: Compass },
     { name: "My Bookings", href: "/bookings", icon: CalendarCheck },
     { name: "Host Space", href: "/host", icon: Building2 },
-    ...(user?.role === "owner"
+    ...(user?.role === "owner" || user?.role === "admin"
       ? [{ name: "Admin Console", href: "/admin", icon: ShieldAlert }]
       : []),
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full glass-panel border-b border-slate-200/80 transition-all duration-300">
+    <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-200 shadow-xs transition-all duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
@@ -145,7 +147,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden glass-panel border-b border-slate-200 px-4 pt-2 pb-6 space-y-2">
+        <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-2 shadow-lg">
           {navLinks.map((link) => (
             <Link
               key={link.name}
